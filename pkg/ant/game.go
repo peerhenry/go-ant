@@ -1,7 +1,6 @@
 package ant
 
 import (
-	"image"
 	"log"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
@@ -37,26 +36,7 @@ func BuildGame(windowWidth, windowHeight int) Game {
 		// updatables:  updatables,
 	}
 
-	log.Println("Reading texture atlas")
-	i := readImage("resources/atlas.png")
-	switch i.(type) {
-	case *image.RGBA:
-		log.Println("i is an *image.RGBA")
-	case *image.NRGBA:
-		log.Println("i is an *image.NRBGA")
-		if nrgba, ok := i.(*image.NRGBA); ok {
-			// img is now an *image.RGBA
-			log.Println("image", nrgba.Bounds().Dy())
-			loadTexture(nrgba)
-			gl.TexParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-			gl.TexParameterf(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-			// set uniform
-			texUniformLocation := gl.GetUniformLocation(glslProgram.handle, gl.Str("Tex\x00"))
-			gl.Uniform1i(texUniformLocation, 0)
-		} else {
-			log.Println("Warning: could not extract NRGBA from image...")
-		}
-	}
+	loadImageFileToUniform("resources/atlas.png", "Tex", glslProgram.handle)
 
 	return Game{
 		window: window,

@@ -16,10 +16,10 @@ func createQuad() GameObject {
 		1.0, 1.0,
 	}
 	var uvs []float32 = []float32{
-		0.0, 0.0,
 		0.0, 1.0,
-		1.0, 0.0,
+		0.0, 0.0,
 		1.0, 1.0,
+		1.0, 0.0,
 	}
 	builder.addVertexBuffer(0, 2, quadPositions)
 	builder.addVertexBuffer(1, 2, uvs)
