@@ -1,9 +1,11 @@
 package ant
 
 import (
+	"image"
+	"log"
+
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
-	"github.com/go-gl/mathgl/mgl32"
 )
 
 type Game struct {
@@ -14,13 +16,16 @@ type Game struct {
 func BuildGame(windowWidth, windowHeight int) Game {
 	window := initGlfw(windowWidth, windowHeight)
 	initOpenGL()
-	// glslProgram := initGlslProgram("shaders/quad/fragment.glsl", "shaders/quad/fragment.glsl")
-	glslProgram := initGlslProgram("shaders/ads/vertex.glsl", "shaders/ads/fragment.glsl")
-	cube1 := createCube(mgl32.Vec3{1, 0, 0}, mgl32.QuatRotate(0, mgl32.Vec3{0, 0, 1}))
-	cube2 := createCube(mgl32.Vec3{0, 1, 0}, mgl32.QuatRotate(0, mgl32.Vec3{0, 0, 1}))
-	cube3 := createCube(mgl32.Vec3{0, 0, 1}, mgl32.QuatRotate(0, mgl32.Vec3{0, 0, 1}))
-	objects := []*GameObject{&cube1, &cube2, &cube3}
-	// quad := createQuad()
+
+	// glslProgram := initGlslProgram("shaders/ads/vertex.glsl", "shaders/ads/fragment.glsl")
+	// cube1 := createCube(mgl32.Vec3{1, 0, 0}, mgl32.QuatRotate(0, mgl32.Vec3{0, 0, 1}))
+	// cube2 := createCube(mgl32.Vec3{0, 1, 0}, mgl32.QuatRotate(0, mgl32.Vec3{0, 0, 1}))
+	// cube3 := createCube(mgl32.Vec3{0, 0, 1}, mgl32.QuatRotate(0, mgl32.Vec3{0, 0, 1}))
+	// objects := []*GameObject{&cube1, &cube2, &cube3}
+
+	glslProgram := initGlslProgram("shaders/quad/vertex.glsl", "shaders/quad/fragment.glsl")
+	quad := createQuad()
+	objects := []*GameObject{&quad}
 	// drawables := []*Drawable{&quad}
 	// updatables := []*Updatable{}
 	renderState := buildGameRenderState(glslProgram.handle, windowWidth, windowHeight)
@@ -31,6 +36,28 @@ func BuildGame(windowWidth, windowHeight int) Game {
 		// drawables:   drawables,
 		// updatables:  updatables,
 	}
+
+	log.Println("Reading texture atlas")
+	i := readImage("resources/atlas.png")
+	switch i.(type) {
+	case *image.RGBA:
+		log.Println("i is an *image.RGBA")
+	case *image.NRGBA:
+		log.Println("i is an *image.NRBGA")
+		if nrgba, ok := i.(*image.NRGBA); ok {
+			// img is now an *image.RGBA
+			log.Println("image", nrgba.Bounds().Dy())
+			loadTexture(nrgba)
+			gl.TexParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+			gl.TexParameterf(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+			// set uniform
+			texUniformLocation := gl.GetUniformLocation(glslProgram.handle, gl.Str("Tex\x00"))
+			gl.Uniform1i(texUniformLocation, 0)
+		} else {
+			log.Println("Warning: could not extract NRGBA from image...")
+		}
+	}
+
 	return Game{
 		window: window,
 		world:  &world,
@@ -61,10 +88,15 @@ func (game *Game) draw() {
 
 func initGlslProgram(vertexShaderPath, fragmentShaderPath string) GLSLProgram {
 	glslProgram := NewGLSLProgram()
+	log.Println("reading vertex shader")
 	vertex := readFile(vertexShaderPath)
-	fragment := readFile(fragmentShaderPath)
+	log.Println("compiling vertex shader")
 	glslProgram.CompileAndAttachShader(vertex, gl.VERTEX_SHADER)
+	log.Println("reading fragment shader")
+	fragment := readFile(fragmentShaderPath)
+	log.Println("compiling fragment shader")
 	glslProgram.CompileAndAttachShader(fragment, gl.FRAGMENT_SHADER)
+	log.Println("linking shader program...")
 	glslProgram.Link()
 	return glslProgram
 }

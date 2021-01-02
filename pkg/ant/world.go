@@ -17,6 +17,7 @@ func (self *GameWorld) update() {
 func (self *GameWorld) render() {
 	self.glslProgram.Use()
 	for _, object := range self.objects {
-		object.draw(self.renderState)
+		// object.draw(self.renderState)
+		object.draw()
 	}
 }
