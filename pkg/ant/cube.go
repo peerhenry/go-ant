@@ -47,9 +47,9 @@ func buildCubeVao() uint32 {
 		positions = append(positions, 0.4*pos)
 	}
 	vaoBuilder := new(VaoBuilder)
-	vaoBuilder.addVertexBuffer(0, 3, positions)
-	vaoBuilder.addVertexBuffer(1, 3, cubeNormals)
-	vaoBuilder.addVertexBuffer(2, 2, cubeUvs)
-	vaoBuilder.addIndexBuffer(cubeIndices)
+	vaoBuilder.addVertexBuffer(0, 3, &positions)
+	vaoBuilder.addVertexBuffer(1, 3, &cubeNormals)
+	vaoBuilder.addVertexBuffer(2, 2, &cubeUvs)
+	vaoBuilder.addIndexBuffer(&cubeIndices)
 	return vaoBuilder.build()
 }

@@ -17,14 +17,14 @@ type VaoBuilder struct {
 	numberOfVbos int
 }
 
-func (self *VaoBuilder) addVertexBuffer(location uint32, vertexSize int32, data []float32) {
+func (self *VaoBuilder) addVertexBuffer(location uint32, vertexSize int32, data *[]float32) {
 	vbo := makeFloatVbo(data)
 	vboData := VboData{location, vertexSize, vbo}
 	self.vbos[self.numberOfVbos] = vboData
 	self.numberOfVbos += 1
 }
 
-func (self *VaoBuilder) addIndexBuffer(data []uint32) {
+func (self *VaoBuilder) addIndexBuffer(data *[]uint32) {
 	self.ibo = makeIbo(data)
 	self.useIbo = true
 }
@@ -46,4 +46,20 @@ func (self *VaoBuilder) build() uint32 {
 	}
 	gl.BindVertexArray(0)
 	return vao
+}
+
+func makeFloatVbo(data *[]float32) uint32 {
+	var vbo uint32
+	gl.GenBuffers(1, &vbo)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.BufferData(gl.ARRAY_BUFFER, 4*len(*data), gl.Ptr(*data), gl.STATIC_DRAW)
+	return vbo
+}
+
+func makeIbo(data *[]uint32) uint32 {
+	var vbo uint32
+	gl.GenBuffers(1, &vbo)
+	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, vbo)
+	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, 4*len(*data), gl.Ptr(*data), gl.STATIC_DRAW)
+	return vbo
 }

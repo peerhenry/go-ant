@@ -29,8 +29,9 @@ func setupUniforms(glslProgramHandle uint32, windowWidth, windowHeight int) *Uni
 }
 
 func createGameObjects() []*GameObject {
-	cube1 := createCube(mgl32.Vec3{1, 0, 0}, mgl32.QuatRotate(0, mgl32.Vec3{0, 0, 1}))
-	cube2 := createCube(mgl32.Vec3{0, 1, 0}, mgl32.QuatRotate(1, mgl32.Vec3{1, 0, 0}))
-	cube3 := createCube(mgl32.Vec3{0, 0, 1}, mgl32.QuatRotate(1, mgl32.Vec3{0, 1, 0}))
-	return []*GameObject{cube1, cube2, cube3}
+	cube1 := createCube(mgl32.Vec3{2, 0, 0}, mgl32.QuatRotate(0, mgl32.Vec3{0, 0, 1}))
+	cube2 := createCube(mgl32.Vec3{0, 2, 0}, mgl32.QuatRotate(1, mgl32.Vec3{1, 0, 0}))
+	cube3 := createCube(mgl32.Vec3{0, 0, 2}, mgl32.QuatRotate(1, mgl32.Vec3{0, 1, 0}))
+	cube4 := createCube(mgl32.Vec3{-2, 0, 0}, mgl32.QuatRotate(2, mgl32.Vec3{0, 1, 0}))
+	return []*GameObject{cube1, cube2, cube3, cube4}
 }

@@ -16,9 +16,9 @@ func createQuad() GameObject {
 		1.0, 0.0,
 	}
 	builder := new(VaoBuilder)
-	builder.addVertexBuffer(0, 2, quadPositions)
-	builder.addVertexBuffer(1, 2, uvs)
-	builder.addIndexBuffer([]uint32{
+	builder.addVertexBuffer(0, 2, &quadPositions)
+	builder.addVertexBuffer(1, 2, &uvs)
+	builder.addIndexBuffer(&[]uint32{
 		0, 1, 2, 2, 1, 3,
 	})
 	vao := builder.build()
@@ -30,10 +30,3 @@ func createQuad() GameObject {
 		},
 	}
 }
-
-// func (self *GameObject) update() {}
-
-// func (self *GameObject) draw() {
-// 	gl.BindVertexArray(self.vao)
-// 	gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)
-// }
