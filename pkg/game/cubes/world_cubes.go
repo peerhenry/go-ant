@@ -24,7 +24,7 @@ func setupUniforms(glslProgramHandle uint32, windowWidth, windowHeight int) *ant
 		mgl32.Vec3{0, 0, 0}, // center
 		mgl32.Vec3{0, 0, 1}, // up
 	))
-	uniformStore.SetMat4("ProjectionMatrix", mgl32.Perspective(mgl32.DegToRad(45.0), float32(windowWidth)/float32(windowHeight), 0.1, 10.0))
+	uniformStore.SetMat4("ProjectionMatrix", mgl32.Perspective(mgl32.DegToRad(45.0), float32(windowWidth)/float32(windowHeight), 0.1, 100.0))
 	ant.LoadImageFileToUniform("resources/atlas.png", "Tex", glslProgramHandle)
 	return uniformStore
 }
