@@ -2,7 +2,7 @@
 
 layout (location = 0) in vec3 VertexPosition;
 layout (location = 1) in vec3 VertexNormal;
-layout (location = 2) in vec2 VertexUv;
+// layout (location = 2) in vec2 VertexUv;
 
 out vec3 LightIntensity;
 
@@ -14,7 +14,7 @@ uniform vec3 Ld = vec3(1.0);
 // uniform vec3 Ld;            // Diffuse light intensity
 
 uniform mat4 ModelViewMatrix;
-uniform mat3 NormalMatrix; // inverse transpose of modelview matrix
+// uniform mat3 NormalMatrix; // inverse transpose of modelview matrix
 uniform mat4 ProjectionMatrix;
 uniform mat4 MVP;
 

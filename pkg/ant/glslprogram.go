@@ -2,6 +2,7 @@ package ant
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
@@ -15,6 +16,7 @@ type GLSLProgram struct {
 
 func NewGLSLProgram() GLSLProgram {
 	glProgram := gl.CreateProgram()
+	log.Println("glProgram created with handle", glProgram)
 	return GLSLProgram{glProgram, false, ""}
 }
 

@@ -1,21 +1,6 @@
 package ant
 
-type Drawable interface {
-	draw()
+type GameObject struct {
+	update func()
+	draw   func(uniforms *UniformStore)
 }
-
-type Updatable interface {
-	update()
-}
-
-// type IGameObject interface {
-// 	draw(renderState *GameRenderState)
-// 	update()
-// }
-
-// type GameObject struct {
-// 	vao         uint32
-// 	indexLength int32
-// 	position    mgl32.Vec3
-// 	orientation mgl32.Quat
-// }

@@ -1,7 +1,7 @@
 package ant
 
 type GameWorld struct {
-	renderState *GameRenderState
+	uniforms    *UniformStore
 	glslProgram *GLSLProgram
 	objects     []*GameObject
 	// drawables   []*Drawable
@@ -18,6 +18,6 @@ func (self *GameWorld) render() {
 	self.glslProgram.Use()
 	for _, object := range self.objects {
 		// object.draw(self.renderState)
-		object.draw()
+		object.draw(self.uniforms)
 	}
 }
