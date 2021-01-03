@@ -50,6 +50,7 @@ func buildCubeVao() uint32 {
 	vaoBuilder := new(VaoBuilder)
 	vaoBuilder.addVertexBuffer(0, 3, positions)
 	vaoBuilder.addVertexBuffer(1, 3, cubeNormals)
+	vaoBuilder.addVertexBuffer(2, 2, cubeUvs)
 	vaoBuilder.addIndexBuffer(cubeIndices)
 	return vaoBuilder.build()
 }
