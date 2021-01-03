@@ -18,7 +18,7 @@ func setupUniforms(glslProgramHandle uint32, windowWidth, windowHeight int) *Uni
 	uniformStore := createUniformStore(glslProgramHandle)
 	// register uniforms
 	uniformStore.registerUniform("ModelViewMatrix")
-	// uniformStore.registerUniform("NormalMatrix")
+	uniformStore.registerUniform("NormalMatrix")
 	uniformStore.registerUniform("ProjectionMatrix")
 	uniformStore.registerUniform("MVP")
 	// set values

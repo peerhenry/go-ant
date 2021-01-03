@@ -14,14 +14,14 @@ uniform vec3 Ld = vec3(1.0);
 // uniform vec3 Ld;            // Diffuse light intensity
 
 uniform mat4 ModelViewMatrix;
-// uniform mat3 NormalMatrix; // inverse transpose of modelview matrix
+uniform mat3 NormalMatrix; // inverse transpose of modelview matrix
 uniform mat4 ProjectionMatrix;
 uniform mat4 MVP;
 
 void main()
 {
-    // vec3 tnorm = normalize( NormalMatrix * VertexNormal);
-    vec3 tnorm = normalize( mat3(ModelViewMatrix) * VertexNormal);
+    vec3 tnorm = normalize( NormalMatrix * VertexNormal);
+    // vec3 tnorm = normalize( mat3(ModelViewMatrix) * VertexNormal);
     vec4 eyeCoords = ModelViewMatrix * vec4(VertexPosition,1.0);
     vec3 s = normalize(vec3(LightPosition - eyeCoords));
 

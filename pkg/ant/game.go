@@ -16,8 +16,8 @@ func BuildGame(windowWidth, windowHeight int) Game {
 	window := initGlfw(windowWidth, windowHeight)
 	initOpenGL()
 
-	// world := buildCubeWorld(windowWidth, windowHeight)
-	world := buildQuadWorld()
+	world := buildCubeWorld(windowWidth, windowHeight)
+	// world := buildQuadWorld()
 
 	return Game{
 		window: window,

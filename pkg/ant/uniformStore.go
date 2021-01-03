@@ -128,7 +128,7 @@ func (self *UniformStore) setVec4(name string, value mgl32.Vec4) {
 
 // uniform setters
 
-func (self *UniformStore) uniformMat3(name string, value *mgl32.Mat3) {
+func (self *UniformStore) uniformMat3(name string, value mgl32.Mat3) {
 	location := self.getLocation(name)
 	gl.UniformMatrix3fv(location, 1, false, &value[0])
 }
@@ -138,17 +138,17 @@ func (self *UniformStore) uniformMat4(name string, value mgl32.Mat4) {
 	gl.UniformMatrix4fv(location, 1, false, &value[0])
 }
 
-func (self *UniformStore) uniformVec2(name string, value *mgl32.Vec2) {
+func (self *UniformStore) uniformVec2(name string, value mgl32.Vec2) {
 	location := self.getLocation(name)
 	gl.Uniform2fv(location, 1, &value[0])
 }
 
-func (self *UniformStore) uniformVec3(name string, value *mgl32.Vec3) {
+func (self *UniformStore) uniformVec3(name string, value mgl32.Vec3) {
 	location := self.getLocation(name)
 	gl.Uniform3fv(location, 1, &value[0])
 }
 
-func (self *UniformStore) uniformVec4(name string, value *mgl32.Vec4) {
+func (self *UniformStore) uniformVec4(name string, value mgl32.Vec4) {
 	location := self.getLocation(name)
 	gl.Uniform4fv(location, 1, &value[0])
 }

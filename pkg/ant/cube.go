@@ -28,9 +28,11 @@ func createCube(position mgl32.Vec3, orientation mgl32.Quat) *GameObject {
 			var orientationMatrix mgl32.Mat4 = placement.orientation.Mat4()
 			modelMatrix := positionMatrix.Mul4(orientationMatrix)
 			modelView := viewMatrix.Mul4(modelMatrix)
+			normalMatrix := modelView.Mat3()
 			mvp := projectionMatrix.Mul4(modelView)
 			// set uiniforms
 			uniformStore.uniformMat4("ModelViewMatrix", modelView)
+			uniformStore.uniformMat3("NormalMatrix", normalMatrix)
 			uniformStore.uniformMat4("ProjectionMatrix", projectionMatrix)
 			uniformStore.uniformMat4("MVP", mvp)
 			// draw

@@ -1,6 +1,6 @@
 refactor
-======
 quad scene + cube scene
-automatically register uniforms
+======
 use normalmatrix uniform
+automatically register uniforms
 textured cubes
