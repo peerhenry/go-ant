@@ -4,8 +4,6 @@ type GameWorld struct {
 	uniforms    *UniformStore
 	glslProgram *GLSLProgram
 	objects     []*GameObject
-	// drawables   []*Drawable
-	// updatables  []*Updatable
 }
 
 func (self *GameWorld) update() {
@@ -17,7 +15,6 @@ func (self *GameWorld) update() {
 func (self *GameWorld) render() {
 	self.glslProgram.Use()
 	for _, object := range self.objects {
-		// object.draw(self.renderState)
 		object.draw(self.uniforms)
 	}
 }
