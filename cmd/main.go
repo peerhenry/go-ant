@@ -4,7 +4,7 @@ import (
 	"log"
 	"runtime"
 
-	"ant.com/ant/pkg/game"
+	"ant.com/ant/pkg/game/cubes"
 )
 
 const (
@@ -15,7 +15,7 @@ const (
 func main() {
 	log.Println("Application starting...")
 	runtime.LockOSThread()
-	game := game.BuildCubeGame(windowWidth, windowHeight)
+	game := cubes.BuildCubeGame(windowWidth, windowHeight)
 	log.Println("Now running...")
 	game.Run()
 	log.Println("Application end")

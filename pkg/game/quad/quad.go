@@ -1,4 +1,4 @@
-package game
+package quad
 
 import (
 	"ant.com/ant/pkg/ant"

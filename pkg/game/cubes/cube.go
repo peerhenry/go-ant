@@ -1,4 +1,4 @@
-package game
+package cubes
 
 import (
 	"ant.com/ant/pkg/ant"

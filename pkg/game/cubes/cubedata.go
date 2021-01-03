@@ -1,4 +1,4 @@
-package game
+package cubes
 
 var (
 	cubePositions = []float32{
