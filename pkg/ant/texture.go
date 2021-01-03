@@ -33,11 +33,10 @@ func loadImageFileToUniform(filePath string, uniformName string, programHandle u
 		panic("image was RGBA instead of NRGBA")
 	case *image.NRGBA:
 		if nrgba, ok := i.(*image.NRGBA); ok {
-			// img is now an *image.RGBA
 			log.Println("image", nrgba.Bounds().Dy())
 			loadTexture(nrgba)
-			gl.TexParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-			gl.TexParameterf(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+			gl.TexParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+			gl.TexParameterf(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
 			// set uniform
 			texUniformLocation := gl.GetUniformLocation(programHandle, gl.Str(uniformName+"\x00"))
 			gl.Uniform1i(texUniformLocation, 0)

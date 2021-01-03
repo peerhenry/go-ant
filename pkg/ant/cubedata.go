@@ -35,40 +35,6 @@ var (
 )
 
 var (
-	cubeUvs = []float32{
-		0.189453125, 0.060546875, // four times side grass square
-		0.189453125, 0.001953125,
-		0.248046875, 0.060546875,
-		0.248046875, 0.001953125,
-
-		0.189453125, 0.060546875,
-		0.189453125, 0.001953125,
-		0.248046875, 0.060546875,
-		0.248046875, 0.001953125,
-
-		0.189453125, 0.060546875,
-		0.189453125, 0.001953125,
-		0.248046875, 0.060546875,
-		0.248046875, 0.001953125,
-
-		0.189453125, 0.060546875,
-		0.189453125, 0.001953125,
-		0.248046875, 0.060546875,
-		0.248046875, 0.001953125,
-
-		0.001953125, 0.060546875, // grass top
-		0.001953125, 0.001953125,
-		0.060546875, 0.060546875,
-		0.060546875, 0.001953125,
-
-		0.126953125, 0.060546875, // grass bottom (dirt)
-		0.126953125, 0.001953125,
-		0.185546875, 0.060546875,
-		0.185546875, 0.001953125,
-	}
-)
-
-var (
 	cubeNormals = []float32{
 		0, -1, 0, // south normal -y
 		0, -1, 0,
@@ -108,3 +74,74 @@ var (
 		20, 21, 22, 22, 21, 23, // bottom
 	}
 )
+
+const pixelSize float32 = 1.0 / 512
+const quadSize float32 = 1.0 / 16
+
+func getCubeUvsAt(i, j byte) []float32 {
+	left := float32(i)*quadSize + pixelSize
+	right := float32(i+1)*quadSize - pixelSize
+	top := float32(j)*quadSize + pixelSize
+	bottom := float32(j+1)*quadSize - pixelSize
+	return []float32{
+		left, bottom,
+		left, top,
+		right, bottom,
+		right, top,
+	}
+}
+
+var dirt []float32 = getCubeUvsAt(2, 0)
+var grassTop []float32 = getCubeUvsAt(0, 0)
+var grassSide []float32 = getCubeUvsAt(3, 0)
+var stone []float32 = getCubeUvsAt(1, 0)
+var wood []float32 = getCubeUvsAt(4, 0)
+var sand []float32 = getCubeUvsAt(2, 1)
+
+var cubeUvsGrass []float32 = makeCubeFaces(
+	grassSide,
+	grassSide,
+	grassSide,
+	grassSide,
+	grassTop,
+	dirt)
+
+var cubeUvsDirt []float32 = makeCubeFaces(
+	dirt,
+	dirt,
+	dirt,
+	dirt,
+	dirt,
+	dirt)
+
+var cubeUvsStone []float32 = makeCubeFaces(
+	stone,
+	stone,
+	stone,
+	stone,
+	stone,
+	stone)
+
+var cubeUvsSand []float32 = makeCubeFaces(
+	sand,
+	sand,
+	sand,
+	sand,
+	sand,
+	sand)
+
+func makeCubeFaces(
+	south []float32,
+	east []float32,
+	north []float32,
+	west []float32,
+	top []float32,
+	bottom []float32,
+) []float32 {
+	thing := append(south, east...)
+	thing = append(thing, north...)
+	thing = append(thing, west...)
+	thing = append(thing, top...)
+	thing = append(thing, bottom...)
+	return thing
+}

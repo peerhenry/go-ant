@@ -10,8 +10,8 @@ type Placement struct {
 	orientation mgl32.Quat
 }
 
-func createCube(position mgl32.Vec3, orientation mgl32.Quat) *GameObject {
-	vao := buildCubeVao()
+func createCube(position mgl32.Vec3, orientation mgl32.Quat, cubeType int) *GameObject {
+	vao := buildCubeVao(cubeType)
 	placement := &Placement{position, orientation}
 	indexLength := int32(len(cubeIndices))
 	return &GameObject{
@@ -41,7 +41,7 @@ func createCube(position mgl32.Vec3, orientation mgl32.Quat) *GameObject {
 	}
 }
 
-func buildCubeVao() uint32 {
+func buildCubeVao(cubeType int) uint32 {
 	var positions []float32
 	for _, pos := range cubePositions {
 		positions = append(positions, 0.4*pos)
@@ -49,7 +49,29 @@ func buildCubeVao() uint32 {
 	vaoBuilder := new(VaoBuilder)
 	vaoBuilder.addVertexBuffer(0, 3, &positions)
 	vaoBuilder.addVertexBuffer(1, 3, &cubeNormals)
-	vaoBuilder.addVertexBuffer(2, 2, &cubeUvs)
+	vaoBuilder.addVertexBuffer(2, 2, getCubeUvs(cubeType))
 	vaoBuilder.addIndexBuffer(&cubeIndices)
 	return vaoBuilder.build()
 }
+
+func getCubeUvs(cubeType int) *[]float32 {
+	switch cubeType {
+	case GRASS:
+		return &cubeUvsGrass
+	case DIRT:
+		return &cubeUvsDirt
+	case STONE:
+		return &cubeUvsStone
+	case SAND:
+		return &cubeUvsSand
+	default:
+		return &cubeUvsGrass
+	}
+}
+
+const (
+	GRASS = 1
+	DIRT  = 2
+	STONE = 3
+	SAND  = 4
+)
