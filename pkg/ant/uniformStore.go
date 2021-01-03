@@ -1,6 +1,9 @@
 package ant
 
 import (
+	"fmt"
+	"log"
+
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 )
@@ -38,7 +41,7 @@ type UniformStore struct {
 	vec4Map           map[string]mgl32.Vec4
 }
 
-func createUniformStore(glslProgramHandle uint32) *UniformStore {
+func createUniformStore(glslProgramHandle uint32, shouldList bool) *UniformStore {
 	store := new(UniformStore)
 	store.glslProgramHandle = glslProgramHandle
 	store.locations = make(map[string]int32)
@@ -47,6 +50,7 @@ func createUniformStore(glslProgramHandle uint32) *UniformStore {
 	store.vec2Map = make(map[string]mgl32.Vec2)
 	store.vec3Map = make(map[string]mgl32.Vec3)
 	store.vec4Map = make(map[string]mgl32.Vec4)
+	store.registerActiveUniforms(shouldList)
 	return store
 }
 
@@ -151,4 +155,77 @@ func (self *UniformStore) uniformVec3(name string, value mgl32.Vec3) {
 func (self *UniformStore) uniformVec4(name string, value mgl32.Vec4) {
 	location := self.getLocation(name)
 	gl.Uniform4fv(location, 1, &value[0])
+}
+
+// registerActiveUniforms
+
+func (self *UniformStore) registerActiveUniforms(shouldList bool) {
+	var count int32 = 0
+	gl.GetProgramiv(self.glslProgramHandle, gl.ACTIVE_UNIFORMS, &count)
+	if shouldList {
+		log.Println("Listing uniforms, count:", count)
+	}
+	var i uint32 = 0
+	for i < uint32(count) {
+		name := getUniformName(self.glslProgramHandle, i, shouldList)
+		self.registerUniform(name)
+		i++
+	}
+}
+
+func getUniformName(program uint32, i uint32, shouldList bool) string {
+	var bufSize int32 = 64
+	var length int32 = 0
+	var size int32 = 0
+	var xtype uint32 = 0
+	var nameBuffer [64]byte
+	gl.GetActiveUniform(
+		program,
+		i,
+		bufSize,        // bufSize
+		&length,        // length; the amount of characters written to buffer
+		&size,          // size
+		&xtype,         // xtype
+		&nameBuffer[0], // name
+	)
+	name := numerBufferToString(nameBuffer[:])
+	if shouldList {
+		xtypeString := xtypeToString(xtype)
+		logMessage := fmt.Sprintf("%s \t %s", xtypeString, name)
+		log.Println(logMessage)
+	}
+	return name
+}
+
+func numerBufferToString(nameBuffer []byte) string {
+	var nameSlice []byte
+	for _, element := range nameBuffer {
+		if element == 0 {
+			break
+		} else {
+			nameSlice = append(nameSlice, element)
+		}
+	}
+	return string(nameSlice)
+}
+
+func xtypeToString(xtype uint32) string {
+	switch xtype {
+	case gl.FLOAT_VEC2:
+		return "FLOAT_VEC2"
+	case gl.FLOAT_VEC3:
+		return "FLOAT_VEC3"
+	case gl.FLOAT_VEC4:
+		return "FLOAT_VEC4"
+	case gl.FLOAT_MAT2:
+		return "FLOAT_MAT2"
+	case gl.FLOAT_MAT3:
+		return "FLOAT_MAT3"
+	case gl.FLOAT_MAT4:
+		return "FLOAT_MAT4"
+	case gl.SAMPLER_2D:
+		return "SAMPLER_2D"
+	default:
+		return "unknown"
+	}
 }

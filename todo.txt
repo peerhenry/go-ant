@@ -4,3 +4,5 @@ use normalmatrix uniform
 textured cubes
 ======
 automatically register uniforms
+createBlock function for grass, dirt, stone, sand
+user input: mouse & keyboard movement

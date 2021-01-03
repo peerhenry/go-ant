@@ -33,7 +33,6 @@ func createCube(position mgl32.Vec3, orientation mgl32.Quat) *GameObject {
 			// set uiniforms
 			uniformStore.uniformMat4("ModelViewMatrix", modelView)
 			uniformStore.uniformMat3("NormalMatrix", normalMatrix)
-			uniformStore.uniformMat4("ProjectionMatrix", projectionMatrix)
 			uniformStore.uniformMat4("MVP", mvp)
 			// draw
 			gl.BindVertexArray(vao)

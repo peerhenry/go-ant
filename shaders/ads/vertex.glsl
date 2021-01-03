@@ -16,7 +16,6 @@ uniform vec3 Ld = vec3(1.0);
 
 uniform mat4 ModelViewMatrix;
 uniform mat3 NormalMatrix; // inverse transpose of modelview matrix
-uniform mat4 ProjectionMatrix;
 uniform mat4 MVP;
 
 void main()
