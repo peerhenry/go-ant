@@ -1,6 +1,9 @@
 package ant
 
+type UpdateCallback func()
+type DrawCallback func(uniforms *UniformStore)
+
 type GameObject struct {
-	update func()
-	draw   func(uniforms *UniformStore)
+	Update UpdateCallback
+	Draw   DrawCallback
 }

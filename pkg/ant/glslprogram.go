@@ -9,8 +9,8 @@ import (
 )
 
 type GLSLProgram struct {
-	handle    uint32
-	linked    bool
+	Handle    uint32
+	Linked    bool
 	logString string
 }
 
@@ -22,12 +22,12 @@ func NewGLSLProgram() GLSLProgram {
 
 func (p GLSLProgram) Link() bool {
 	gl.LinkProgram(p.GetHandle())
-	p.linked = true
+	p.Linked = true
 	return true
 }
 
 func (p GLSLProgram) Use() bool {
-	gl.UseProgram(p.handle)
+	gl.UseProgram(p.Handle)
 	return true
 }
 
@@ -36,7 +36,7 @@ func (p GLSLProgram) Log() bool {
 }
 
 func (p GLSLProgram) GetHandle() uint32 {
-	return p.handle
+	return p.Handle
 }
 
 func (p GLSLProgram) CompileAndAttachShader(source string, shaderType uint32) {
@@ -64,4 +64,19 @@ func CompileShader(source string, shaderType uint32) (uint32, error) {
 	}
 
 	return shader, nil
+}
+
+func InitGlslProgram(vertexShaderPath, fragmentShaderPath string) GLSLProgram {
+	glslProgram := NewGLSLProgram()
+	log.Println("reading vertex shader")
+	vertex := ReadFile(vertexShaderPath)
+	log.Println("compiling vertex shader")
+	glslProgram.CompileAndAttachShader(vertex, gl.VERTEX_SHADER)
+	log.Println("reading fragment shader")
+	fragment := ReadFile(fragmentShaderPath)
+	log.Println("compiling fragment shader")
+	glslProgram.CompileAndAttachShader(fragment, gl.FRAGMENT_SHADER)
+	log.Println("linking shader program")
+	glslProgram.Link()
+	return glslProgram
 }

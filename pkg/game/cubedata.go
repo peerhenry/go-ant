@@ -1,4 +1,4 @@
-package ant
+package game
 
 var (
 	cubePositions = []float32{

@@ -9,26 +9,26 @@ import (
 )
 
 type IUniformStore interface {
-	registerUniform(name string)
-	getLocation(name string) int32
+	RegisterUniform(name string)
+	GetLocation(name string) int32
 
-	getMat3(name string) mgl32.Mat3
-	getMat4(name string) mgl32.Mat4
-	getVec4(name string) mgl32.Vec4
-	getVec3(name string) mgl32.Vec3
-	getVec2(name string) mgl32.Vec2
+	GetMat3(name string) mgl32.Mat3
+	GetMat4(name string) mgl32.Mat4
+	GetVec4(name string) mgl32.Vec4
+	GetVec3(name string) mgl32.Vec3
+	GetVec2(name string) mgl32.Vec2
 
-	setMat3(name string, value mgl32.Mat3)
-	setMat4(name string, value mgl32.Mat4)
-	setVec4(name string, value mgl32.Vec4)
-	setVec3(name string, value mgl32.Vec3)
-	setVec2(name string, value mgl32.Vec2)
+	SetMat3(name string, value mgl32.Mat3)
+	SetMat4(name string, value mgl32.Mat4)
+	SetVec4(name string, value mgl32.Vec4)
+	SetVec3(name string, value mgl32.Vec3)
+	SetVec2(name string, value mgl32.Vec2)
 
-	uniformMat3(name string, value mgl32.Mat3)
-	uniformMat4(name string, value mgl32.Mat4)
-	uniformVec4(name string, value mgl32.Vec4)
-	uniformVec3(name string, value mgl32.Vec3)
-	uniformVec2(name string, value mgl32.Vec2)
+	UniformMat3(name string, value mgl32.Mat3)
+	UniformMat4(name string, value mgl32.Mat4)
+	UniformVec4(name string, value mgl32.Vec4)
+	UniformVec3(name string, value mgl32.Vec3)
+	UniformVec2(name string, value mgl32.Vec2)
 }
 
 type UniformStore struct {
@@ -41,7 +41,7 @@ type UniformStore struct {
 	vec4Map           map[string]mgl32.Vec4
 }
 
-func createUniformStore(glslProgramHandle uint32, shouldList bool) *UniformStore {
+func CreateUniformStore(glslProgramHandle uint32, shouldList bool) *UniformStore {
 	store := new(UniformStore)
 	store.glslProgramHandle = glslProgramHandle
 	store.locations = make(map[string]int32)
@@ -54,11 +54,11 @@ func createUniformStore(glslProgramHandle uint32, shouldList bool) *UniformStore
 	return store
 }
 
-func (self *UniformStore) registerUniform(name string) {
+func (self *UniformStore) RegisterUniform(name string) {
 	self.locations[name] = gl.GetUniformLocation(self.glslProgramHandle, gl.Str(name+"\x00"))
 }
 
-func (uniforms *UniformStore) getLocation(name string) int32 {
+func (uniforms *UniformStore) GetLocation(name string) int32 {
 	location, ok := uniforms.locations[name]
 	if !ok {
 		panic("No uniform location is stored for name " + name)
@@ -66,9 +66,9 @@ func (uniforms *UniformStore) getLocation(name string) int32 {
 	return location
 }
 
-// value getters
+// value Getters
 
-func (uniforms *UniformStore) getMat4(name string) mgl32.Mat4 {
+func (uniforms *UniformStore) GetMat4(name string) mgl32.Mat4 {
 	value, ok := uniforms.mat4Map[name]
 	if !ok {
 		panic("No Mat4 value stored for name " + name)
@@ -76,7 +76,7 @@ func (uniforms *UniformStore) getMat4(name string) mgl32.Mat4 {
 	return value
 }
 
-func (uniforms *UniformStore) getMat3(name string) mgl32.Mat3 {
+func (uniforms *UniformStore) GetMat3(name string) mgl32.Mat3 {
 	value, ok := uniforms.mat3Map[name]
 	if !ok {
 		panic("No Mat3 value stored for name " + name)
@@ -84,7 +84,7 @@ func (uniforms *UniformStore) getMat3(name string) mgl32.Mat3 {
 	return value
 }
 
-func (uniforms *UniformStore) getVec2(name string) mgl32.Vec2 {
+func (uniforms *UniformStore) GetVec2(name string) mgl32.Vec2 {
 	value, ok := uniforms.vec2Map[name]
 	if !ok {
 		panic("No Vec2 value stored for name " + name)
@@ -92,7 +92,7 @@ func (uniforms *UniformStore) getVec2(name string) mgl32.Vec2 {
 	return value
 }
 
-func (uniforms *UniformStore) getVec3(name string) mgl32.Vec3 {
+func (uniforms *UniformStore) GetVec3(name string) mgl32.Vec3 {
 	value, ok := uniforms.vec3Map[name]
 	if !ok {
 		panic("No Vec3 value stored for name " + name)
@@ -100,7 +100,7 @@ func (uniforms *UniformStore) getVec3(name string) mgl32.Vec3 {
 	return value
 }
 
-func (uniforms *UniformStore) getVec4(name string) mgl32.Vec4 {
+func (uniforms *UniformStore) GetVec4(name string) mgl32.Vec4 {
 	value, ok := uniforms.vec4Map[name]
 	if !ok {
 		panic("No Vec4 value stored for name " + name)
@@ -108,52 +108,52 @@ func (uniforms *UniformStore) getVec4(name string) mgl32.Vec4 {
 	return value
 }
 
-// value setters
+// value Setters
 
-func (self *UniformStore) setMat3(name string, value mgl32.Mat3) {
+func (self *UniformStore) SetMat3(name string, value mgl32.Mat3) {
 	self.mat3Map[name] = value
 }
 
-func (self *UniformStore) setMat4(name string, value mgl32.Mat4) {
+func (self *UniformStore) SetMat4(name string, value mgl32.Mat4) {
 	self.mat4Map[name] = value
 }
 
-func (self *UniformStore) setVec2(name string, value mgl32.Vec2) {
+func (self *UniformStore) SetVec2(name string, value mgl32.Vec2) {
 	self.vec2Map[name] = value
 }
 
-func (self *UniformStore) setVec3(name string, value mgl32.Vec3) {
+func (self *UniformStore) SetVec3(name string, value mgl32.Vec3) {
 	self.vec3Map[name] = value
 }
 
-func (self *UniformStore) setVec4(name string, value mgl32.Vec4) {
+func (self *UniformStore) SetVec4(name string, value mgl32.Vec4) {
 	self.vec4Map[name] = value
 }
 
-// uniform setters
+// uniform Setters
 
-func (self *UniformStore) uniformMat3(name string, value mgl32.Mat3) {
-	location := self.getLocation(name)
+func (self *UniformStore) UniformMat3(name string, value mgl32.Mat3) {
+	location := self.GetLocation(name)
 	gl.UniformMatrix3fv(location, 1, false, &value[0])
 }
 
-func (self *UniformStore) uniformMat4(name string, value mgl32.Mat4) {
-	location := self.getLocation(name)
+func (self *UniformStore) UniformMat4(name string, value mgl32.Mat4) {
+	location := self.GetLocation(name)
 	gl.UniformMatrix4fv(location, 1, false, &value[0])
 }
 
-func (self *UniformStore) uniformVec2(name string, value mgl32.Vec2) {
-	location := self.getLocation(name)
+func (self *UniformStore) UniformVec2(name string, value mgl32.Vec2) {
+	location := self.GetLocation(name)
 	gl.Uniform2fv(location, 1, &value[0])
 }
 
-func (self *UniformStore) uniformVec3(name string, value mgl32.Vec3) {
-	location := self.getLocation(name)
+func (self *UniformStore) UniformVec3(name string, value mgl32.Vec3) {
+	location := self.GetLocation(name)
 	gl.Uniform3fv(location, 1, &value[0])
 }
 
-func (self *UniformStore) uniformVec4(name string, value mgl32.Vec4) {
-	location := self.getLocation(name)
+func (self *UniformStore) UniformVec4(name string, value mgl32.Vec4) {
+	location := self.GetLocation(name)
 	gl.Uniform4fv(location, 1, &value[0])
 }
 
@@ -168,7 +168,7 @@ func (self *UniformStore) registerActiveUniforms(shouldList bool) {
 	var i uint32 = 0
 	for i < uint32(count) {
 		name := getUniformName(self.glslProgramHandle, i, shouldList)
-		self.registerUniform(name)
+		self.RegisterUniform(name)
 		i++
 	}
 }

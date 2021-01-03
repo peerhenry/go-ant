@@ -17,19 +17,19 @@ type VaoBuilder struct {
 	numberOfVbos int
 }
 
-func (self *VaoBuilder) addVertexBuffer(location uint32, vertexSize int32, data *[]float32) {
+func (self *VaoBuilder) AddVertexBuffer(location uint32, vertexSize int32, data *[]float32) {
 	vbo := makeFloatVbo(data)
 	vboData := VboData{location, vertexSize, vbo}
 	self.vbos[self.numberOfVbos] = vboData
 	self.numberOfVbos += 1
 }
 
-func (self *VaoBuilder) addIndexBuffer(data *[]uint32) {
+func (self *VaoBuilder) AddIndexBuffer(data *[]uint32) {
 	self.ibo = makeIbo(data)
 	self.useIbo = true
 }
 
-func (self *VaoBuilder) build() uint32 {
+func (self *VaoBuilder) Build() uint32 {
 	var vao uint32
 	gl.GenVertexArrays(1, &vao)
 	gl.BindVertexArray(vao)

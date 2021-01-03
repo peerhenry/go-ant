@@ -1,20 +1,20 @@
 package ant
 
 type GameWorld struct {
-	uniforms    *UniformStore
-	glslProgram *GLSLProgram
-	objects     []*GameObject
+	Uniforms    *UniformStore
+	GlslProgram *GLSLProgram
+	Objects     []*GameObject
 }
 
-func (self *GameWorld) update() {
-	for _, object := range self.objects {
-		object.update()
+func (self *GameWorld) Update() {
+	for _, object := range self.Objects {
+		object.Update()
 	}
 }
 
-func (self *GameWorld) render() {
-	self.glslProgram.Use()
-	for _, object := range self.objects {
-		object.draw(self.uniforms)
+func (self *GameWorld) Render() {
+	self.GlslProgram.Use()
+	for _, object := range self.Objects {
+		object.Draw(self.Uniforms)
 	}
 }

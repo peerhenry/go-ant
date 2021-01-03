@@ -25,9 +25,10 @@ func loadTexture(rgba *image.NRGBA) uint32 {
 	return textureId
 }
 
-func loadImageFileToUniform(filePath string, uniformName string, programHandle uint32) {
+// todo: refactor to uniform store
+func LoadImageFileToUniform(filePath string, uniformName string, programHandle uint32) {
 	log.Println("Reading texture atlas")
-	i := readImage("resources/atlas.png")
+	i := ReadImage("resources/atlas.png")
 	switch i.(type) {
 	case *image.RGBA:
 		panic("image was RGBA instead of NRGBA")

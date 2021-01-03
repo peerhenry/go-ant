@@ -6,7 +6,7 @@ import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 )
 
-func initOpenGL() {
+func InitOpenGL() {
 	if err := gl.Init(); err != nil {
 		panic(err)
 	}

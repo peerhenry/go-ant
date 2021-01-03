@@ -16,13 +16,13 @@ func check(e error) {
 	}
 }
 
-func readFile(path string) string {
+func ReadFile(path string) string {
 	dat, err := ioutil.ReadFile(path)
 	check(err)
 	return string(dat)
 }
 
-func readFileAsByteBuffer(path string) *bufio.Reader {
+func ReadFileAsByteBuffer(path string) *bufio.Reader {
 	file, err := os.Open(path)
 	check(err)
 	defer file.Close()
@@ -36,7 +36,7 @@ func readFileAsByteBuffer(path string) *bufio.Reader {
 	return buffer
 }
 
-func readImage(path string) image.Image {
+func ReadImage(path string) image.Image {
 	log.Println("os.Open", path)
 	file, err := os.Open(path)
 	defer file.Close()
