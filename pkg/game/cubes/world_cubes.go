@@ -20,7 +20,7 @@ func buildCubeWorld(windowWidth, windowHeight int) ant.GameWorld {
 func setupUniforms(glslProgramHandle uint32, windowWidth, windowHeight int) *ant.UniformStore {
 	uniformStore := ant.CreateUniformStore(glslProgramHandle, true)
 	uniformStore.SetMat4("ViewMatrix", mgl32.LookAtV(
-		mgl32.Vec3{5, 3, 3}, // eye
+		mgl32.Vec3{1, 0, 0}, // eye
 		mgl32.Vec3{0, 0, 0}, // center
 		mgl32.Vec3{0, 0, 1}, // up
 	))

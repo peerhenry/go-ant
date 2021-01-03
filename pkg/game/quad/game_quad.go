@@ -9,8 +9,5 @@ func BuildQuadGame(windowWidth, windowHeight int) *ant.Game {
 	ant.InitOpenGL()
 	world := buildQuadWorld()
 
-	return &ant.Game{
-		Window: window,
-		World:  &world,
-	}
+	return ant.NewGame(window, &world)
 }

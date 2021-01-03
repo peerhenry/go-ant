@@ -6,8 +6,19 @@ import (
 )
 
 type Game struct {
-	Window *glfw.Window
-	World  *GameWorld
+	Window    *glfw.Window
+	World     *GameWorld
+	PreDraw   func()
+	PreUpdate func()
+}
+
+func NewGame(window *glfw.Window, world *GameWorld) *Game {
+	return &Game{
+		Window:    window,
+		World:     world,
+		PreDraw:   func() {},
+		PreUpdate: func() {},
+	}
 }
 
 func (game *Game) Run() {
@@ -20,11 +31,13 @@ func (game *Game) Run() {
 }
 
 func (game *Game) Update() {
+	game.PreUpdate()
 	game.World.Update()
 }
 
 func (game *Game) Draw() {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+	game.PreDraw()
 	game.World.Render()
 	glfw.PollEvents()
 	game.Window.SwapBuffers()
