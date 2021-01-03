@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
+	"github.com/go-gl/mathgl/mgl32"
 )
 
 type Game struct {
@@ -18,6 +19,19 @@ func BuildGame(windowWidth, windowHeight int) Game {
 
 	world := buildCubeWorld(windowWidth, windowHeight)
 	// world := buildQuadWorld()
+
+	window.SetCursorPosCallback(func(w *glfw.Window, xpos float64, ypos float64) {
+		pos := mgl32.Vec3{5, 3, 3}
+		unit := mgl32.Vec3{-5, -3, -3}.Normalize()
+		rot := mgl32.Rotate3DZ(float32(-xpos) / 200)
+		target := pos.Add(rot.Mul3x1(unit))
+		view := mgl32.LookAtV(
+			mgl32.Vec3{5, 3, 3}, // eye
+			target,              // center
+			mgl32.Vec3{0, 0, 1}, // up
+		)
+		world.uniforms.setMat4("ViewMatrix", view)
+	})
 
 	return Game{
 		window: window,
