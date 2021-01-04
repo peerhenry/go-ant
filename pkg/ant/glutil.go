@@ -15,4 +15,5 @@ func InitOpenGL() {
 	gl.Enable(gl.CULL_FACE)
 	gl.CullFace(gl.FRONT)
 	gl.Enable(gl.DEPTH_TEST)
+	gl.ClearColor(100./256., 149./256., 237./256., 1.0)
 }

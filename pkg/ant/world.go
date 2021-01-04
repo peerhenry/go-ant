@@ -1,14 +1,16 @@
 package ant
 
+import "time"
+
 type GameWorld struct {
 	Uniforms    *UniformStore
 	GlslProgram *GLSLProgram
 	Objects     []*GameObject
 }
 
-func (self *GameWorld) Update() {
+func (self *GameWorld) Update(dt *time.Duration) {
 	for _, object := range self.Objects {
-		object.Update()
+		object.Update(dt)
 	}
 }
 

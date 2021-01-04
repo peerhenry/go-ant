@@ -1,6 +1,8 @@
 package cubes
 
 import (
+	"time"
+
 	"ant.com/ant/pkg/ant"
 	"github.com/go-gl/glfw/v3.2/glfw"
 )
@@ -16,8 +18,8 @@ func BuildCubeGame(windowWidth, windowHeight int) *ant.Game {
 	setupInputHandling(window, &world, cursor, cam, commands)
 
 	game := ant.NewGame(window, &world)
-	game.PreUpdate = func() {
-		move(commands, cam)
+	game.PreUpdate = func(dt *time.Duration) {
+		move(commands, cam, dt)
 	}
 	game.PreDraw = func() {
 		view := cam.CalculateViewMatrix()
@@ -113,7 +115,7 @@ func setupInputHandling(window *glfw.Window, world *ant.GameWorld, cursor *Curso
 	window.SetSizeCallback(func(w *glfw.Window, width int, height int) {})
 }
 
-func move(commands *Commands, cam *Camera) {
+func move(commands *Commands, cam *Camera, dt *time.Duration) {
 	moveDir := Vec3{0, 0, 0}
 	isMoving := false
 
@@ -147,8 +149,11 @@ func move(commands *Commands, cam *Camera) {
 		isMoving = true
 	}
 
+	speed := 6.0
+	dx := float32(speed * dt.Seconds())
+
 	if isMoving {
 		moveDir = moveDir.Normalize()
-		cam.position = cam.position.Add(moveDir.Mul(0.05)) // need delta time
+		cam.position = cam.position.Add(moveDir.Mul(dx)) // need delta time
 	}
 }

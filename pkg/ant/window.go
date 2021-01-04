@@ -18,6 +18,8 @@ func InitGlfw(width, height int) *glfw.Window {
 		panic(err)
 	}
 	window.MakeContextCurrent()
+	window.SetInputMode(glfw.CursorMode, glfw.CursorHidden)
+	window.SetInputMode(glfw.CursorMode, glfw.CursorDisabled)
 
 	return window
 }

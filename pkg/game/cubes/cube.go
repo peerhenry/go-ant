@@ -1,6 +1,8 @@
 package cubes
 
 import (
+	"time"
+
 	"ant.com/ant/pkg/ant"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
@@ -15,9 +17,11 @@ func createCube(position mgl32.Vec3, orientation mgl32.Quat, cubeType int) *ant.
 	vao := buildCubeVao(cubeType)
 	placement := &Placement{position, orientation}
 	indexLength := int32(len(cubeIndices))
+	rotationSpeed := 2.0
 	return &ant.GameObject{
-		Update: func() {
-			rotation := mgl32.QuatRotate(0.01, mgl32.Vec3{0, 0, 1})
+		Update: func(dt *time.Duration) {
+			dAngle := float32(rotationSpeed * dt.Seconds())
+			rotation := mgl32.QuatRotate(dAngle, mgl32.Vec3{0, 0, 1})
 			placement.orientation = rotation.Mul(placement.orientation)
 		},
 		Draw: func(uniformStore *ant.UniformStore) {

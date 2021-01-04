@@ -1,6 +1,8 @@
 package ant
 
-type UpdateCallback func()
+import "time"
+
+type UpdateCallback func(dt *time.Duration)
 type DrawCallback func(uniforms *UniformStore)
 
 type GameObject struct {

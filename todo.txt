@@ -6,6 +6,18 @@ automatically register uniforms
 createBlock function for grass, dirt, stone, sand
 user input: mouse & keyboard movement
 ======
-chunk mesh builder
+move based on dt
 refactor LoadImageFileToUniform to uniformStore
 multithreading
+====== epics
+chunk mesh builder
+voxel removal by click (ray intersection + chunk update)
+skybox
+perlin noise height map generation
+tree generation
+add crosshair
+add FPS
+shadows
+player collision box, falling and jumping
+water
+frustum culling with chunks
