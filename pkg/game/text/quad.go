@@ -1,6 +1,7 @@
 package text
 
 import (
+	"fmt"
 	"math"
 	"time"
 
@@ -32,10 +33,17 @@ func createQuad(windowWidth, windowHeight int) ant.GameObject {
 	frameRate := 0.0
 	// var characters []int32 = []int32{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 	// var characters []int32 = []int32{40, 41, 2, 3, 4, 5, 6, 7, 8, 9}
-	var characters []int32 = stringToCharacterCodes("hello worl")
+	var characters []int32 = stringToCharacterCodes("FPS: ?")
+	var step float64 = 0
 	return ant.GameObject{
 		Update: func(dt *time.Duration) {
-			frameRate = math.Round((1/dt.Seconds())*100) / 100
+			step += dt.Seconds()
+			if step >= 1 {
+				frameRate = math.Round((1/dt.Seconds())*100) / 100
+				frameRateString := fmt.Sprintf("%f", frameRate)
+				characters = stringToCharacterCodes("FPS: " + frameRateString)
+				step -= 1
+			}
 		},
 		Draw: func(uniformStore *ant.UniformStore) {
 			gl.BindVertexArray(vao)
