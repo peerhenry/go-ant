@@ -17,17 +17,22 @@ func createQuad(windowWidth, windowHeight int) ant.GameObject {
 		0, 1, 2, 2, 1, 3,
 	})
 	vao := builder.Build()
-	lineLength := 5
+	lineLength := 10
 	charSize := 128
 	lineHeightPixels := charSize
 	lineWidthPixels := charSize * lineLength
-	dimensions := mgl32.Vec2{2 * float32(lineWidthPixels) / float32(windowWidth), 2 * float32(lineHeightPixels) / float32(windowHeight)}
-	marginTopPixels := 20
-	marginLeftPixels := 20
-	margin := mgl32.Vec2{2 * float32(marginTopPixels) / float32(windowWidth), 2 * float32(marginLeftPixels) / float32(windowHeight)}
+	lineWidth := 2 * float32(lineWidthPixels) / float32(windowWidth)
+	lineHeight := 2 * float32(lineHeightPixels) / float32(windowHeight)
+	dimensions := mgl32.Vec2{lineWidth, lineHeight}
+	marginTopPixels := 200
+	marginLeftPixels := 200
+	marginTop := 2 * float32(marginTopPixels) / float32(windowHeight)
+	marginLeft := 2 * float32(marginLeftPixels) / float32(windowWidth)
+	margin := mgl32.Vec2{marginLeft, marginTop}
 	frameRate := 0.0
 	// var characters []int32 = []int32{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-	var characters []int32 = []int32{2, 7, 5, 9, 2, 6, 7, 8, 9, 10}
+	// var characters []int32 = []int32{40, 41, 2, 3, 4, 5, 6, 7, 8, 9}
+	var characters []int32 = stringToCharacterCodes("hello worl")
 	return ant.GameObject{
 		Update: func(dt *time.Duration) {
 			frameRate = math.Round((1/dt.Seconds())*100) / 100
@@ -38,7 +43,7 @@ func createQuad(windowWidth, windowHeight int) ant.GameObject {
 			uniformStore.UniformVec2("Dimensions", dimensions)
 			uniformStore.UniformVec2("Margin", margin)
 
-			uniformStore.UniformFloat("AtlasWidthPixels", 512)
+			uniformStore.UniformFloat("HalfPixel", 1.0/1024)
 			uniformStore.UniformFloat("CharWidthPixels", float32(charSize))
 			uniformStore.UniformInts("Characters[0]", characters) // todo
 			uniformStore.UniformInt("QuadsPerLine", 10)

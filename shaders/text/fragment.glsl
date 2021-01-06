@@ -2,10 +2,10 @@
 
 in vec2 PixelCoordinate;
 uniform sampler2D TextAtlas;
-uniform float AtlasWidthPixels;
 uniform float CharWidthPixels;
 uniform int Characters[10];
 uniform int QuadsPerLine = 10;
+uniform float HalfPixel = 1.0/1024.0;
 out vec4 FragColor;
 
 vec2 getAtlasOrigin(int atlasIndex)
@@ -20,15 +20,16 @@ void main()
 {
   int charIndex = int(floor(PixelCoordinate.x/CharWidthPixels));
   int atlasIndex = Characters[charIndex];
-  vec4 col;
+  vec4 col = vec4(0,0,0,1);
   if (atlasIndex >= 0) {
     vec2 atlasOrigin = getAtlasOrigin(atlasIndex);
-    float pixelLeft = mod(PixelCoordinate.x, CharWidthPixels);
-    vec2 atlasCoords = atlasOrigin + vec2(pixelLeft/AtlasWidthPixels, PixelCoordinate.y/AtlasWidthPixels);
-    vec4 texcol = texture(TextAtlas, atlasCoords);
-    col = texcol + vec4(pixelLeft/128, 0 ,0, 1);
+    float pixelsFromLeft = mod(PixelCoordinate.x, CharWidthPixels);
+    float atlasScale = (1.0 / QuadsPerLine) - 2*HalfPixel;
+    vec2 atlasOffset = vec2(pixelsFromLeft/CharWidthPixels, PixelCoordinate.y/CharWidthPixels) * atlasScale;
+    vec2 atlasCoords = atlasOrigin + atlasOffset;
+    col = col + texture(TextAtlas, atlasCoords);
   } else {
     col = vec4(0);
   }
-  FragColor = col + vec4(0.1,0.1,0.1,1);
+  FragColor = col;
 }
