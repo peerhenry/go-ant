@@ -5,8 +5,12 @@ textured cubes
 automatically register uniforms
 createBlock function for grass, dirt, stone, sand
 user input: mouse & keyboard movement
-======
 move based on dt
+====== in progress
+render hud with text from text-atlas
+====== next
+add FPS
+====== todo
 refactor LoadImageFileToUniform to uniformStore
 multithreading
 ====== epics
@@ -16,7 +20,6 @@ skybox
 perlin noise height map generation
 tree generation
 add crosshair
-add FPS
 shadows
 player collision box, falling and jumping
 water

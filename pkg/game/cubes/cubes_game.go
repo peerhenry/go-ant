@@ -25,6 +25,9 @@ func BuildCubeGame(windowWidth, windowHeight int) *ant.Game {
 		view := cam.CalculateViewMatrix()
 		world.Uniforms.SetMat4("ViewMatrix", view)
 	}
+	game.PostDraw = func() {
+		// draw HUD
+	}
 	return game
 }
 

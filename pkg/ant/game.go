@@ -11,6 +11,7 @@ type Game struct {
 	Window    *glfw.Window
 	World     *GameWorld
 	PreDraw   func()
+	PostDraw  func()
 	PreUpdate func(dt *time.Duration)
 	then      time.Time
 }
@@ -20,6 +21,7 @@ func NewGame(window *glfw.Window, world *GameWorld) *Game {
 		Window:    window,
 		World:     world,
 		PreDraw:   func() {},
+		PostDraw:  func() {},
 		PreUpdate: func(dt *time.Duration) {},
 		then:      time.Now(),
 	}
@@ -46,6 +48,7 @@ func (game *Game) Draw() {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 	game.PreDraw()
 	game.World.Render()
+	game.PostDraw()
 	glfw.PollEvents()
 	game.Window.SwapBuffers()
 }
