@@ -24,6 +24,13 @@ func (self *VaoBuilder) AddVertexBuffer(location uint32, vertexSize int32, data 
 	self.numberOfVbos += 1
 }
 
+func (self *VaoBuilder) AddIntegerBuffer(location uint32, vertexSize int32, data *[]int32) {
+	vbo := makeIntegerVbo(data)
+	vboData := VboData{location, vertexSize, vbo}
+	self.vbos[self.numberOfVbos] = vboData
+	self.numberOfVbos += 1
+}
+
 func (self *VaoBuilder) AddIndexBuffer(data *[]uint32) {
 	self.ibo = makeIbo(data)
 	self.useIbo = true
@@ -49,6 +56,14 @@ func (self *VaoBuilder) Build() uint32 {
 }
 
 func makeFloatVbo(data *[]float32) uint32 {
+	var vbo uint32
+	gl.GenBuffers(1, &vbo)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.BufferData(gl.ARRAY_BUFFER, 4*len(*data), gl.Ptr(*data), gl.STATIC_DRAW)
+	return vbo
+}
+
+func makeIntegerVbo(data *[]int32) uint32 {
 	var vbo uint32
 	gl.GenBuffers(1, &vbo)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)

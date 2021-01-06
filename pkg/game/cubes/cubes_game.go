@@ -4,12 +4,16 @@ import (
 	"time"
 
 	"ant.com/ant/pkg/ant"
+	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 )
 
 func BuildCubeGame(windowWidth, windowHeight int) *ant.Game {
 	window := ant.InitGlfw(windowWidth, windowHeight)
+
 	ant.InitOpenGL()
+	gl.ClearColor(100./256., 149./256., 237./256., 1.0)
+
 	world := buildCubeWorld(windowWidth, windowHeight)
 
 	cursor := new(Cursor)
@@ -22,6 +26,9 @@ func BuildCubeGame(windowWidth, windowHeight int) *ant.Game {
 		move(commands, cam, dt)
 	}
 	game.PreDraw = func() {
+		gl.Enable(gl.CULL_FACE)
+		gl.CullFace(gl.FRONT)
+		gl.Enable(gl.DEPTH_TEST)
 		view := cam.CalculateViewMatrix()
 		world.Uniforms.SetMat4("ViewMatrix", view)
 	}

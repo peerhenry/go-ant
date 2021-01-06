@@ -28,13 +28,29 @@ func loadTexture(rgba *image.NRGBA) uint32 {
 // todo: refactor to uniform store
 func LoadImageFileToUniform(filePath string, uniformName string, programHandle uint32) {
 	log.Println("Reading texture atlas")
-	i := ReadImage("resources/atlas.png")
+	i := ReadImage(filePath)
 	switch i.(type) {
+	case *image.Gray:
+		panic("image was Gray instead of NRGBA")
+	case *image.Gray16:
+		panic("image was Gray16 instead of NRGBA")
+	case *image.CMYK:
+		panic("image was CMYK instead of NRGBA")
+	case *image.Alpha:
+		panic("image was Alpha instead of NRGBA")
+	case *image.Alpha16:
+		panic("image was Alpha16 instead of NRGBA")
+	case *image.Paletted:
+		panic("image was Paletted instead of NRGBA")
+	case *image.RGBA64:
+		panic("image was RGBA64 instead of NRGBA")
 	case *image.RGBA:
 		panic("image was RGBA instead of NRGBA")
+	case *image.NRGBA64:
+		panic("image was NRGBA64 instead of NRGBA")
 	case *image.NRGBA:
 		if nrgba, ok := i.(*image.NRGBA); ok {
-			log.Println("image", nrgba.Bounds().Dy())
+			log.Println("image size:", nrgba.Bounds().Dx(), "x", nrgba.Bounds().Dy())
 			loadTexture(nrgba)
 			gl.TexParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
 			gl.TexParameterf(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
@@ -44,5 +60,7 @@ func LoadImageFileToUniform(filePath string, uniformName string, programHandle u
 		} else {
 			panic("Could not extract NRGBA from image...")
 		}
+	default:
+		panic("image type unknown")
 	}
 }

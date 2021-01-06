@@ -7,7 +7,8 @@ func buildQuadWorld() ant.GameWorld {
 	quad := createQuad()
 	objects := []*ant.GameObject{&quad}
 	uniforms := ant.CreateUniformStore(glslProgram.Handle, true)
-	ant.LoadImageFileToUniform("resources/atlas.png", "Tex", glslProgram.Handle)
+	ant.LoadImageFileToUniform("resources/text-atlas.png", "Tex", glslProgram.Handle)
+	// ant.LoadImageFileToUniform("resources/atlas.png", "Tex", glslProgram.Handle)
 	return ant.GameWorld{
 		Uniforms:    uniforms,
 		GlslProgram: &glslProgram,

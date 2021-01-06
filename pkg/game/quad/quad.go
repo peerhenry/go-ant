@@ -1,6 +1,8 @@
 package quad
 
 import (
+	"time"
+
 	"ant.com/ant/pkg/ant"
 	"github.com/go-gl/gl/v4.1-core/gl"
 )
@@ -26,7 +28,7 @@ func createQuad() ant.GameObject {
 	})
 	vao := builder.Build()
 	return ant.GameObject{
-		Update: func() {},
+		Update: func(dt *time.Duration) {},
 		Draw: func(uniformStore *ant.UniformStore) {
 			gl.BindVertexArray(vao)
 			gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)

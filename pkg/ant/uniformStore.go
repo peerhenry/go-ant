@@ -17,18 +17,26 @@ type IUniformStore interface {
 	GetVec4(name string) mgl32.Vec4
 	GetVec3(name string) mgl32.Vec3
 	GetVec2(name string) mgl32.Vec2
+	GetFloat(name string) float32
+	GetInt(name string) int32
 
 	SetMat3(name string, value mgl32.Mat3)
 	SetMat4(name string, value mgl32.Mat4)
 	SetVec4(name string, value mgl32.Vec4)
 	SetVec3(name string, value mgl32.Vec3)
 	SetVec2(name string, value mgl32.Vec2)
+	SetFloat(name string, value float32)
+	SetInt(name string, value int32)
 
 	UniformMat3(name string, value mgl32.Mat3)
 	UniformMat4(name string, value mgl32.Mat4)
 	UniformVec4(name string, value mgl32.Vec4)
 	UniformVec3(name string, value mgl32.Vec3)
 	UniformVec2(name string, value mgl32.Vec2)
+	UniformFloat(name string, value float32)
+	UniformInt(name string, value int32)
+	UniformFloats(name string, value []float32)
+	UniformInts(name string, value []int32)
 }
 
 type UniformStore struct {
@@ -39,6 +47,8 @@ type UniformStore struct {
 	vec2Map           map[string]mgl32.Vec2
 	vec3Map           map[string]mgl32.Vec3
 	vec4Map           map[string]mgl32.Vec4
+	floatMap          map[string]float32
+	intMap            map[string]int32
 }
 
 func CreateUniformStore(glslProgramHandle uint32, shouldList bool) *UniformStore {
@@ -50,6 +60,8 @@ func CreateUniformStore(glslProgramHandle uint32, shouldList bool) *UniformStore
 	store.vec2Map = make(map[string]mgl32.Vec2)
 	store.vec3Map = make(map[string]mgl32.Vec3)
 	store.vec4Map = make(map[string]mgl32.Vec4)
+	store.floatMap = make(map[string]float32)
+	store.intMap = make(map[string]int32)
 	store.registerActiveUniforms(shouldList)
 	return store
 }
@@ -108,6 +120,22 @@ func (uniforms *UniformStore) GetVec4(name string) mgl32.Vec4 {
 	return value
 }
 
+func (uniforms *UniformStore) GetFloat(name string) float32 {
+	value, ok := uniforms.floatMap[name]
+	if !ok {
+		panic("No Vec4 value stored for name " + name)
+	}
+	return value
+}
+
+func (uniforms *UniformStore) GetInt(name string) int32 {
+	value, ok := uniforms.intMap[name]
+	if !ok {
+		panic("No Vec4 value stored for name " + name)
+	}
+	return value
+}
+
 // value Setters
 
 func (self *UniformStore) SetMat3(name string, value mgl32.Mat3) {
@@ -128,6 +156,14 @@ func (self *UniformStore) SetVec3(name string, value mgl32.Vec3) {
 
 func (self *UniformStore) SetVec4(name string, value mgl32.Vec4) {
 	self.vec4Map[name] = value
+}
+
+func (self *UniformStore) SetFloat(name string, value float32) {
+	self.floatMap[name] = value
+}
+
+func (self *UniformStore) SetInt(name string, value int32) {
+	self.intMap[name] = value
 }
 
 // uniform Setters
@@ -157,9 +193,30 @@ func (self *UniformStore) UniformVec4(name string, value mgl32.Vec4) {
 	gl.Uniform4fv(location, 1, &value[0])
 }
 
+func (self *UniformStore) UniformFloat(name string, value float32) {
+	location := self.GetLocation(name)
+	gl.Uniform1f(location, value)
+}
+
+func (self *UniformStore) UniformInt(name string, value int32) {
+	location := self.GetLocation(name)
+	gl.Uniform1i(location, value)
+}
+
+func (self *UniformStore) UniformFloats(name string, value []float32) {
+	location := self.GetLocation(name)
+	gl.Uniform1fv(location, int32(len(value)), &value[0])
+}
+
+func (self *UniformStore) UniformInts(name string, value []int32) {
+	location := self.GetLocation(name)
+	gl.Uniform1iv(location, int32(len(value)), &value[0])
+}
+
 // registerActiveUniforms
 
 func (self *UniformStore) registerActiveUniforms(shouldList bool) {
+	gl.UseProgram(self.glslProgramHandle)
 	var count int32 = 0
 	gl.GetProgramiv(self.glslProgramHandle, gl.ACTIVE_UNIFORMS, &count)
 	if shouldList {
@@ -225,6 +282,10 @@ func xtypeToString(xtype uint32) string {
 		return "FLOAT_MAT4"
 	case gl.SAMPLER_2D:
 		return "SAMPLER_2D"
+	case gl.FLOAT:
+		return "FLOAT"
+	case gl.INT:
+		return "INT"
 	default:
 		return "unknown"
 	}

@@ -12,8 +12,4 @@ func InitOpenGL() {
 	}
 	version := gl.GoStr(gl.GetString(gl.VERSION))
 	log.Println("OpenGL Version", version)
-	gl.Enable(gl.CULL_FACE)
-	gl.CullFace(gl.FRONT)
-	gl.Enable(gl.DEPTH_TEST)
-	gl.ClearColor(100./256., 149./256., 237./256., 1.0)
 }
