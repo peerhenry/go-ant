@@ -17,7 +17,7 @@ func createQuad(windowWidth, windowHeight int) ant.GameObject {
 		0, 1, 2, 2, 1, 3,
 	})
 	vao := builder.Build()
-	lineLength := 3
+	lineLength := 5
 	charSize := 128
 	lineHeightPixels := charSize
 	lineWidthPixels := charSize * lineLength
@@ -26,20 +26,20 @@ func createQuad(windowWidth, windowHeight int) ant.GameObject {
 	marginLeftPixels := 20
 	margin := mgl32.Vec2{2 * float32(marginTopPixels) / float32(windowWidth), 2 * float32(marginLeftPixels) / float32(windowHeight)}
 	frameRate := 0.0
-	var characters []int32 = []int32{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-	// var characters []int32 = []int32{2, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	// var characters []int32 = []int32{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	var characters []int32 = []int32{2, 7, 5, 9, 2, 6, 7, 8, 9, 10}
 	return ant.GameObject{
 		Update: func(dt *time.Duration) {
 			frameRate = math.Round((1/dt.Seconds())*100) / 100
 		},
 		Draw: func(uniformStore *ant.UniformStore) {
 			gl.BindVertexArray(vao)
-			uniformStore.UniformVec2("DimensionsPixels", mgl32.Vec2{512, 512})
+			uniformStore.UniformVec2("DimensionsPixels", mgl32.Vec2{float32(lineWidthPixels), float32(lineHeightPixels)})
 			uniformStore.UniformVec2("Dimensions", dimensions)
 			uniformStore.UniformVec2("Margin", margin)
 
-			uniformStore.UniformInt("AtlasWidthPixels", 512)
-			uniformStore.UniformFloat("CharWidthPixels", 51.2)
+			uniformStore.UniformFloat("AtlasWidthPixels", 512)
+			uniformStore.UniformFloat("CharWidthPixels", float32(charSize))
 			uniformStore.UniformInts("Characters[0]", characters) // todo
 			uniformStore.UniformInt("QuadsPerLine", 10)
 			gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)

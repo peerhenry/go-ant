@@ -25,9 +25,10 @@ void main()
     vec2 atlasOrigin = getAtlasOrigin(atlasIndex);
     float pixelLeft = mod(PixelCoordinate.x, CharWidthPixels);
     vec2 atlasCoords = atlasOrigin + vec2(pixelLeft/AtlasWidthPixels, PixelCoordinate.y/AtlasWidthPixels);
-    col = texture(TextAtlas, atlasCoords) + vec4(0.5,0,0,0);
+    vec4 texcol = texture(TextAtlas, atlasCoords);
+    col = texcol + vec4(pixelLeft/128, 0 ,0, 1);
   } else {
     col = vec4(0);
   }
-  FragColor = col + vec4(0.2,0.2,0.2,1);
+  FragColor = col + vec4(0.1,0.1,0.1,1);
 }
