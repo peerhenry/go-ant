@@ -13,6 +13,8 @@ func BuildCubeGame(windowWidth, windowHeight int) *ant.Game {
 
 	ant.InitOpenGL()
 	gl.ClearColor(100./256., 149./256., 237./256., 1.0)
+	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+	gl.Enable(gl.BLEND)
 
 	world := buildCubeWorld(windowWidth, windowHeight)
 
@@ -22,8 +24,10 @@ func BuildCubeGame(windowWidth, windowHeight int) *ant.Game {
 	setupInputHandling(window, &world, cursor, cam, commands)
 
 	game := ant.NewGame(window, &world)
+	hud := BuildHud(windowWidth, windowHeight)
 	game.PreUpdate = func(dt *time.Duration) {
 		move(commands, cam, dt)
+		hud.Update(dt)
 	}
 	game.PreDraw = func() {
 		gl.Enable(gl.CULL_FACE)
@@ -33,7 +37,7 @@ func BuildCubeGame(windowWidth, windowHeight int) *ant.Game {
 		world.Uniforms.SetMat4("ViewMatrix", view)
 	}
 	game.PostDraw = func() {
-		// draw HUD
+		hud.Draw()
 	}
 	return game
 }

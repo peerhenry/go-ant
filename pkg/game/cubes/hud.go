@@ -1,42 +1,78 @@
 package cubes
 
 import (
+	"fmt"
+	"math"
+	"time"
+
 	"ant.com/ant/pkg/ant"
+
+	"github.com/go-gl/gl/v4.1-core/gl"
+	"github.com/go-gl/mathgl/mgl32"
 )
 
 type Hud struct {
-	GlslProgram  *ant.GLSLProgram
-	lines        []string
-	shouldUpdate bool
+	Draw   func()
+	Update func(dt *time.Duration)
 }
 
-func BuildHud() *Hud {
+func BuildHud(windowWidth, windowHeight int) *Hud {
 	hud := new(Hud)
-	glslProgram := ant.InitGlslProgram("shaders/hud/vertex.glsl", "shaders/hud/fragment.glsl")
-	hud.GlslProgram = &glslProgram
-	// todo: load texture
-	return hud
-}
+	glslProgram := ant.InitGlslProgram("shaders/text/vertex.glsl", "shaders/text/fragment.glsl")
+	uniformStore := ant.CreateUniformStore(glslProgram.Handle, true)
+	ant.LoadImageFileToUniform("resources/text-atlas-monospace-white-on-alpha.png", "TextAtlas", glslProgram.Handle, 1)
 
-func (self *Hud) WriteLine(text string) {
-	self.lines = append(self.lines, text)
-	self.shouldUpdate = true
-}
-
-func (self *Hud) Clear(text string) {
-	self.lines = nil
-	self.shouldUpdate = true
-}
-
-func (self *Hud) Update() {
-	if self.shouldUpdate {
-		// build quads
-		self.shouldUpdate = false
+	var quadIndices []int32 = []int32{1, 2, 3, 4}
+	builder := new(ant.VaoBuilder)
+	builder.AddIntegerBuffer(0, 1, &quadIndices)
+	builder.AddIndexBuffer(&[]uint32{
+		0, 1, 2, 2, 1, 3,
+	})
+	vao := builder.Build()
+	lineLength := 10
+	charAspectRatio := float64(44) / float64(108)
+	charHeightPixels := 44
+	charWidthPixels := int(charAspectRatio * float64(charHeightPixels))
+	lineHeightPixels := charHeightPixels
+	lineWidthPixels := charWidthPixels * lineLength
+	lineWidth := 2 * float32(lineWidthPixels) / float32(windowWidth)
+	lineHeight := 2 * float32(lineHeightPixels) / float32(windowHeight)
+	dimensions := mgl32.Vec2{lineWidth, lineHeight}
+	marginTopPixels := 40
+	marginLeftPixels := 40
+	marginTop := 2 * float32(marginTopPixels) / float32(windowHeight)
+	marginLeft := 2 * float32(marginLeftPixels) / float32(windowWidth)
+	margin := mgl32.Vec2{marginLeft, marginTop}
+	frameRate := 0.0
+	var characters []int32 = stringToCharacterCodes("FPS: ?")
+	var step float64 = 0
+	hud.Update = func(dt *time.Duration) {
+		step += dt.Seconds()
+		if step >= 1 {
+			frameRate = math.Round((1/dt.Seconds())*100) / 100
+			frameRateString := fmt.Sprintf("%f", frameRate)
+			characters = stringToCharacterCodes("FPS: " + frameRateString)
+			step -= 1
+		}
 	}
-}
+	hud.Draw = func() {
+		glslProgram.Use()
+		gl.Disable(gl.CULL_FACE)
+		gl.Disable(gl.DEPTH_TEST)
 
-func (self *Hud) Draw() {
-	self.GlslProgram.Use()
+		gl.BindVertexArray(vao)
+		uniformStore.UniformVec2("DimensionsPixels", mgl32.Vec2{float32(lineWidthPixels), float32(lineHeightPixels)})
+		uniformStore.UniformVec2("Dimensions", dimensions)
+		uniformStore.UniformVec2("Margin", margin)
+
+		uniformStore.UniformFloat("HalfPixel", 1.0/1024)
+		uniformStore.UniformFloat("CharWidthPixels", float32(charWidthPixels))
+		uniformStore.UniformFloat("CharHeightPixels", float32(charHeightPixels))
+		uniformStore.UniformInts("Characters[0]", characters) // todo
+		uniformStore.UniformInt("QuadsPerLine", 10)
+		gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)
+	}
+	return hud
 }
 
 // todo: unify with the one from cubedata
@@ -59,16 +95,15 @@ func getAtlasUvsAt(i, j byte) []float32 {
 	}
 }
 
-func getAtlasUv(i byte) []float32 {
-	return getAtlasUvsAt(i%10, i/10)
+func stringToCharacterCodes(line string) []int32 {
+	var chars []int32
+	for _, c := range line {
+		chars = append(chars, getAtlasIndex(c))
+	}
+	return chars
 }
 
-func getAtlasUvForChar(char rune) []float32 {
-	i := getAtlasIndex(char)
-	return getAtlasUv(i)
-}
-
-func getAtlasIndex(i rune) byte {
+func getAtlasIndex(i rune) int32 {
 	switch i {
 	case ' ':
 		return 0

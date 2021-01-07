@@ -44,7 +44,8 @@ func loadTextureRGBA(rgba *image.RGBA) uint32 {
 }
 
 // todo: refactor to uniform store
-func LoadImageFileToUniform(filePath string, uniformName string, programHandle uint32) {
+func LoadImageFileToUniform(filePath string, uniformName string, programHandle uint32, textureUnit int32) {
+	gl.ActiveTexture(uint32(gl.TEXTURE0 + textureUnit))
 	log.Println("Reading texture atlas")
 	i := ReadImage(filePath)
 	switch i.(type) {
@@ -84,7 +85,7 @@ func LoadImageFileToUniform(filePath string, uniformName string, programHandle u
 			gl.TexParameterf(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
 			// set uniform
 			texUniformLocation := gl.GetUniformLocation(programHandle, gl.Str(uniformName+"\x00"))
-			gl.Uniform1i(texUniformLocation, 0)
+			gl.Uniform1i(texUniformLocation, textureUnit)
 		} else {
 			panic("Could not extract NRGBA from image...")
 		}
