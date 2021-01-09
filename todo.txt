@@ -8,14 +8,16 @@ user input: mouse & keyboard movement
 move based on dt
 render hud with text from text-atlas
 add FPS
+render chunk
 ====== in progress
 ====== next
+split up chunk builder
+fix shader so light doesnt move with camera
 ====== todo
 refactor LoadImageFileToUniform to uniformStore
 multithreading
 add crosshair
 ====== epics
-chunk mesh builder
 voxel removal by click (ray intersection + chunk update)
 skybox
 perlin noise height map generation

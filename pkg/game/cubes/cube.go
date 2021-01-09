@@ -16,7 +16,7 @@ type Placement struct {
 func createCube(position mgl32.Vec3, orientation mgl32.Quat, cubeType int) *ant.GameObject {
 	vao := buildCubeVao(cubeType)
 	placement := &Placement{position, orientation}
-	indexLength := int32(len(cubeIndices))
+	indicesCount := int32(len(cubeIndices))
 	rotationSpeed := 2.0
 	return &ant.GameObject{
 		Update: func(dt *time.Duration) {
@@ -41,7 +41,7 @@ func createCube(position mgl32.Vec3, orientation mgl32.Quat, cubeType int) *ant.
 			uniformStore.UniformMat4("MVP", mvp)
 			// draw
 			gl.BindVertexArray(vao)
-			gl.DrawElements(gl.TRIANGLES, indexLength, gl.UNSIGNED_INT, nil)
+			gl.DrawElements(gl.TRIANGLES, indicesCount, gl.UNSIGNED_INT, nil)
 		},
 	}
 }

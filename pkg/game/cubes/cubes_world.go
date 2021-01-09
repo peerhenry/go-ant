@@ -34,5 +34,6 @@ func createGameObjects() []*ant.GameObject {
 	cube2 := createCube(mgl32.Vec3{0, 2, 0}, mgl32.QuatRotate(1, mgl32.Vec3{1, 0, 0}), STONE)
 	cube3 := createCube(mgl32.Vec3{0, 0, 2}, mgl32.QuatRotate(1, mgl32.Vec3{0, 1, 0}), DIRT)
 	cube4 := createCube(mgl32.Vec3{-2, 0, 0}, mgl32.QuatRotate(2, mgl32.Vec3{0, 1, 0}), SAND)
-	return []*ant.GameObject{cube1, cube2, cube3, cube4}
+	chunk := BuildChunkGameObject()
+	return []*ant.GameObject{cube1, cube2, cube3, cube4, chunk}
 }
