@@ -6,13 +6,14 @@ automatically register uniforms
 createBlock function for grass, dirt, stone, sand
 user input: mouse & keyboard movement
 move based on dt
-====== in progress
 render hud with text from text-atlas
-====== next
 add FPS
+====== in progress
+====== next
 ====== todo
 refactor LoadImageFileToUniform to uniformStore
 multithreading
+add crosshair
 ====== epics
 chunk mesh builder
 voxel removal by click (ray intersection + chunk update)

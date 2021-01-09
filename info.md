@@ -1,0 +1,1 @@
+run tests for a given package with: `go test ./pkg/game/cubes`

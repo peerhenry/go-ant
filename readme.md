@@ -1,1 +1,3 @@
-OpenGL rendering engine in Go
+OpenGL rendering engine in Go.
+
+Run with go `go run ./cmd` 
