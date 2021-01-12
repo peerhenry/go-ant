@@ -11,7 +11,7 @@ func BuildGame(windowWidth, windowHeight int, filePath string) *ant.Game {
 	gl.ClearColor(0.2, 0.4, 0.9, 1.0)
 	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 	gl.Enable(gl.BLEND)
-	world := buildQuadWorld(filePath)
+	world := buildQuadScene(filePath)
 
 	return ant.NewGame(window, &world)
 }

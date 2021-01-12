@@ -120,10 +120,10 @@ func (self *ChunkBuilder) getVoxel(i, j, k int) int {
 	if k == (self.chunkSettings.GetChunkHeight() - 1) {
 		return GRASS
 	}
-	if k < 10 {
-		return STONE
+	if k > self.chunkSettings.GetChunkHeight()-5 {
+		return DIRT
 	}
-	return DIRT
+	return STONE
 }
 
 // =============== chunk ===============
@@ -337,7 +337,7 @@ type ChunkMesh struct {
 // =============== other shit ===============
 
 func BuildChunkGameObject() *ant.GameObject {
-	chunkSettings := CreateStandardChunkSettings(32, 32, 32)
+	chunkSettings := CreateStandardChunkSettings(32, 32, 8)
 	chunkBuilder := CreateStandardChunkBuilder(chunkSettings)
 	chunk := chunkBuilder.CreateChunk()
 	meshBuilder := NewChunkMeshBuilder(chunkSettings)

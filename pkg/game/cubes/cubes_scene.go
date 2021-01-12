@@ -5,12 +5,12 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 )
 
-func buildCubeWorld(windowWidth, windowHeight int) ant.GameWorld {
+func buildCubeScene(windowWidth, windowHeight int) ant.Scene {
 	glslProgram := ant.InitGlslProgram("shaders/ads/vertex.glsl", "shaders/ads/fragment.glsl")
 	uniformStore := setupUniforms(glslProgram.Handle, windowWidth, windowHeight)
 	objects := createGameObjects()
 
-	return ant.GameWorld{
+	return ant.Scene{
 		Uniforms:    uniformStore,
 		GlslProgram: &glslProgram,
 		Objects:     objects,

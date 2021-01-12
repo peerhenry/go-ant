@@ -16,7 +16,7 @@ func BuildCubeGame(windowWidth, windowHeight int) *ant.Game {
 	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 	gl.Enable(gl.BLEND)
 
-	world := buildCubeWorld(windowWidth, windowHeight)
+	world := buildCubeScene(windowWidth, windowHeight)
 
 	cursor := new(Cursor)
 	cam := NewCamera()
@@ -56,7 +56,7 @@ type Commands struct {
 	down     bool
 }
 
-func setupInputHandling(window *glfw.Window, world *ant.GameWorld, cursor *Cursor, cam *Camera, commands *Commands) {
+func setupInputHandling(window *glfw.Window, world *ant.Scene, cursor *Cursor, cam *Camera, commands *Commands) {
 	window.SetCursorPosCallback(func(w *glfw.Window, xpos float64, ypos float64) {
 		dx := xpos - cursor.xpos
 		dy := ypos - cursor.ypos

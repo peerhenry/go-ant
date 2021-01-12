@@ -1,3 +1,4 @@
+====== done
 refactor
 quad scene + cube scene
 use normalmatrix uniform
@@ -9,14 +10,21 @@ move based on dt
 render hud with text from text-atlas
 add FPS
 render chunk
+rename world to scene
 ====== in progress
 ====== next
+render 16x16 chunks
+infinite world generation
+height map generator
 split up chunk builder
+optimize chunk mesh memory
 fix shader so light doesnt move with camera
+perlin noise
 ====== todo
 refactor LoadImageFileToUniform to uniformStore
 multithreading
 add crosshair
+
 ====== epics
 voxel removal by click (ray intersection + chunk update)
 skybox

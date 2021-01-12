@@ -9,14 +9,14 @@ import (
 
 type Game struct {
 	Window    *glfw.Window
-	World     *GameWorld
+	World     *Scene
 	PreDraw   func()
 	PostDraw  func()
 	PreUpdate func(dt *time.Duration)
 	then      time.Time
 }
 
-func NewGame(window *glfw.Window, world *GameWorld) *Game {
+func NewGame(window *glfw.Window, world *Scene) *Game {
 	return &Game{
 		Window:    window,
 		World:     world,
