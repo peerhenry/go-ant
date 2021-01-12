@@ -1,4 +1,4 @@
-package cubes
+package chunks
 
 import (
 	"fmt"

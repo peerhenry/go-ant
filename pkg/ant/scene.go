@@ -20,3 +20,11 @@ func (self *Scene) Render() {
 		object.Draw(self.Uniforms)
 	}
 }
+
+func (self *Scene) Add(object *GameObject) {
+	self.Objects = append(self.Objects, object)
+}
+
+func (self *Scene) Remove(object *GameObject) {
+	panic("todo: cannot remove GameObject yet")
+}

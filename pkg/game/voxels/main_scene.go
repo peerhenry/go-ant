@@ -1,11 +1,13 @@
-package cubes
+package voxels
 
 import (
 	"ant.com/ant/pkg/ant"
+	"ant.com/ant/pkg/game/voxels/chunks"
+
 	"github.com/go-gl/mathgl/mgl32"
 )
 
-func buildCubeScene(windowWidth, windowHeight int) ant.Scene {
+func buildScene(windowWidth, windowHeight int) ant.Scene {
 	glslProgram := ant.InitGlslProgram("shaders/ads/vertex.glsl", "shaders/ads/fragment.glsl")
 	uniformStore := setupUniforms(glslProgram.Handle, windowWidth, windowHeight)
 	objects := createGameObjects()
@@ -30,9 +32,9 @@ func setupUniforms(glslProgramHandle uint32, windowWidth, windowHeight int) *ant
 }
 
 func createGameObjects() []*ant.GameObject {
-	cube1 := createCube(mgl32.Vec3{2, 0, 0}, mgl32.QuatRotate(0, mgl32.Vec3{0, 0, 1}), GRASS)
-	cube2 := createCube(mgl32.Vec3{0, 2, 0}, mgl32.QuatRotate(1, mgl32.Vec3{1, 0, 0}), STONE)
-	cube3 := createCube(mgl32.Vec3{0, 0, 2}, mgl32.QuatRotate(1, mgl32.Vec3{0, 1, 0}), DIRT)
-	cube4 := createCube(mgl32.Vec3{-2, 0, 0}, mgl32.QuatRotate(2, mgl32.Vec3{0, 1, 0}), SAND)
-	return []*ant.GameObject{cube1, cube2, cube3, cube4}
+	chunk1 := chunks.BuildChunkGameObject(Vec3{0, 0, -32})
+	chunk2 := chunks.BuildChunkGameObject(Vec3{-64, 0, -32})
+	chunk3 := chunks.BuildChunkGameObject(Vec3{0, -64, -32})
+	chunk4 := chunks.BuildChunkGameObject(Vec3{-64, -64, -32})
+	return []*ant.GameObject{chunk1, chunk2, chunk3, chunk4}
 }

@@ -12,11 +12,11 @@ add FPS
 render chunk
 rename world to scene
 ====== in progress
+refactor/split up chunk builder
 ====== next
 render 16x16 chunks
 infinite world generation
 height map generator
-split up chunk builder
 optimize chunk mesh memory
 fix shader so light doesnt move with camera
 perlin noise
