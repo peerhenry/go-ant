@@ -16,10 +16,10 @@ const (
 )
 
 const (
-	NORTH  = 1
-	EAST   = 2
-	SOUTH  = 3
-	WEST   = 4
-	TOP    = 5
-	BOTTOM = 6
+	NORTH  int32 = 0
+	EAST   int32 = 1
+	SOUTH  int32 = 2
+	WEST   int32 = 3
+	TOP    int32 = 4
+	BOTTOM int32 = 5
 )

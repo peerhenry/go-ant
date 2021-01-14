@@ -1,7 +1,6 @@
 package chunks
 
 import (
-	"log"
 	"time"
 
 	"ant.com/ant/pkg/ant"
@@ -31,7 +30,6 @@ func NewChunkWorld(camera *ant.Camera, region *ChunkRegion, scene *ant.Scene) *C
 
 func (self *ChunkWorld) Update(dt *time.Duration) {
 	if !self.initialized {
-		log.Println("Now creating world...")
 		for ci := -2; ci < 4; ci++ {
 			for cj := -2; cj < 4; cj++ {
 				chunk := self.ChunkBuilder.CreateChunk(ci, cj, -1)

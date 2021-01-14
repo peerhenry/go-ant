@@ -11,19 +11,19 @@ func NewChunkMeshBuilder(chunkSettings IChunkSettings) *ChunkMeshBuilder {
 func (self *ChunkMeshBuilder) ChunkToMesh(chunk *StandardChunk) *ChunkMesh {
 	// iterate over visible voxels
 	var positions []float32
-	var normals []float32
+	var normalIndices []int32
 	var uvs []float32
 	var indices []uint32
 	var indexOffset uint32 = 0
 	var indicesCount int32 = 0
 
-	maybeAddFace := func(voxel, i, j, k, di, dj, dk, face int) {
+	maybeAddFace := func(voxel, i, j, k, di, dj, dk int, face int32) {
 		if chunk.IsTransparent(i+di, j+dj, k+dk) {
 			nextPositions := self.GetQuadPositions(i, j, k, face)
 			positions = append(positions, nextPositions[:]...)
 
-			nextNormals := self.GetQuadNormals(i, j, k, face)
-			normals = append(normals, nextNormals[:]...)
+			nextNormals := self.GetQuadNormals(face)
+			normalIndices = append(normalIndices, nextNormals[:]...)
 
 			nextUvs := self.GetQuadUvs(voxel, i, j, k, face)
 			uvs = append(uvs, nextUvs...)
@@ -45,10 +45,10 @@ func (self *ChunkMeshBuilder) ChunkToMesh(chunk *StandardChunk) *ChunkMesh {
 		maybeAddFace(voxel, i, j, k, 0, 0, 1, TOP)
 		maybeAddFace(voxel, i, j, k, 0, 0, -1, BOTTOM)
 	}
-	return &ChunkMesh{&positions, &normals, &uvs, &indices, indicesCount}
+	return &ChunkMesh{&positions, &normalIndices, &uvs, &indices, indicesCount}
 }
 
-func (self *ChunkMeshBuilder) GetQuadPositions(i, j, k, face int) [12]float32 {
+func (self *ChunkMeshBuilder) GetQuadPositions(i, j, k int, face int32) [12]float32 {
 	size := self.chunkSettings.GetVoxelSize()
 	ox := size * float32(i)
 	oy := size * float32(j)
@@ -103,55 +103,16 @@ func (self *ChunkMeshBuilder) GetQuadPositions(i, j, k, face int) [12]float32 {
 	panic("No direction given")
 }
 
-func (self *ChunkMeshBuilder) GetQuadNormals(i, j, k, face int) [12]float32 {
-	switch face {
-	case SOUTH:
-		return [12]float32{
-			0, -1, 0,
-			0, -1, 0,
-			0, -1, 0,
-			0, -1, 0,
-		}
-	case EAST:
-		return [12]float32{
-			1, 0, 0,
-			1, 0, 0,
-			1, 0, 0,
-			1, 0, 0,
-		}
-	case NORTH:
-		return [12]float32{
-			0, 1, 0,
-			0, 1, 0,
-			0, 1, 0,
-			0, 1, 0,
-		}
-	case WEST:
-		return [12]float32{
-			-1, 0, 0,
-			-1, 0, 0,
-			-1, 0, 0,
-			-1, 0, 0,
-		}
-	case TOP:
-		return [12]float32{
-			0, 0, 1,
-			0, 0, 1,
-			0, 0, 1,
-			0, 0, 1,
-		}
-	case BOTTOM:
-		return [12]float32{
-			0, 0, -1,
-			0, 0, -1,
-			0, 0, -1,
-			0, 0, -1,
-		}
+func (self *ChunkMeshBuilder) GetQuadNormals(face int32) [4]int32 {
+	return [4]int32{
+		face,
+		face,
+		face,
+		face,
 	}
-	panic("No direction given")
 }
 
-func (self *ChunkMeshBuilder) GetQuadUvs(voxel, i, j, k, face int) []float32 {
+func (self *ChunkMeshBuilder) GetQuadUvs(voxel, i, j, k int, face int32) []float32 {
 	switch voxel {
 	case GRASS:
 		switch face {

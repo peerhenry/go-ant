@@ -1,11 +1,28 @@
 #version 410
 
 layout (location = 0) in vec3 VertexPosition;
-layout (location = 1) in vec3 VertexNormal;
+layout (location = 1) in int NormalIndex;
 layout (location = 2) in vec2 VertexUv;
 
 out vec3 LightIntensity;
 out vec2 TexCoords;
+
+// normals
+vec3 normals[] = vec3[](
+    vec3(0,1,0), // north
+    vec3(1,0,0), // east
+    vec3(0,-1,0), // south
+    vec3(-1,0,0), // west
+    vec3(0,0,1), // top
+    vec3(0,0,-1) // bottom
+);
+
+// vec3 North = vec3(0,1,0);
+// vec3 South = vec3(0,-1,0);
+// vec3 East = vec3(1,0,0);
+// vec3 West = vec3(-1,0,0);
+// vec3 Top = vec3(0,0,1);
+// vec3 Bottom = vec3(0,0,-1);
 
 // uniform vec4 LightPosition = vec4(3.0, 3.0, 30.0, 1.0);
 uniform vec3 LightDirection = normalize(vec3(4.0, 10.0, -20.0));
@@ -24,7 +41,8 @@ void main()
     // vec3 tnorm = normalize( NormalMatrix * VertexNormal );
     // vec4 eyeCoords = ModelViewMatrix * vec4(VertexPosition,1.0);
     // vec3 s = normalize(vec3(LightPosition - eyeCoords));
-    LightIntensity = Ld * Kd * max( dot( -LightDirection, VertexNormal ), 0.2 );
+    vec3 Normal = normals[NormalIndex];
+    LightIntensity = Ld * Kd * max( dot( -LightDirection, Normal ), 0.2 );
     TexCoords = VertexUv;
     gl_Position = MVP * vec4(VertexPosition, 1.0);
 }

@@ -1,9 +1,9 @@
 package chunks
 
 type ChunkMesh struct {
-	positions    *[]float32
-	normals      *[]float32
-	uvs          *[]float32
-	indices      *[]uint32
-	indicesCount int32
+	positions     *[]float32
+	normalIndices *[]int32
+	uvs           *[]float32
+	indices       *[]uint32
+	indicesCount  int32
 }

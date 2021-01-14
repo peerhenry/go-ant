@@ -13,14 +13,16 @@ render chunk
 rename world to scene
 refactor/split up chunk builder
 chunk coherence with chunk world or something
-====== in progress
 directional light: fix shader so light doesnt move with camera
-====== next
 render 16x16 chunks
+====== in progress
+remove face for adjacent chunks
+====== next
 infinite world generation
 height map generator
 optimize chunk mesh memory
 perlin noise
+combine faces to reduce vertex data
 ====== todo
 refactor LoadImageFileToUniform to uniformStore
 multithreading

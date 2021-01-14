@@ -19,7 +19,7 @@ func (self *ChunkRenderDataBuilder) ChunkToRenderData(chunk *StandardChunk) *ant
 	mesh := self.meshBuilder.ChunkToMesh(chunk)
 	vaoBuilder := new(ant.VaoBuilder)
 	vaoBuilder.AddVertexBuffer(0, 3, mesh.positions)
-	vaoBuilder.AddVertexBuffer(1, 3, mesh.normals)
+	vaoBuilder.AddIntegerBuffer(1, 1, mesh.normalIndices)
 	vaoBuilder.AddVertexBuffer(2, 2, mesh.uvs)
 	vaoBuilder.AddIndexBuffer(mesh.indices)
 	vao := vaoBuilder.Build()
