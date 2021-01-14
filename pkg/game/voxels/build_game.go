@@ -4,37 +4,38 @@ import (
 	"time"
 
 	"ant.com/ant/pkg/ant"
+	"ant.com/ant/pkg/game/voxels/chunks"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 )
 
 func BuildGame(windowWidth, windowHeight int) *ant.Game {
 	window := ant.InitGlfw(windowWidth, windowHeight)
-
 	ant.InitOpenGL()
-	gl.ClearColor(100./256., 149./256., 237./256., 1.0)
-	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
-	gl.Enable(gl.BLEND)
-
-	world := buildScene(windowWidth, windowHeight)
-
+	gl.ClearColor(100./256., 149./256., 237./256., 1.0) // todo: put this in a better place
 	cursor := new(Cursor)
-	cam := NewCamera()
+	cam := ant.NewCamera()
+	cam.Position = Vec3{0, 0, 6}
 	commands := new(Commands)
-	setupInputHandling(window, &world, cursor, cam, commands)
-
-	game := ant.NewGame(window, &world)
+	setupInputHandling(window, cursor, cam, commands)
+	game := ant.NewGame(window)
+	scene := BuildChunkScene(windowWidth, windowHeight)
+	game.AddScene(scene)
 	hud := BuildHud(windowWidth, windowHeight)
-	game.PreUpdate = func(dt *time.Duration) {
+	region := &chunks.ChunkRegion{
+		Chunks: make(map[chunks.ChunkIndex]*chunks.StandardChunk),
+	}
+	chunkWorld := chunks.NewChunkWorld(cam, region, scene)
+	game.Update = func(dt *time.Duration) {
 		move(commands, cam, dt)
 		hud.Update(dt)
+		chunkWorld.Update(dt)
 	}
 	game.PreDraw = func() {
-		gl.Enable(gl.CULL_FACE)
-		gl.CullFace(gl.FRONT)
-		gl.Enable(gl.DEPTH_TEST)
+		gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+		gl.Enable(gl.BLEND)
 		view := cam.CalculateViewMatrix()
-		world.Uniforms.SetMat4("ViewMatrix", view)
+		scene.UniformStore.SetMat4("ViewMatrix", view)
 	}
 	game.PostDraw = func() {
 		hud.Draw()
@@ -56,7 +57,7 @@ type Commands struct {
 	down     bool
 }
 
-func setupInputHandling(window *glfw.Window, world *ant.Scene, cursor *Cursor, cam *Camera, commands *Commands) {
+func setupInputHandling(window *glfw.Window, cursor *Cursor, cam *ant.Camera, commands *Commands) {
 	window.SetCursorPosCallback(func(w *glfw.Window, xpos float64, ypos float64) {
 		dx := xpos - cursor.xpos
 		dy := ypos - cursor.ypos
@@ -129,27 +130,27 @@ func setupInputHandling(window *glfw.Window, world *ant.Scene, cursor *Cursor, c
 	window.SetSizeCallback(func(w *glfw.Window, width int, height int) {})
 }
 
-func move(commands *Commands, cam *Camera, dt *time.Duration) {
+func move(commands *Commands, cam *ant.Camera, dt *time.Duration) {
 	moveDir := Vec3{0, 0, 0}
 	isMoving := false
 
 	if commands.forward {
 		if !commands.backward {
-			moveDir = moveDir.Add(cam.direction)
+			moveDir = moveDir.Add(cam.Direction)
 			isMoving = true
 		}
 	} else if commands.backward {
-		moveDir = moveDir.Sub(cam.direction)
+		moveDir = moveDir.Sub(cam.Direction)
 		isMoving = true
 	}
 
 	if commands.right {
 		if !commands.left {
-			moveDir = moveDir.Add(cam.right)
+			moveDir = moveDir.Add(cam.Right)
 			isMoving = true
 		}
 	} else if commands.left {
-		moveDir = moveDir.Sub(cam.right)
+		moveDir = moveDir.Sub(cam.Right)
 		isMoving = true
 	}
 
@@ -168,6 +169,6 @@ func move(commands *Commands, cam *Camera, dt *time.Duration) {
 
 	if isMoving {
 		moveDir = moveDir.Normalize()
-		cam.position = cam.position.Add(moveDir.Mul(dx)) // need delta time
+		cam.Position = cam.Position.Add(moveDir.Mul(dx)) // need delta time
 	}
 }

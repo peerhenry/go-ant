@@ -1,30 +1,34 @@
 package ant
 
-import "time"
-
 type Scene struct {
-	Uniforms    *UniformStore
-	GlslProgram *GLSLProgram
-	Objects     []*GameObject
+	UniformStore *UniformStore
+	GlslProgram  *GLSLProgram
+	objects      []*RenderData
+	PreRender    func()
+	Render       func(*UniformStore, *RenderData)
 }
 
-func (self *Scene) Update(dt *time.Duration) {
-	for _, object := range self.Objects {
-		object.Update(dt)
+func CreateScene(windowWidth, windowHeight int, vertexShaderPath, fragmentShaderPath string) *Scene {
+	glslProgram := InitGlslProgram(vertexShaderPath, fragmentShaderPath)
+	uniformStore := CreateUniformStore(glslProgram.Handle, true)
+
+	return &Scene{
+		UniformStore: uniformStore,
+		GlslProgram:  &glslProgram,
+		PreRender:    func() {},
 	}
 }
 
-func (self *Scene) Render() {
-	self.GlslProgram.Use()
-	for _, object := range self.Objects {
-		object.Draw(self.Uniforms)
+func (self *Scene) AddRenderData(renderData *RenderData) int {
+	newIndex := len(self.objects)
+	self.objects = append(self.objects, renderData)
+	return newIndex
+}
+
+func (self *Scene) Draw() {
+	self.PreRender()
+	for _, data := range self.objects {
+		self.GlslProgram.Use()
+		self.Render(self.UniformStore, data)
 	}
-}
-
-func (self *Scene) Add(object *GameObject) {
-	self.Objects = append(self.Objects, object)
-}
-
-func (self *Scene) Remove(object *GameObject) {
-	panic("todo: cannot remove GameObject yet")
 }

@@ -1,4 +1,4 @@
-package voxels
+package ant
 
 import (
 	"math"
@@ -9,9 +9,9 @@ import (
 type Camera struct {
 	phi       float64
 	theta     float64
-	position  mgl32.Vec3
-	direction mgl32.Vec3
-	right     mgl32.Vec3
+	Position  mgl32.Vec3
+	Direction mgl32.Vec3
+	Right     mgl32.Vec3
 	relup     mgl32.Vec3 // for calculating view frustum
 }
 
@@ -21,9 +21,9 @@ func NewCamera() *Camera {
 	return &Camera{
 		phi:       0,
 		theta:     0,
-		position:  mgl32.Vec3{0, 0, 0},
-		direction: mgl32.Vec3{0, 1, 0},
-		right:     mgl32.Vec3{1, 0, 0},
+		Position:  mgl32.Vec3{0, 0, 0},
+		Direction: mgl32.Vec3{0, 1, 0},
+		Right:     mgl32.Vec3{1, 0, 0},
 		relup:     mgl32.Vec3{0, 0, 0},
 	}
 }
@@ -51,19 +51,19 @@ func (self *Camera) Rotate(dtheta float64, dphi float64) {
 	cost := math.Cos(self.theta)
 	sinp := math.Sin(self.phi)
 	cosp := math.Cos(self.phi)
-	self.direction = Vec3{float32(cost * cosp), float32(sint * cosp), float32(sinp)}
-	self.right = ToVec3(sint, -cost, 0)
+	self.Direction = Vec3{float32(cost * cosp), float32(sint * cosp), float32(sinp)}
+	self.Right = ToVec3(sint, -cost, 0)
 	self.relup = ToVec3(-cost*sinp, -sint*sinp, cosp) // for view frustum
 }
 
 func (self *Camera) Translate(dx, dy, dz float64) {
-	self.position = self.position.Add(ToVec3(dx, dy, dz))
+	self.Position = self.Position.Add(ToVec3(dx, dy, dz))
 }
 
 func (self *Camera) CalculateViewMatrix() mgl32.Mat4 {
-	target := self.position.Add(self.direction)
+	target := self.Position.Add(self.Direction)
 	return mgl32.LookAtV(
-		self.position,       // eye
+		self.Position,       // eye
 		target,              // center
 		mgl32.Vec3{0, 0, 1}, // up
 	)

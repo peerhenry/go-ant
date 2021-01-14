@@ -14,3 +14,12 @@ const (
 	STONE = 3
 	SAND  = 4
 )
+
+const (
+	NORTH  = 1
+	EAST   = 2
+	SOUTH  = 3
+	WEST   = 4
+	TOP    = 5
+	BOTTOM = 6
+)

@@ -11,14 +11,15 @@ render hud with text from text-atlas
 add FPS
 render chunk
 rename world to scene
-====== in progress
 refactor/split up chunk builder
+chunk coherence with chunk world or something
+====== in progress
+directional light: fix shader so light doesnt move with camera
 ====== next
 render 16x16 chunks
 infinite world generation
 height map generator
 optimize chunk mesh memory
-fix shader so light doesnt move with camera
 perlin noise
 ====== todo
 refactor LoadImageFileToUniform to uniformStore

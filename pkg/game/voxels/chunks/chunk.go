@@ -2,11 +2,8 @@ package chunks
 
 type IsVoxelTransparent func(i, j, k int) bool
 
-// type IChunk interface {
-// 	IsTransparent(i, j, k int) bool
-// }
-
 type StandardChunk struct {
+	Index         ChunkIndex
 	voxels        *[]int
 	visibleVoxels *[]int
 	chunkSettings IChunkSettings

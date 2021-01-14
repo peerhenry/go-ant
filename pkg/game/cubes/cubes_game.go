@@ -8,7 +8,7 @@ import (
 	"github.com/go-gl/glfw/v3.2/glfw"
 )
 
-func BuildCubeGame(windowWidth, windowHeight int) *ant.Game {
+func BuildGame(windowWidth, windowHeight int) *ant.Game {
 	window := ant.InitGlfw(windowWidth, windowHeight)
 
 	ant.InitOpenGL()
@@ -16,14 +16,15 @@ func BuildCubeGame(windowWidth, windowHeight int) *ant.Game {
 	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 	gl.Enable(gl.BLEND)
 
-	world := buildCubeScene(windowWidth, windowHeight)
+	scene := buildCubeScene(windowWidth, windowHeight)
 
 	cursor := new(Cursor)
 	cam := NewCamera()
 	commands := new(Commands)
-	setupInputHandling(window, &world, cursor, cam, commands)
+	setupInputHandling(window, scene, cursor, cam, commands)
 
-	game := ant.NewGame(window, &world)
+	game := ant.NewGame(window)
+	game.AddScene(scene)
 	hud := BuildHud(windowWidth, windowHeight)
 	game.PreUpdate = func(dt *time.Duration) {
 		move(commands, cam, dt)
@@ -34,7 +35,7 @@ func BuildCubeGame(windowWidth, windowHeight int) *ant.Game {
 		gl.CullFace(gl.FRONT)
 		gl.Enable(gl.DEPTH_TEST)
 		view := cam.CalculateViewMatrix()
-		world.Uniforms.SetMat4("ViewMatrix", view)
+		scene.UniformStore.SetMat4("ViewMatrix", view)
 	}
 	game.PostDraw = func() {
 		hud.Draw()
