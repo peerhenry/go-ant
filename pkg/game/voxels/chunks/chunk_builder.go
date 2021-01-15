@@ -28,10 +28,10 @@ func (self *ChunkBuilder) CreateChunk(ci, cj, ck int) *StandardChunk {
 				chunkVoxels = append(chunkVoxels, voxel)
 				if vi == 0 || vi == chunkWidth-1 || vj == 0 || vj == chunkDepth-1 || vk == 0 || vk == chunkHeight-1 {
 					if voxel != AIR {
-						index := self.chunkSettings.CoordinateToIndex(vi, vj, vk)
+						index := self.chunkSettings.CoordinateToIndexijk(vi, vj, vk)
 						visibleVoxels = append(visibleVoxels, index)
 					} else {
-						index := self.chunkSettings.CoordinateToIndex(vi, vj, vk-1)
+						index := self.chunkSettings.CoordinateToIndexijk(vi, vj, vk-1)
 						visibleVoxels = append(visibleVoxels, index)
 					}
 				}
@@ -39,10 +39,10 @@ func (self *ChunkBuilder) CreateChunk(ci, cj, ck int) *StandardChunk {
 		}
 	}
 	return &StandardChunk{
-		Index:         ChunkIndex{ci, cj, ck},
-		voxels:        &chunkVoxels,
-		visibleVoxels: &visibleVoxels,
-		chunkSettings: self.chunkSettings,
+		Coordinate:    IndexCoordinate{ci, cj, ck},
+		Voxels:        &chunkVoxels,
+		VisibleVoxels: &visibleVoxels,
+		ChunkSettings: self.chunkSettings,
 	}
 }
 

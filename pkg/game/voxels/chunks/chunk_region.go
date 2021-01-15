@@ -1,14 +1,14 @@
 package chunks
 
 type ChunkRegion struct {
-	Chunks map[ChunkIndex]*StandardChunk
+	Chunks map[IndexCoordinate]*StandardChunk
 }
 
 func (self *ChunkRegion) SetChunkRegion(chunk *StandardChunk) {
-	self.Chunks[chunk.Index] = chunk
+	self.Chunks[chunk.Coordinate] = chunk
 }
 
-func (self *ChunkRegion) GetChunkRegion(index ChunkIndex) (*StandardChunk, bool) {
+func (self *ChunkRegion) GetChunkRegion(index IndexCoordinate) (*StandardChunk, bool) {
 	thing, ok := self.Chunks[index]
 	return thing, ok
 }

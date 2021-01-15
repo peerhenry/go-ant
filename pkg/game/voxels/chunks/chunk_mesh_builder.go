@@ -1,7 +1,7 @@
 package chunks
 
 type ChunkMeshBuilder struct {
-	chunkSettings IChunkSettings
+	ChunkSettings IChunkSettings
 }
 
 func NewChunkMeshBuilder(chunkSettings IChunkSettings) *ChunkMeshBuilder {
@@ -17,15 +17,15 @@ func (self *ChunkMeshBuilder) ChunkToMesh(chunk *StandardChunk) *ChunkMesh {
 	var indexOffset uint32 = 0
 	var indicesCount int32 = 0
 
-	maybeAddFace := func(voxel, i, j, k, di, dj, dk int, face int32) {
-		if chunk.IsTransparent(i+di, j+dj, k+dk) {
-			nextPositions := self.GetQuadPositions(i, j, k, face)
+	maybeAddFace := func(voxel, vi, vj, vk, di, dj, dk int, face int32) {
+		if chunk.IsTransparent(vi+di, vj+dj, vk+dk) {
+			nextPositions := self.GetQuadPositions(vi, vj, vk, face)
 			positions = append(positions, nextPositions[:]...)
 
 			nextNormals := self.GetQuadNormals(face)
 			normalIndices = append(normalIndices, nextNormals[:]...)
 
-			nextUvs := self.GetQuadUvs(voxel, i, j, k, face)
+			nextUvs := self.GetQuadUvs(voxel, vi, vj, vk, face)
 			uvs = append(uvs, nextUvs...)
 
 			nextIndices := []uint32{indexOffset, indexOffset + 1, indexOffset + 2, indexOffset + 2, indexOffset + 1, indexOffset + 3}
@@ -35,21 +35,21 @@ func (self *ChunkMeshBuilder) ChunkToMesh(chunk *StandardChunk) *ChunkMesh {
 		}
 	}
 
-	for _, index := range *chunk.visibleVoxels {
-		i, j, k := self.chunkSettings.IndexToCoordinate(index)
-		voxel := (*chunk.voxels)[index]
-		maybeAddFace(voxel, i, j, k, 0, -1, 0, SOUTH)
-		maybeAddFace(voxel, i, j, k, 1, 0, 0, EAST)
-		maybeAddFace(voxel, i, j, k, 0, 1, 0, NORTH)
-		maybeAddFace(voxel, i, j, k, -1, 0, 0, WEST)
-		maybeAddFace(voxel, i, j, k, 0, 0, 1, TOP)
-		maybeAddFace(voxel, i, j, k, 0, 0, -1, BOTTOM)
+	for _, index := range *chunk.VisibleVoxels {
+		v := self.ChunkSettings.IndexToCoordinate(index)
+		voxel := (*chunk.Voxels)[index]
+		maybeAddFace(voxel, v.i, v.j, v.k, 0, -1, 0, SOUTH)
+		maybeAddFace(voxel, v.i, v.j, v.k, 1, 0, 0, EAST)
+		maybeAddFace(voxel, v.i, v.j, v.k, 0, 1, 0, NORTH)
+		maybeAddFace(voxel, v.i, v.j, v.k, -1, 0, 0, WEST)
+		maybeAddFace(voxel, v.i, v.j, v.k, 0, 0, 1, TOP)
+		maybeAddFace(voxel, v.i, v.j, v.k, 0, 0, -1, BOTTOM)
 	}
 	return &ChunkMesh{&positions, &normalIndices, &uvs, &indices, indicesCount}
 }
 
 func (self *ChunkMeshBuilder) GetQuadPositions(i, j, k int, face int32) [12]float32 {
-	size := self.chunkSettings.GetVoxelSize()
+	size := self.ChunkSettings.GetVoxelSize()
 	ox := size * float32(i)
 	oy := size * float32(j)
 	oz := size * float32(k)

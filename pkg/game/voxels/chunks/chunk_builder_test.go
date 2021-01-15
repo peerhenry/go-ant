@@ -1,37 +1,17 @@
 package chunks
 
 import (
-	"fmt"
-	"strings"
 	"testing"
 	// "ant.com/ant/pkg/game/quad"
 	// "ant.com/ant/pkg/game/text"
 )
 
-func arrayToString(array interface{}) string {
-	return strings.Trim(strings.Join(strings.Fields(fmt.Sprint(array)), ","), "[]")
-}
-
-func TestCoordinateToIndex(t *testing.T) {
-	chunkSettings := CreateStandardChunkSettings(7, 7, 7)
-	expecti := 6
-	expectj := 5
-	expectk := 4
-	expectedString := arrayToString([3]int{expecti, expectj, expectk})
-	index := chunkSettings.CoordinateToIndex(expecti, expectj, expectk)
-	resulti, resultj, resultk := chunkSettings.IndexToCoordinate(index)
-	if resulti != expecti || resultj != expectj || resultk != expectk {
-		resultString := arrayToString([3]int{resulti, resultj, resultk})
-		t.Errorf("Expected %s but got %s", expectedString, resultString)
-	}
-}
-
 func TestCreateChunkData(t *testing.T) {
 	chunkSettings := CreateStandardChunkSettings(7, 7, 7)
 	chunkBuilder := CreateStandardChunkBuilder(chunkSettings)
-	chunk := chunkBuilder.CreateChunk()
+	chunk := chunkBuilder.CreateChunk(0, 0, 0)
 	result1 := chunk.IsTransparent(0, 0, 0)
-	result2 := chunk.IsTransparent(6, 6, 6)
+	result2 := chunk.IsTransparent(4, 4, 4)
 	if result1 {
 		t.Errorf("Expected chunk.IsTransparent(0, 0, 0) to be false but was true")
 	}
@@ -47,9 +27,9 @@ func TestChunkToMeshLengths(t *testing.T) {
 	chunkSettings := CreateStandardChunkSettings(2, 2, 2)
 	meshBuilder := NewChunkMeshBuilder(chunkSettings)
 	chunk := &StandardChunk{
-		voxels:        &[]int{1, 1, 1, 1, 1, 1, 1, 1},
-		visibleVoxels: &[]int{0, 1, 2, 3, 4, 5, 6, 7},
-		chunkSettings: chunkSettings,
+		Voxels:        &[]int{1, 1, 1, 1, 1, 1, 1, 1},
+		VisibleVoxels: &[]int{0, 1, 2, 3, 4, 5, 6, 7},
+		ChunkSettings: chunkSettings,
 	}
 	// Act
 	result := meshBuilder.ChunkToMesh(chunk)
@@ -57,16 +37,18 @@ func TestChunkToMeshLengths(t *testing.T) {
 	// 8 voxels
 	// 3 faces per voxel
 	// 4 vertices per face
-	// 3 floats per vertex
-	// 8*3*4*3 = 288
+	// 1 floats per vertex
+	// 8*3*4 = 288
 	expected := 8 * 3 * 4 * 3
 	posLength := len(*result.positions)
-	normalsLength := len(*result.normals)
 	if posLength != expected {
 		t.Errorf("Expected len(result.positions) to be %d but got: %d", expected, posLength)
 	}
-	if normalsLength != expected {
-		t.Errorf("Expected len(result.positions) to be %d but got: %d", expected, normalsLength)
+
+	expectedNormals := 8 * 3 * 4
+	normalsLength := len(*result.normalIndices)
+	if normalsLength != expectedNormals {
+		t.Errorf("Expected len(result.normals) to be %d but got: %d", expectedNormals, normalsLength)
 	}
 	// uvs got 2 floats per vertex so:
 	// 8*3*4*2 = 192

@@ -23,7 +23,7 @@ func BuildGame(windowWidth, windowHeight int) *ant.Game {
 	game.AddScene(scene)
 	hud := BuildHud(windowWidth, windowHeight)
 	region := &chunks.ChunkRegion{
-		Chunks: make(map[chunks.ChunkIndex]*chunks.StandardChunk),
+		Chunks: make(map[chunks.IndexCoordinate]*chunks.StandardChunk),
 	}
 	chunkWorld := chunks.NewChunkWorld(cam, region, scene)
 	game.Update = func(dt *time.Duration) {

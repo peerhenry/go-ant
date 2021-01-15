@@ -10,6 +10,7 @@ type ChunkWorld struct {
 	Camera                 *ant.Camera
 	Region                 *ChunkRegion
 	Scene                  *ant.Scene
+	ChunkSettings          IChunkSettings
 	ChunkBuilder           *ChunkBuilder
 	ChunkRenderDataBuilder *ChunkRenderDataBuilder
 	initialized            bool
@@ -24,7 +25,8 @@ func NewChunkWorld(camera *ant.Camera, region *ChunkRegion, scene *ant.Scene) *C
 		Region:                 region,
 		ChunkBuilder:           chunkBuilder,
 		ChunkRenderDataBuilder: &ChunkRenderDataBuilder{chunkSettings, meshBuilder},
-		Scene: scene,
+		Scene:         scene,
+		ChunkSettings: chunkSettings,
 	}
 }
 
@@ -40,4 +42,14 @@ func (self *ChunkWorld) Update(dt *time.Duration) {
 		}
 		self.initialized = true
 	}
+}
+
+func (self *ChunkWorld) GetVoxelAt(chunkIndex, voxelCoordinate IndexCoordinate) int {
+
+	chunk, ok := self.Region.Chunks[chunkIndex]
+	if !ok {
+		return AIR
+	}
+	index := self.ChunkSettings.CoordinateToIndex(voxelCoordinate)
+	return (*chunk.Voxels)[index]
 }

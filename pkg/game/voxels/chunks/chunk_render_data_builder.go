@@ -12,9 +12,9 @@ type ChunkRenderDataBuilder struct {
 
 func (self *ChunkRenderDataBuilder) ChunkToRenderData(chunk *StandardChunk) *ant.RenderData {
 	position := Vec3{
-		float32(self.chunkSettings.GetChunkWidth() * chunk.Index.i),
-		float32(self.chunkSettings.GetChunkDepth() * chunk.Index.j),
-		float32(self.chunkSettings.GetChunkHeight() * chunk.Index.k),
+		float32(self.chunkSettings.GetChunkWidth() * chunk.Coordinate.i),
+		float32(self.chunkSettings.GetChunkDepth() * chunk.Coordinate.j),
+		float32(self.chunkSettings.GetChunkHeight() * chunk.Coordinate.k),
 	}
 	mesh := self.meshBuilder.ChunkToMesh(chunk)
 	vaoBuilder := new(ant.VaoBuilder)
