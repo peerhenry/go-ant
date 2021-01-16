@@ -45,9 +45,9 @@ func (self *ChunkBuilder) CreateChunk(world *ChunkWorld, ci, cj, ck int) *Standa
 // todo: injecting this function
 func (self *ChunkBuilder) getVoxel(i, j, k int) int {
 	if k == (self.chunkSettings.GetChunkHeight() - 1) {
-		if i%2 == 0 {
-			return AIR
-		}
+		// if i%2 == 0 {
+		// 	return AIR
+		// }
 		return GRASS
 	}
 	if k > self.chunkSettings.GetChunkHeight()-5 {

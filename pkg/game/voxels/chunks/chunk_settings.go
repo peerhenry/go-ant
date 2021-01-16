@@ -23,7 +23,7 @@ type StandardChunkSettings struct {
 
 var _ IChunkSettings = (*StandardChunkSettings)(nil)
 
-func CreateStandardChunkSettings(chunkWidth, chunkDepth, chunkHeight int) *StandardChunkSettings {
+func NewChunkSettings(chunkWidth, chunkDepth, chunkHeight int) *StandardChunkSettings {
 	return &StandardChunkSettings{
 		chunkWidth:            chunkWidth,
 		chunkDepth:            chunkDepth,
@@ -115,81 +115,85 @@ func (self StandardChunkSettings) AddCoordinateijk(coord []IndexCoordinate, i, j
 }
 
 func (self StandardChunkSettings) NormalizeCoordinate(coord []IndexCoordinate) []IndexCoordinate {
-	ranks := len(coord)
-	root := coord[0]
-	newi := root.i
+	newi := coord[0].i
 	if newi >= self.chunkWidth {
 		remainderi := newi % self.chunkWidth
 		rankupdi := newi / self.chunkWidth
+		ranks := len(coord)
 		if ranks == 1 {
 			coord = append(coord, IndexCoordinate{rankupdi, 0, 0})
 		} else {
 			rankup := coord[1]
 			coord[1] = IndexCoordinate{rankup.i + rankupdi, rankup.j, rankup.k}
 		}
-		coord[0] = IndexCoordinate{remainderi, root.j, root.k}
+		coord[0] = IndexCoordinate{remainderi, coord[0].j, coord[0].k}
 	} else if newi < 0 {
-		rankupdi := newi/self.chunkWidth - 1
+		rankupdi := (newi+1)/self.chunkWidth - 1
 		remainderi := newi - rankupdi*self.chunkWidth
+		ranks := len(coord)
 		if ranks == 1 {
 			coord = append(coord, IndexCoordinate{rankupdi, 0, 0})
 		} else {
 			rankup := coord[1]
 			coord[1] = IndexCoordinate{rankup.i + rankupdi, rankup.j, rankup.k}
 		}
-		coord[0] = IndexCoordinate{remainderi, root.j, root.k}
+		coord[0] = IndexCoordinate{remainderi, coord[0].j, coord[0].k}
 	} else {
-		coord[0] = IndexCoordinate{newi, root.j, root.k}
+		coord[0] = IndexCoordinate{newi, coord[0].j, coord[0].k}
 	}
 
-	newj := root.j
+	newj := coord[0].j
 	if newj >= self.chunkDepth {
 		remainderj := newj % self.chunkDepth
 		rankupdj := newj / self.chunkDepth
+		ranks := len(coord)
 		if ranks == 1 {
 			coord = append(coord, IndexCoordinate{0, rankupdj, 0})
 		} else {
 			rankup := coord[1]
 			coord[1] = IndexCoordinate{rankup.i, rankup.j + rankupdj, rankup.k}
 		}
-		coord[0] = IndexCoordinate{root.i, remainderj, root.k}
+		coord[0] = IndexCoordinate{coord[0].i, remainderj, coord[0].k}
 	} else if newj < 0 {
-		rankupdj := newj/self.chunkDepth - 1
+		rankupdj := (newj+1)/self.chunkDepth - 1
 		remainderj := newj - rankupdj*self.chunkDepth
+		ranks := len(coord)
 		if ranks == 1 {
 			coord = append(coord, IndexCoordinate{0, rankupdj, 0})
 		} else {
 			rankup := coord[1]
 			coord[1] = IndexCoordinate{rankup.i, rankup.j + rankupdj, rankup.k}
 		}
-		coord[0] = IndexCoordinate{root.i, remainderj, root.k}
+		coord[0] = IndexCoordinate{coord[0].i, remainderj, coord[0].k}
 	} else {
-		coord[0] = IndexCoordinate{root.i, newj, root.k}
+		coord[0] = IndexCoordinate{coord[0].i, newj, coord[0].k}
 	}
 
-	newk := root.k
+	newk := coord[0].k
 	if newk >= self.chunkHeight {
 		remainderk := newk % self.chunkHeight
 		rankupdk := newk / self.chunkHeight
+		ranks := len(coord)
 		if ranks == 1 {
 			coord = append(coord, IndexCoordinate{0, 0, rankupdk})
 		} else {
 			rankup := coord[1]
 			coord[1] = IndexCoordinate{rankup.i, rankup.j, rankup.k + rankupdk}
 		}
-		coord[0] = IndexCoordinate{root.i, root.j, remainderk}
+		coord[0] = IndexCoordinate{coord[0].i, coord[0].j, remainderk}
 	} else if newk < 0 {
-		rankupdk := newk/self.chunkHeight - 1
+		rankupdk := (newk+1)/self.chunkHeight - 1
 		remainderk := newk - rankupdk*self.chunkHeight
+		ranks := len(coord)
 		if ranks == 1 {
 			coord = append(coord, IndexCoordinate{0, 0, rankupdk})
 		} else {
 			rankup := coord[1]
 			coord[1] = IndexCoordinate{rankup.i, rankup.j, rankup.k + rankupdk}
 		}
-		coord[0] = IndexCoordinate{root.i, root.j, remainderk}
+		coord[0] = IndexCoordinate{coord[0].i, coord[0].j, remainderk}
 	} else {
-		coord[0] = IndexCoordinate{root.i, root.j, newk}
+		coord[0] = IndexCoordinate{coord[0].i, coord[0].j, newk}
 	}
 
 	return coord

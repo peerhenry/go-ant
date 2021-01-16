@@ -19,6 +19,6 @@ func (self *ChunkRegion) GetChunkRegion(index IndexCoordinate) (*StandardChunk, 
 	return thing, ok
 }
 
-func (self *ChunkRegion) GetRegionCoodinate() []IndexCoordinate {
-	return []IndexCoordinate{IndexCoordinate{0, 0, 0}}
+func (self *ChunkRegion) GetRegionCoodinate() ([]IndexCoordinate, bool) {
+	return []IndexCoordinate{IndexCoordinate{0, 0, 0}}, true // boolean returns if coordinate is origin
 }

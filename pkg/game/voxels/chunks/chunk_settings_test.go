@@ -3,7 +3,7 @@ package chunks
 import "testing"
 
 func TestCoordinateToIndex(t *testing.T) {
-	chunkSettings := CreateStandardChunkSettings(7, 7, 7)
+	chunkSettings := NewChunkSettings(7, 7, 7)
 	expecti := 6
 	expectj := 5
 	expectk := 4
@@ -18,7 +18,7 @@ func TestCoordinateToIndex(t *testing.T) {
 
 func TestAddCoordinatei(t *testing.T) {
 	// Arrange
-	settings := CreateStandardChunkSettings(5, 5, 5)
+	settings := NewChunkSettings(5, 5, 5)
 	root := IndexCoordinate{0, 0, 0}
 	coord := []IndexCoordinate{root}
 	expectedRoot := IndexCoordinate{1, 0, 0}
@@ -37,7 +37,7 @@ func TestAddCoordinatei(t *testing.T) {
 
 func TestAddCoordinateiOverBoundary(t *testing.T) {
 	// Arrange
-	settings := CreateStandardChunkSettings(5, 5, 5)
+	settings := NewChunkSettings(5, 5, 5)
 	root := IndexCoordinate{1, 3, 2}
 	coord := []IndexCoordinate{root}
 	expected0 := IndexCoordinate{3, 3, 2}
@@ -61,7 +61,7 @@ func TestAddCoordinateiOverBoundary(t *testing.T) {
 
 func TestAddCoordinateiOverMultipleBoundaries(t *testing.T) {
 	// Arrange
-	settings := CreateStandardChunkSettings(5, 5, 5)
+	settings := NewChunkSettings(5, 5, 5)
 	root := IndexCoordinate{1, 0, 0}
 	coord := []IndexCoordinate{root}
 	expected0 := IndexCoordinate{3, 0, 0}
@@ -85,7 +85,7 @@ func TestAddCoordinateiOverMultipleBoundaries(t *testing.T) {
 
 func TestAddCoordinateiOnBoundary(t *testing.T) {
 	// Arrange
-	settings := CreateStandardChunkSettings(5, 5, 5)
+	settings := NewChunkSettings(5, 5, 5)
 	root := IndexCoordinate{3, 0, 0}
 	coord := []IndexCoordinate{root}
 	expected0 := IndexCoordinate{0, 0, 0}
@@ -109,7 +109,7 @@ func TestAddCoordinateiOnBoundary(t *testing.T) {
 
 func TestAddCoordinateiSubtraction(t *testing.T) {
 	// Arrange
-	settings := CreateStandardChunkSettings(5, 5, 5)
+	settings := NewChunkSettings(5, 5, 5)
 	root := IndexCoordinate{1, 0, 0}
 	coord := []IndexCoordinate{root}
 	expected0 := IndexCoordinate{4, 0, 0}
@@ -133,7 +133,7 @@ func TestAddCoordinateiSubtraction(t *testing.T) {
 
 func TestAddCoordinateiOverBoundaryWithExistingHigherRanks(t *testing.T) {
 	// Arrange
-	settings := CreateStandardChunkSettings(5, 5, 5)
+	settings := NewChunkSettings(5, 5, 5)
 	root := IndexCoordinate{1, 3, 2}
 	coord := []IndexCoordinate{root, IndexCoordinate{2, 1, 3}}
 	expected0 := IndexCoordinate{3, 3, 2}
@@ -157,7 +157,7 @@ func TestAddCoordinateiOverBoundaryWithExistingHigherRanks(t *testing.T) {
 
 func TestAddCoordinateiSubtractionWithExistingHigherRanks(t *testing.T) {
 	// Arrange
-	settings := CreateStandardChunkSettings(5, 5, 5)
+	settings := NewChunkSettings(5, 5, 5)
 	root := IndexCoordinate{1, 3, 2}
 	coord := []IndexCoordinate{root, IndexCoordinate{2, 1, 3}}
 	expected0 := IndexCoordinate{4, 3, 2}
@@ -173,6 +173,64 @@ func TestAddCoordinateiSubtractionWithExistingHigherRanks(t *testing.T) {
 	if !coord0.Equals(expected0) {
 		t.Errorf("Expected coord0 to be %s but got %s", expected0.ToString(), coord0.ToString())
 	}
+	coord1 := result[1]
+	if !coord1.Equals(expected1) {
+		t.Errorf("Expected coord1 to be %s but got %s", expected1.ToString(), coord1.ToString())
+	}
+}
+
+func TestNormalizeCoordinate(t *testing.T) {
+	settings := NewChunkSettings(8, 8, 8)
+	voxelIndexCoord := IndexCoordinate{3, 8, 5}
+	chunkCoordinate := IndexCoordinate{1, 1, 1}
+	region := NewChunkRegion()
+	rawRegionCoord := []IndexCoordinate{voxelIndexCoord, chunkCoordinate}
+	region2Coord, isOrigin := region.GetRegionCoodinate()
+	if !isOrigin {
+		rawRegionCoord = append(rawRegionCoord, region2Coord...)
+	}
+	// Act
+	result := settings.NormalizeCoordinate(rawRegionCoord)
+	// Assert
+	resultRanks := len(result)
+	if resultRanks != 2 {
+		t.Errorf("Expected 2 ranks but got %d", resultRanks)
+	}
+	expected0 := IndexCoordinate{3, 0, 5}
+	coord0 := result[0]
+	if !coord0.Equals(expected0) {
+		t.Errorf("Expected coord0 to be %s but got %s", expected0.ToString(), coord0.ToString())
+	}
+	expected1 := IndexCoordinate{1, 2, 1}
+	coord1 := result[1]
+	if !coord1.Equals(expected1) {
+		t.Errorf("Expected coord1 to be %s but got %s", expected1.ToString(), coord1.ToString())
+	}
+}
+
+func TestNormalizeCoordinateNegative(t *testing.T) {
+	settings := NewChunkSettings(8, 8, 8)
+	voxelIndexCoord := IndexCoordinate{-8, -1, 5}
+	chunkCoordinate := IndexCoordinate{1, 1, 1}
+	region := NewChunkRegion()
+	rawRegionCoord := []IndexCoordinate{voxelIndexCoord, chunkCoordinate}
+	region2Coord, isOrigin := region.GetRegionCoodinate()
+	if !isOrigin {
+		rawRegionCoord = append(rawRegionCoord, region2Coord...)
+	}
+	// Act
+	result := settings.NormalizeCoordinate(rawRegionCoord)
+	// Assert
+	resultRanks := len(result)
+	if resultRanks != 2 {
+		t.Errorf("Expected 2 ranks but got %d", resultRanks)
+	}
+	expected0 := IndexCoordinate{0, 7, 5}
+	coord0 := result[0]
+	if !coord0.Equals(expected0) {
+		t.Errorf("Expected coord0 to be %s but got %s", expected0.ToString(), coord0.ToString())
+	}
+	expected1 := IndexCoordinate{0, 0, 1}
 	coord1 := result[1]
 	if !coord1.Equals(expected1) {
 		t.Errorf("Expected coord1 to be %s but got %s", expected1.ToString(), coord1.ToString())

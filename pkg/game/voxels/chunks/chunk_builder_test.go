@@ -7,7 +7,7 @@ import (
 )
 
 func TestCreateChunkData(t *testing.T) {
-	chunkSettings := CreateStandardChunkSettings(7, 7, 7)
+	chunkSettings := NewChunkSettings(7, 7, 7)
 	world := NewChunkWorld(chunkSettings)
 	chunkBuilder := world.ChunkBuilder
 	chunk := chunkBuilder.CreateChunk(world, 0, 0, 0)
@@ -25,7 +25,7 @@ func TestCreateChunkData(t *testing.T) {
 
 func TestChunkToMeshLengths(t *testing.T) {
 	// Arrange
-	chunkSettings := CreateStandardChunkSettings(2, 2, 2)
+	chunkSettings := NewChunkSettings(2, 2, 2)
 	world := NewChunkWorld(chunkSettings)
 	meshBuilder := NewChunkMeshBuilder(chunkSettings)
 	chunk := &StandardChunk{
@@ -72,7 +72,7 @@ func TestChunkToMeshLengths(t *testing.T) {
 }
 
 func TestGetQuadPositionsForOriginSouth(t *testing.T) {
-	chunkSettings := CreateStandardChunkSettings(7, 7, 7)
+	chunkSettings := NewChunkSettings(7, 7, 7)
 	meshBuilder := NewChunkMeshBuilder(chunkSettings)
 	pos := meshBuilder.GetQuadPositions(0, 0, 0, SOUTH)
 	AssertOffset(t, 0, 0, 0, 0, &pos, chunkSettings)
@@ -82,7 +82,7 @@ func TestGetQuadPositionsForOriginSouth(t *testing.T) {
 }
 
 func TestGetQuadPositionsForOriginEast(t *testing.T) {
-	chunkSettings := CreateStandardChunkSettings(7, 7, 7)
+	chunkSettings := NewChunkSettings(7, 7, 7)
 	meshBuilder := NewChunkMeshBuilder(chunkSettings)
 	pos := meshBuilder.GetQuadPositions(0, 0, 0, EAST)
 	AssertOffset(t, 1, 0, 0, 0, &pos, chunkSettings)
@@ -92,7 +92,7 @@ func TestGetQuadPositionsForOriginEast(t *testing.T) {
 }
 
 func TestGetQuadPositionsForOriginNorth(t *testing.T) {
-	chunkSettings := CreateStandardChunkSettings(7, 7, 7)
+	chunkSettings := NewChunkSettings(7, 7, 7)
 	meshBuilder := NewChunkMeshBuilder(chunkSettings)
 	pos := meshBuilder.GetQuadPositions(0, 0, 0, NORTH)
 	AssertOffset(t, 1, 1, 0, 0, &pos, chunkSettings)
@@ -102,7 +102,7 @@ func TestGetQuadPositionsForOriginNorth(t *testing.T) {
 }
 
 func TestGetQuadPositionsForOriginWest(t *testing.T) {
-	chunkSettings := CreateStandardChunkSettings(7, 7, 7)
+	chunkSettings := NewChunkSettings(7, 7, 7)
 	meshBuilder := NewChunkMeshBuilder(chunkSettings)
 	pos := meshBuilder.GetQuadPositions(0, 0, 0, WEST)
 	AssertOffset(t, 0, 1, 0, 0, &pos, chunkSettings)
@@ -112,7 +112,7 @@ func TestGetQuadPositionsForOriginWest(t *testing.T) {
 }
 
 func TestGetQuadPositionsForOriginTop(t *testing.T) {
-	chunkSettings := CreateStandardChunkSettings(7, 7, 7)
+	chunkSettings := NewChunkSettings(7, 7, 7)
 	meshBuilder := NewChunkMeshBuilder(chunkSettings)
 	pos := meshBuilder.GetQuadPositions(0, 0, 0, TOP)
 	AssertOffset(t, 0, 0, 1, 0, &pos, chunkSettings)
@@ -122,7 +122,7 @@ func TestGetQuadPositionsForOriginTop(t *testing.T) {
 }
 
 func TestGetQuadPositionsForOriginBottom(t *testing.T) {
-	chunkSettings := CreateStandardChunkSettings(7, 7, 7)
+	chunkSettings := NewChunkSettings(7, 7, 7)
 	meshBuilder := NewChunkMeshBuilder(chunkSettings)
 	pos := meshBuilder.GetQuadPositions(0, 0, 0, BOTTOM)
 	AssertOffset(t, 0, 1, 0, 0, &pos, chunkSettings)
@@ -132,7 +132,7 @@ func TestGetQuadPositionsForOriginBottom(t *testing.T) {
 }
 
 func TestGetQuadPositionsBottom(t *testing.T) {
-	chunkSettings := CreateStandardChunkSettings(7, 7, 7)
+	chunkSettings := NewChunkSettings(7, 7, 7)
 	meshBuilder := NewChunkMeshBuilder(chunkSettings)
 	pos := meshBuilder.GetQuadPositions(1, 2, 4, BOTTOM)
 	AssertOffset(t, 1, 3, 4, 0, &pos, chunkSettings)

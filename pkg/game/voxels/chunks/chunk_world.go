@@ -1,14 +1,6 @@
 package chunks
 
-import (
-	"time"
-
-	"ant.com/ant/pkg/ant"
-)
-
 type ChunkWorld struct {
-	Camera                 *ant.Camera
-	Scene                  *ant.Scene
 	Region                 *ChunkRegion
 	ChunkSettings          IChunkSettings
 	ChunkBuilder           *ChunkBuilder
@@ -24,20 +16,6 @@ func NewChunkWorld(chunkSettings IChunkSettings) *ChunkWorld {
 		ChunkBuilder:           chunkBuilder,
 		ChunkRenderDataBuilder: &ChunkRenderDataBuilder{chunkSettings, meshBuilder},
 		ChunkSettings:          chunkSettings,
-	}
-}
-
-func (self *ChunkWorld) Update(dt *time.Duration) {
-	if !self.initialized {
-		for ci := -2; ci < 4; ci++ {
-			for cj := -2; cj < 4; cj++ {
-				chunk := self.ChunkBuilder.CreateChunk(self, ci, cj, -1)
-				self.Region.SetChunkRegion(chunk)
-				renderData := self.ChunkRenderDataBuilder.ChunkToRenderData(chunk)
-				self.Scene.AddRenderData(renderData)
-			}
-		}
-		self.initialized = true
 	}
 }
 

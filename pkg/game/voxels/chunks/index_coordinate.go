@@ -10,13 +10,7 @@ type IndexCoordinate struct {
 	k int
 }
 
-type CompositeCoordinate struct {
-	CoordinatesByRank []IndexCoordinate
-}
-
-func (self CompositeCoordinate) GetCoordinateForRank(rank int) IndexCoordinate {
-	return self.CoordinatesByRank[rank]
-}
+type RegionCoordinate = []IndexCoordinate
 
 func (self IndexCoordinate) ToString() string {
 	return "IndexCoordinate {" + fmt.Sprintf("%v, %v, %v", self.i, self.j, self.k) + "}"
