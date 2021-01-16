@@ -18,8 +18,8 @@ func (self *ChunkBuilder) CreateChunk(world *ChunkWorld, ci, cj, ck int) *Standa
 	chunkHeight := self.chunkSettings.GetChunkHeight()
 	// set data of every voxel in the chunk
 	for vi := 0; vi < chunkWidth; vi++ {
-		for vj := 0; vj < self.chunkSettings.GetChunkDepth(); vj++ {
-			for vk := 0; vk < self.chunkSettings.GetChunkHeight(); vk++ {
+		for vj := 0; vj < chunkDepth; vj++ {
+			for vk := 0; vk < chunkHeight; vk++ {
 				voxel := self.getVoxel(vi, vj, vk)
 				chunkVoxels = append(chunkVoxels, voxel)
 				if vi == 0 || vi == chunkWidth-1 || vj == 0 || vj == chunkDepth-1 || vk == 0 || vk == chunkHeight-1 {

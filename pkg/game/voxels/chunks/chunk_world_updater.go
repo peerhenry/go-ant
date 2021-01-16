@@ -27,8 +27,9 @@ func (self *ChunkWorldUpdater) Update(dt *time.Duration) {
 	if !self.initialized {
 		for ci := -2; ci < 4; ci++ {
 			for cj := -2; cj < 4; cj++ {
-				chunk := self.ChunkWorld.ChunkBuilder.CreateChunk(self.ChunkWorld, ci, cj, -1)
-				self.ChunkWorld.Region.SetChunkRegion(chunk)
+				self.ChunkWorld.CreateChunksInColumn(ci, cj)
+				// chunk := self.ChunkWorld.ChunkBuilder.CreateChunk(self.ChunkWorld, ci, cj, -1)
+				// self.ChunkWorld.Region.SetChunkRegion(chunk)
 			}
 		}
 
