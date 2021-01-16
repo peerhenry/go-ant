@@ -8,8 +8,9 @@ import (
 
 func TestCreateChunkData(t *testing.T) {
 	chunkSettings := CreateStandardChunkSettings(7, 7, 7)
-	chunkBuilder := CreateStandardChunkBuilder(chunkSettings)
-	chunk := chunkBuilder.CreateChunk(0, 0, 0)
+	world := NewChunkWorld(chunkSettings)
+	chunkBuilder := world.ChunkBuilder
+	chunk := chunkBuilder.CreateChunk(world, 0, 0, 0)
 	result1 := chunk.IsTransparent(0, 0, 0)
 	result2 := chunk.IsTransparent(4, 4, 4)
 	if result1 {
@@ -25,11 +26,12 @@ func TestCreateChunkData(t *testing.T) {
 func TestChunkToMeshLengths(t *testing.T) {
 	// Arrange
 	chunkSettings := CreateStandardChunkSettings(2, 2, 2)
+	world := NewChunkWorld(chunkSettings)
 	meshBuilder := NewChunkMeshBuilder(chunkSettings)
 	chunk := &StandardChunk{
 		Voxels:        &[]int{1, 1, 1, 1, 1, 1, 1, 1},
 		VisibleVoxels: &[]int{0, 1, 2, 3, 4, 5, 6, 7},
-		ChunkSettings: chunkSettings,
+		ChunkWorld:    world,
 	}
 	// Act
 	result := meshBuilder.ChunkToMesh(chunk)

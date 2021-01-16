@@ -1,20 +1,16 @@
 package chunks
 
-type IChunkBuilder interface {
-	CreateChunkData() StandardChunk
-}
-
 type ChunkBuilder struct {
 	chunkSettings IChunkSettings
 }
 
-func CreateStandardChunkBuilder(chunkSettings IChunkSettings) *ChunkBuilder {
+func NewChunkBuilder(chunkSettings IChunkSettings) *ChunkBuilder {
 	return &ChunkBuilder{
 		chunkSettings,
 	}
 }
 
-func (self *ChunkBuilder) CreateChunk(ci, cj, ck int) *StandardChunk {
+func (self *ChunkBuilder) CreateChunk(world *ChunkWorld, ci, cj, ck int) *StandardChunk {
 	var chunkVoxels []int
 	var visibleVoxels []int
 	chunkWidth := self.chunkSettings.GetChunkWidth()
@@ -42,7 +38,7 @@ func (self *ChunkBuilder) CreateChunk(ci, cj, ck int) *StandardChunk {
 		Coordinate:    IndexCoordinate{ci, cj, ck},
 		Voxels:        &chunkVoxels,
 		VisibleVoxels: &visibleVoxels,
-		ChunkSettings: self.chunkSettings,
+		ChunkWorld:    world,
 	}
 }
 

@@ -16,14 +16,14 @@ func TestCoordinateToIndex(t *testing.T) {
 	}
 }
 
-func TestAddi(t *testing.T) {
+func TestAddCoordinatei(t *testing.T) {
 	// Arrange
 	settings := CreateStandardChunkSettings(5, 5, 5)
 	root := IndexCoordinate{0, 0, 0}
 	coord := []IndexCoordinate{root}
 	expectedRoot := IndexCoordinate{1, 0, 0}
 	// Act
-	result := settings.Addi(coord, 1)
+	result := settings.AddCoordinatei(coord, 1)
 	// Assert
 	resultRanks := len(result)
 	resultRoot := result[0]
@@ -35,7 +35,7 @@ func TestAddi(t *testing.T) {
 	}
 }
 
-func TestAddiOverBoundary(t *testing.T) {
+func TestAddCoordinateiOverBoundary(t *testing.T) {
 	// Arrange
 	settings := CreateStandardChunkSettings(5, 5, 5)
 	root := IndexCoordinate{1, 3, 2}
@@ -43,7 +43,7 @@ func TestAddiOverBoundary(t *testing.T) {
 	expected0 := IndexCoordinate{3, 3, 2}
 	expected1 := IndexCoordinate{1, 0, 0}
 	// Act
-	result := settings.Addi(coord, 7)
+	result := settings.AddCoordinatei(coord, 7)
 	// Assert
 	resultRanks := len(result)
 	if resultRanks != 2 {
@@ -59,7 +59,7 @@ func TestAddiOverBoundary(t *testing.T) {
 	}
 }
 
-func TestAddiOverMultipleBoundaries(t *testing.T) {
+func TestAddCoordinateiOverMultipleBoundaries(t *testing.T) {
 	// Arrange
 	settings := CreateStandardChunkSettings(5, 5, 5)
 	root := IndexCoordinate{1, 0, 0}
@@ -67,7 +67,7 @@ func TestAddiOverMultipleBoundaries(t *testing.T) {
 	expected0 := IndexCoordinate{3, 0, 0}
 	expected1 := IndexCoordinate{3, 0, 0}
 	// Act
-	result := settings.Addi(coord, 17)
+	result := settings.AddCoordinatei(coord, 17)
 	// Assert
 	resultRanks := len(result)
 	if resultRanks != 2 {
@@ -83,7 +83,7 @@ func TestAddiOverMultipleBoundaries(t *testing.T) {
 	}
 }
 
-func TestAddiOnBoundary(t *testing.T) {
+func TestAddCoordinateiOnBoundary(t *testing.T) {
 	// Arrange
 	settings := CreateStandardChunkSettings(5, 5, 5)
 	root := IndexCoordinate{3, 0, 0}
@@ -91,7 +91,7 @@ func TestAddiOnBoundary(t *testing.T) {
 	expected0 := IndexCoordinate{0, 0, 0}
 	expected1 := IndexCoordinate{1, 0, 0}
 	// Act
-	result := settings.Addi(coord, 2)
+	result := settings.AddCoordinatei(coord, 2)
 	// Assert
 	resultRanks := len(result)
 	if resultRanks != 2 {
@@ -107,7 +107,7 @@ func TestAddiOnBoundary(t *testing.T) {
 	}
 }
 
-func TestAddiSubtraction(t *testing.T) {
+func TestAddCoordinateiSubtraction(t *testing.T) {
 	// Arrange
 	settings := CreateStandardChunkSettings(5, 5, 5)
 	root := IndexCoordinate{1, 0, 0}
@@ -115,7 +115,7 @@ func TestAddiSubtraction(t *testing.T) {
 	expected0 := IndexCoordinate{4, 0, 0}
 	expected1 := IndexCoordinate{-1, 0, 0}
 	// Act
-	result := settings.Addi(coord, -2)
+	result := settings.AddCoordinatei(coord, -2)
 	// Assert
 	resultRanks := len(result)
 	if resultRanks != 2 {
@@ -131,7 +131,7 @@ func TestAddiSubtraction(t *testing.T) {
 	}
 }
 
-func TestAddiOverBoundaryWithExistingHigherRanks(t *testing.T) {
+func TestAddCoordinateiOverBoundaryWithExistingHigherRanks(t *testing.T) {
 	// Arrange
 	settings := CreateStandardChunkSettings(5, 5, 5)
 	root := IndexCoordinate{1, 3, 2}
@@ -139,7 +139,7 @@ func TestAddiOverBoundaryWithExistingHigherRanks(t *testing.T) {
 	expected0 := IndexCoordinate{3, 3, 2}
 	expected1 := IndexCoordinate{3, 1, 3}
 	// Act
-	result := settings.Addi(coord, 7)
+	result := settings.AddCoordinatei(coord, 7)
 	// Assert
 	resultRanks := len(result)
 	if resultRanks != 2 {
@@ -155,7 +155,7 @@ func TestAddiOverBoundaryWithExistingHigherRanks(t *testing.T) {
 	}
 }
 
-func TestAddiSubtractionWithExistingHigherRanks(t *testing.T) {
+func TestAddCoordinateiSubtractionWithExistingHigherRanks(t *testing.T) {
 	// Arrange
 	settings := CreateStandardChunkSettings(5, 5, 5)
 	root := IndexCoordinate{1, 3, 2}
@@ -163,7 +163,7 @@ func TestAddiSubtractionWithExistingHigherRanks(t *testing.T) {
 	expected0 := IndexCoordinate{4, 3, 2}
 	expected1 := IndexCoordinate{1, 1, 3}
 	// Act
-	result := settings.Addi(coord, -2)
+	result := settings.AddCoordinatei(coord, -2)
 	// Assert
 	resultRanks := len(result)
 	if resultRanks != 2 {

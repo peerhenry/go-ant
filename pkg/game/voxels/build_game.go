@@ -22,14 +22,11 @@ func BuildGame(windowWidth, windowHeight int) *ant.Game {
 	scene := BuildChunkScene(windowWidth, windowHeight)
 	game.AddScene(scene)
 	hud := BuildHud(windowWidth, windowHeight)
-	region := &chunks.ChunkRegion{
-		Chunks: make(map[chunks.IndexCoordinate]*chunks.StandardChunk),
-	}
-	chunkWorld := chunks.NewChunkWorld(cam, region, scene)
+	chunkWorldUpdater := chunks.NewChunkWorldUpdater(cam, scene)
 	game.Update = func(dt *time.Duration) {
 		move(commands, cam, dt)
 		hud.Update(dt)
-		chunkWorld.Update(dt)
+		chunkWorldUpdater.Update(dt)
 	}
 	game.PreDraw = func() {
 		gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)

@@ -8,25 +8,22 @@ import (
 
 type ChunkWorld struct {
 	Camera                 *ant.Camera
-	Region                 *ChunkRegion
 	Scene                  *ant.Scene
+	Region                 *ChunkRegion
 	ChunkSettings          IChunkSettings
 	ChunkBuilder           *ChunkBuilder
 	ChunkRenderDataBuilder *ChunkRenderDataBuilder
 	initialized            bool
 }
 
-func NewChunkWorld(camera *ant.Camera, region *ChunkRegion, scene *ant.Scene) *ChunkWorld {
-	chunkSettings := CreateStandardChunkSettings(32, 32, 8)
-	chunkBuilder := CreateStandardChunkBuilder(chunkSettings)
+func NewChunkWorld(chunkSettings IChunkSettings) *ChunkWorld {
+	chunkBuilder := NewChunkBuilder(chunkSettings)
 	meshBuilder := NewChunkMeshBuilder(chunkSettings)
 	return &ChunkWorld{
-		Camera:                 camera,
-		Region:                 region,
+		Region:                 NewChunkRegion(),
 		ChunkBuilder:           chunkBuilder,
 		ChunkRenderDataBuilder: &ChunkRenderDataBuilder{chunkSettings, meshBuilder},
-		Scene:         scene,
-		ChunkSettings: chunkSettings,
+		ChunkSettings:          chunkSettings,
 	}
 }
 
@@ -34,9 +31,9 @@ func (self *ChunkWorld) Update(dt *time.Duration) {
 	if !self.initialized {
 		for ci := -2; ci < 4; ci++ {
 			for cj := -2; cj < 4; cj++ {
-				chunk := self.ChunkBuilder.CreateChunk(ci, cj, -1)
-				renderData := self.ChunkRenderDataBuilder.ChunkToRenderData(chunk)
+				chunk := self.ChunkBuilder.CreateChunk(self, ci, cj, -1)
 				self.Region.SetChunkRegion(chunk)
+				renderData := self.ChunkRenderDataBuilder.ChunkToRenderData(chunk)
 				self.Scene.AddRenderData(renderData)
 			}
 		}
@@ -44,9 +41,19 @@ func (self *ChunkWorld) Update(dt *time.Duration) {
 	}
 }
 
-func (self *ChunkWorld) GetVoxelAt(chunkIndex, voxelCoordinate IndexCoordinate) int {
+func (self *ChunkWorld) GetVoxelAt(regionCoordinate []IndexCoordinate) int {
+	ranks := len(regionCoordinate)
 
-	chunk, ok := self.Region.Chunks[chunkIndex]
+	voxelCoordinate := regionCoordinate[0]
+	var chunkCoordinate IndexCoordinate
+	if ranks > 1 {
+		// todo: work with arbitrary high ranks
+		chunkCoordinate = regionCoordinate[1]
+	} else {
+		chunkCoordinate = IndexCoordinate{0, 0, 0}
+	}
+
+	chunk, ok := self.Region.Chunks[chunkCoordinate]
 	if !ok {
 		return AIR
 	}
