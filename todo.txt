@@ -16,8 +16,9 @@ chunk coherence with chunk world or something
 directional light: fix shader so light doesnt move with camera
 render 16x16 chunks
 remove face for adjacent chunks
-====== in progress
 height map usage
+====== in progress
+height atlas maps do not need to correspond with chunk size
 ====== next
 fix visiblevoxels problem
 perlin noise for height map

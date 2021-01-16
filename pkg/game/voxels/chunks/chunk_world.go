@@ -1,11 +1,18 @@
 package chunks
 
+type HeightAtlasIndex struct {
+	i int
+	j int
+}
+
 type ChunkWorld struct {
 	Region                 *ChunkRegion
 	ChunkSettings          IChunkSettings
 	ChunkBuilder           *ChunkBuilder
 	ChunkRenderDataBuilder *ChunkRenderDataBuilder
 	initialized            bool
+	HeightAtlas            map[HeightAtlasIndex]*[]int
+	HeightAtlasMapSize     int
 }
 
 func NewChunkWorld(chunkSettings IChunkSettings) *ChunkWorld {
@@ -16,6 +23,8 @@ func NewChunkWorld(chunkSettings IChunkSettings) *ChunkWorld {
 		ChunkBuilder:           chunkBuilder,
 		ChunkRenderDataBuilder: &ChunkRenderDataBuilder{chunkSettings, meshBuilder},
 		ChunkSettings:          chunkSettings,
+		HeightAtlas:            make(map[HeightAtlasIndex]*[]int),
+		HeightAtlasMapSize:     128,
 	}
 }
 
@@ -50,43 +59,96 @@ func (self *ChunkWorld) GetVoxelAt(regionCoordinate []IndexCoordinate) int {
 }
 
 func (self *ChunkWorld) CreateChunksInColumn(ci, cj int) {
-	heights, _, _ := self.GetChunkColumnHeights(ci, cj)
+	// heights := self.GetChunkColumnHeights(ci, cj)
 	chunkWidth := self.ChunkSettings.GetChunkWidth()
 	chunkDepth := self.ChunkSettings.GetChunkDepth()
 	for vi := 0; vi < chunkWidth; vi++ {
 		for vj := 0; vj < chunkDepth; vj++ {
-			height := (*heights)[vi*chunkWidth+vj]
-			voxelK, chunkK := self.HeightToCoordinates(height)
-			chunk := self.GetOrCreateChunkAt(IndexCoordinate{ci, cj, chunkK})
-			chunk.AddVisibleVoxel(vi, vj, voxelK, STONE)
+			ai := ci*chunkWidth + vi
+			aj := cj*chunkDepth + vj
+			height, pile := self.GetPileCount(ai, aj) // how high should this voxel column add voxels
+
+			for dvk := 0; dvk <= pile; dvk++ {
+				vk, chunkK := self.HeightToCoordinates(height - dvk)
+				chunk := self.GetOrCreateChunkAt(IndexCoordinate{ci, cj, chunkK})
+				voxel := STONE
+				if dvk == 0 {
+					voxel = GRASS
+				}
+				chunk.AddVisibleVoxel(vi, vj, vk, voxel)
+			}
 		}
 	}
 }
 
-func (self *ChunkWorld) GetChunkColumnHeights(ci, cj int) (*[]int, int, int) {
-	chunkWidth := self.ChunkSettings.GetChunkWidth()
-	chunkDepth := self.ChunkSettings.GetChunkDepth()
-	var heights []int
-	minHeight := MaxInt
-	maxHeight := MinInt
-	for vi := 0; vi < chunkWidth; vi++ {
-		for vj := 0; vj < chunkDepth; vj++ {
-			ii := chunkWidth*ci + vi
-			jj := chunkWidth*cj + vj
-			h := 0
-			if ii > 0 && jj > 0 {
-				h = (ii + jj) / 10
-			}
-			heights = append(heights, 0)
-			if h > maxHeight {
-				maxHeight = h
-			}
-			if h < minHeight {
-				minHeight = h
-			}
+func (self *ChunkWorld) GetPileCount(ai, aj int) (int, int) {
+	pile := 0
+	h := self.GetHeight(ai, aj)
+	checkPile := func(xi, xj int) {
+		d := h - self.GetHeight(xi, xj)
+		if d > pile {
+			pile = d
 		}
 	}
-	return &heights, minHeight, maxHeight
+	checkPile(ai+1, aj)
+	checkPile(ai-1, aj)
+	checkPile(ai, aj-1)
+	checkPile(ai, aj+1)
+	return h, pile
+}
+
+func (self *ChunkWorld) GetHeight(ai, aj int) int {
+	heightMapSize := self.HeightAtlasMapSize
+	vi, vj, hmi, hmj := self.HorizontalToHeightMapCoordinates(ai, aj)
+	localHeightMap, ok := self.HeightAtlas[HeightAtlasIndex{hmi, hmj}]
+	if !ok {
+		// generate height map piece
+		newHeightMap := self.GetHeightMap(hmi, hmj)
+		self.HeightAtlas[HeightAtlasIndex{hmi, hmj}] = newHeightMap
+		return (*newHeightMap)[vi*heightMapSize+vj]
+	}
+	return (*localHeightMap)[vi*heightMapSize+vj]
+}
+
+func (self *ChunkWorld) GetHeightMap(hmi, hmj int) *[]int {
+	heightMapSize := self.HeightAtlasMapSize
+	var heights []int
+	for vi := 0; vi < heightMapSize; vi++ {
+		for vj := 0; vj < heightMapSize; vj++ {
+			// absolute voxel i & j in world
+			ai := heightMapSize*hmi + vi
+			aj := heightMapSize*hmj + vj
+
+			h := ai + aj
+			// rand.Seed(time.Now().UnixNano() + int64(vi*vj))
+			// h := rand.Intn(3)
+			heights = append(heights, h)
+		}
+	}
+	return &heights
+}
+
+func (self *ChunkWorld) HorizontalToHeightMapCoordinates(i int, j int) (int, int, int, int) {
+	size := self.HeightAtlasMapSize
+	vi := i
+	vj := j
+	hmi := 0
+	hmj := 0
+	if vi >= size {
+		vi = i % size
+		hmi = i / size
+	} else if vi < 0 {
+		hmi = (vi+1)/size - 1
+		vi = vi - hmi*size
+	}
+	if vj >= size {
+		vj = j % size
+		hmj = j / size
+	} else if vj < 0 {
+		hmj = (vj+1)/size - 1
+		vj = vj - hmj*size
+	}
+	return vi, vj, hmi, hmj
 }
 
 // returns voxelcoordinate k in chunk, and chunkcoordinate k in region
@@ -94,14 +156,6 @@ func (self *ChunkWorld) HeightToCoordinates(h int) (int, int) {
 	chunkHeight := self.ChunkSettings.GetChunkHeight()
 	base := chunkHeight / 2
 	rawK := base + h
-
-	// remainderk := rawK % chunkHeight
-	// rankupk := int(math.Floor(float64(rawK) / float64(chunkHeight)))
-	// if remainderk < 0 {
-	// 	remainderk = remainderk + chunkHeight
-	// }
-	// return remainderk, rankupk
-
 	if rawK >= chunkHeight {
 		remainderk := rawK % chunkHeight
 		rankupk := rawK / chunkHeight
@@ -112,4 +166,12 @@ func (self *ChunkWorld) HeightToCoordinates(h int) (int, int) {
 		return remainderk, rankupk
 	}
 	return rawK, 0
+
+	// alternative implementation
+	// remainderk := rawK % chunkHeight
+	// rankupk := int(math.Floor(float64(rawK) / float64(chunkHeight)))
+	// if remainderk < 0 {
+	// 	remainderk = remainderk + chunkHeight
+	// }
+	// return remainderk, rankupk
 }
