@@ -29,16 +29,18 @@ prevent underground faces from being created
 ====== in progress
 
 ====== next
+adequately spawn trees on generated chunks
+unload distant chunks
 write a test for transforming empty chunk to render object
+frustum culling with chunks
+fix chunk water problem
 
 ====== todo
 transparent voxels
-frustum culling with chunks
 add crosshair
 implement world seed
 draw chunk outline
 fix visiblevoxels problem
-infinite world generation
 optimize chunk mesh memory
 combine faces to reduce vertex data
 refactor LoadImageFileToUniform to uniformStore
