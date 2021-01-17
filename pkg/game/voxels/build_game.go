@@ -15,7 +15,7 @@ func BuildGame(windowWidth, windowHeight int) *ant.Game {
 	gl.ClearColor(100./256., 149./256., 237./256., 1.0) // todo: put this in a better place
 	cursor := new(Cursor)
 	cam := ant.NewCamera()
-	cam.Position = Vec3{0, 0, 6}
+	cam.Position = Vec3{0, 0, 30}
 	commands := new(Commands)
 	setupInputHandling(window, cursor, cam, commands)
 	game := ant.NewGame(window)

@@ -1,5 +1,11 @@
 package chunks
 
+import (
+	"math"
+
+	"ant.com/ant/pkg/ant"
+)
+
 type HeightAtlasIndex struct {
 	i int
 	j int
@@ -11,20 +17,23 @@ type ChunkWorld struct {
 	ChunkBuilder           *ChunkBuilder
 	ChunkRenderDataBuilder *ChunkRenderDataBuilder
 	initialized            bool
-	HeightAtlas            map[HeightAtlasIndex]*[]int
+	HeightAtlas            *map[HeightAtlasIndex]*[]int
 	HeightAtlasMapSize     int
+	Perlin                 *ant.Perlin
 }
 
 func NewChunkWorld(chunkSettings IChunkSettings) *ChunkWorld {
 	chunkBuilder := NewChunkBuilder(chunkSettings)
 	meshBuilder := NewChunkMeshBuilder(chunkSettings)
+	heightAtlas := make(map[HeightAtlasIndex]*[]int)
 	return &ChunkWorld{
 		Region:                 NewChunkRegion(),
 		ChunkBuilder:           chunkBuilder,
 		ChunkRenderDataBuilder: &ChunkRenderDataBuilder{chunkSettings, meshBuilder},
 		ChunkSettings:          chunkSettings,
-		HeightAtlas:            make(map[HeightAtlasIndex]*[]int),
-		HeightAtlasMapSize:     128,
+		HeightAtlas:            &heightAtlas,
+		HeightAtlasMapSize:     64,
+		Perlin:                 ant.NewPerlin(1, 1),
 	}
 }
 
@@ -100,11 +109,11 @@ func (self *ChunkWorld) GetPileCount(ai, aj int) (int, int) {
 func (self *ChunkWorld) GetHeight(ai, aj int) int {
 	heightMapSize := self.HeightAtlasMapSize
 	vi, vj, hmi, hmj := self.HorizontalToHeightMapCoordinates(ai, aj)
-	localHeightMap, ok := self.HeightAtlas[HeightAtlasIndex{hmi, hmj}]
+	localHeightMap, ok := (*self.HeightAtlas)[HeightAtlasIndex{hmi, hmj}]
 	if !ok {
-		// generate height map piece
+		// generate height map for atlas
 		newHeightMap := self.GetHeightMap(hmi, hmj)
-		self.HeightAtlas[HeightAtlasIndex{hmi, hmj}] = newHeightMap
+		(*self.HeightAtlas)[HeightAtlasIndex{hmi, hmj}] = newHeightMap
 		return (*newHeightMap)[vi*heightMapSize+vj]
 	}
 	return (*localHeightMap)[vi*heightMapSize+vj]
@@ -118,10 +127,23 @@ func (self *ChunkWorld) GetHeightMap(hmi, hmj int) *[]int {
 			// absolute voxel i & j in world
 			ai := heightMapSize*hmi + vi
 			aj := heightMapSize*hmj + vj
+			h := 0
 
-			h := ai + aj
+			// === one big slope ===
+			// h := ai + aj
+			// ====================
+
+			// === random ===
 			// rand.Seed(time.Now().UnixNano() + int64(vi*vj))
 			// h := rand.Intn(3)
+			// ====================
+
+			// === perlin noise ===
+			cellSize := 128.0
+			amp := 30.0
+			h = int(math.Round(amp * self.Perlin.Perlin(float64(ai)/cellSize, float64(aj)/cellSize)))
+			// ====================
+
 			heights = append(heights, h)
 		}
 	}
