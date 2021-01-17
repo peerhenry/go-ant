@@ -23,10 +23,16 @@ tree generation
 fast move with SHIFT
 perlin noise performance improvement
 extract height generator
+
 ====== in progress
-====== next
 extract height atlas from chunk_world
 prevent underground faces from being created
+
+====== next
+write a test for transforming empty chunk to render object
+
+====== todo
+add crosshair
 implement world seed
 draw chunk outline
 transparent voxels
@@ -34,10 +40,8 @@ fix visiblevoxels problem
 infinite world generation
 optimize chunk mesh memory
 combine faces to reduce vertex data
-====== todo
 refactor LoadImageFileToUniform to uniformStore
 multithreading
-add crosshair
 
 ====== epics
 voxel removal by click (ray intersection + chunk update)

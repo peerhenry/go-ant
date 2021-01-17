@@ -42,12 +42,14 @@ func (self *ChunkMeshBuilder) ChunkToMesh(chunk *StandardChunk) *ChunkMesh {
 	for _, index := range *chunk.VisibleVoxels {
 		v := self.ChunkSettings.IndexToCoordinate(index)
 		voxel := (*chunk.Voxels)[index]
-		maybeAddFace(voxel, v.i, v.j, v.k, 0, -1, 0, SOUTH)
-		maybeAddFace(voxel, v.i, v.j, v.k, 1, 0, 0, EAST)
-		maybeAddFace(voxel, v.i, v.j, v.k, 0, 1, 0, NORTH)
-		maybeAddFace(voxel, v.i, v.j, v.k, -1, 0, 0, WEST)
-		maybeAddFace(voxel, v.i, v.j, v.k, 0, 0, 1, TOP)
-		maybeAddFace(voxel, v.i, v.j, v.k, 0, 0, -1, BOTTOM)
+		if voxel != UNDERGROUND && voxel != AIR {
+			maybeAddFace(voxel, v.i, v.j, v.k, 0, -1, 0, SOUTH)
+			maybeAddFace(voxel, v.i, v.j, v.k, 1, 0, 0, EAST)
+			maybeAddFace(voxel, v.i, v.j, v.k, 0, 1, 0, NORTH)
+			maybeAddFace(voxel, v.i, v.j, v.k, -1, 0, 0, WEST)
+			maybeAddFace(voxel, v.i, v.j, v.k, 0, 0, 1, TOP)
+			maybeAddFace(voxel, v.i, v.j, v.k, 0, 0, -1, BOTTOM)
+		}
 	}
 	return &ChunkMesh{&positions, &normalIndices, &uvs, &indices, indicesCount}
 }

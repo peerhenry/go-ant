@@ -62,6 +62,7 @@ func (self *StandardChunk) IsTransparent(i, j, k int) bool {
 	v := self.GetVoxel(i, j, k)
 	return v == AIR || v == WATER
 }
+
 func (self *StandardChunk) AddVisibleVoxel(i, j, k, voxel int) {
 	wasTransparent := self.IsTransparent(i, j, k)
 	isNowTransparent := voxel == AIR
@@ -74,6 +75,12 @@ func (self *StandardChunk) AddVisibleVoxel(i, j, k, voxel int) {
 		cas := append(*self.VisibleVoxels, index)
 		self.VisibleVoxels = &cas
 	}
+}
+
+func (self *StandardChunk) AddInvisibleVoxel(i, j, k, voxel int) {
+	voxelIndexCoord := IndexCoordinate{i, j, k}
+	index := self.ChunkWorld.ChunkSettings.CoordinateToIndex(voxelIndexCoord)
+	(*self.Voxels)[index] = voxel
 }
 
 func (self *StandardChunk) IsVisible() bool {

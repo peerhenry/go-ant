@@ -51,15 +51,25 @@ func (self *ChunkWorld) GetVoxelAt(regionCoordinate []IndexCoordinate) int {
 
 	voxelCoordinate := regionCoordinate[0]
 	var chunkCoordinate IndexCoordinate
+	ai := voxelCoordinate.i
+	aj := voxelCoordinate.j
+	ak := voxelCoordinate.k
 	if ranks > 1 {
 		// todo: work with arbitrary high ranks
 		chunkCoordinate = regionCoordinate[1]
+		ai = self.ChunkSettings.GetChunkWidth()*chunkCoordinate.i + voxelCoordinate.i
+		aj = self.ChunkSettings.GetChunkDepth()*chunkCoordinate.j + voxelCoordinate.j
+		ak = self.ChunkSettings.GetChunkHeight()*chunkCoordinate.k + voxelCoordinate.k
 	} else {
 		chunkCoordinate = IndexCoordinate{0, 0, 0}
 	}
 
 	chunk, ok := self.Region.Chunks[chunkCoordinate]
 	if !ok {
+		surface_ak := self.GetSurfaceAk(ai, aj) // Ak stands for absolute k
+		if ak < surface_ak {
+			return UNDERGROUND
+		}
 		return AIR
 	}
 	index := self.ChunkSettings.CoordinateToIndex(voxelCoordinate)
@@ -89,6 +99,13 @@ func (self *ChunkWorld) CreateChunksInColumn(ci, cj int) {
 					}
 				} else if dvk < 3 {
 					voxel = DIRT
+				}
+				if dvk == pile && vk != 0 {
+					// fill the rest of the voxels in the column of the chunk
+					for restk := 0; restk < vk; restk++ {
+						chunk.AddInvisibleVoxel(vi, vj, restk, UNDERGROUND)
+						// chunk.AddVisibleVoxel(vi, vj, restk, DIRT)
+					}
 				}
 				chunk.AddVisibleVoxel(vi, vj, vk, voxel)
 			}
@@ -143,6 +160,27 @@ func (self *ChunkWorld) GetPileCount(ai, aj int) (int, int) {
 	return h, pile
 }
 
+func (self *ChunkWorld) GetSurfaceAk(ai, aj int) int {
+	h := self.GetHeight(ai, aj)
+	return h + self.ChunkSettings.GetChunkHeight()/2
+}
+
+// todo use this
+func (self *ChunkWorld) getHeightsForChunkColumn(ci, cj int) *[]int {
+	var output []int
+	chunkWidth := self.ChunkSettings.GetChunkWidth()
+	chunkDepth := self.ChunkSettings.GetChunkDepth()
+	for i := 0; i < chunkWidth; i++ {
+		ai := ci*chunkWidth + i
+		for j := 0; j < chunkDepth; j++ {
+			aj := cj*chunkDepth + j
+			h := self.GetHeight(ai, aj)
+			output = append(output, h)
+		}
+	}
+	return &output
+}
+
 func (self *ChunkWorld) GetHeight(ai, aj int) int {
 	heightMapSize := self.HeightAtlasMapSize
 	vi, vj, hmi, hmj := self.HorizontalToHeightMapCoordinates(ai, aj)
@@ -171,6 +209,9 @@ func (self *ChunkWorld) GetHeightMap(hmi, hmj int) *[]int {
 	return &heights
 }
 
+// returns
+// - voxel i & j on heightmap
+// - atlas index i, j for accessing height map
 func (self *ChunkWorld) HorizontalToHeightMapCoordinates(i int, j int) (int, int, int, int) {
 	size := self.HeightAtlasMapSize
 	vi := i
