@@ -19,3 +19,7 @@ func (self IndexCoordinate) ToString() string {
 func (self IndexCoordinate) Equals(other IndexCoordinate) bool {
 	return self.i == other.i && self.j == other.j && self.k == other.k
 }
+
+func (self IndexCoordinate) Addijk(di, dj, dk int) IndexCoordinate {
+	return IndexCoordinate{self.i + di, self.j + dj, self.k + dk}
+}

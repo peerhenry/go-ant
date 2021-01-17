@@ -52,6 +52,7 @@ type Commands struct {
 	right    bool
 	up       bool
 	down     bool
+	fast     bool
 }
 
 func setupInputHandling(window *glfw.Window, cursor *Cursor, cam *ant.Camera, commands *Commands) {
@@ -72,7 +73,14 @@ func setupInputHandling(window *glfw.Window, cursor *Cursor, cam *ant.Camera, co
 
 	// todo: movement
 	window.SetKeyCallback(func(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
-		// world.Uniforms.SetMat4("Position", )
+		if key == glfw.KeyLeftShift {
+			if action == glfw.Press {
+				commands.fast = true
+			}
+			if action == glfw.Release {
+				commands.fast = false
+			}
+		}
 		if key == glfw.KeyA {
 			if action == glfw.Press {
 				commands.forward = true
@@ -161,7 +169,10 @@ func move(commands *Commands, cam *ant.Camera, dt *time.Duration) {
 		isMoving = true
 	}
 
-	speed := 6.0
+	speed := 12.0
+	if commands.fast {
+		speed = 35.0
+	}
 	dx := float32(speed * dt.Seconds())
 
 	if isMoving {

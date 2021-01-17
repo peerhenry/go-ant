@@ -2,6 +2,7 @@ package chunks
 
 import (
 	"log"
+	"math/rand"
 	"time"
 
 	"ant.com/ant/pkg/ant"
@@ -32,6 +33,16 @@ func (self *ChunkWorldUpdater) Update(dt *time.Duration) {
 				self.ChunkWorld.CreateChunksInColumn(ci, cj)
 				// chunk := self.ChunkWorld.ChunkBuilder.CreateChunk(self.ChunkWorld, ci, cj, -1)
 				// self.ChunkWorld.Region.SetChunkRegion(chunk)
+			}
+		}
+		// drop some trees
+		for ci := -3; ci < 4; ci++ {
+			for cj := -3; cj < 4; cj++ {
+				rand.Seed(time.Now().UnixNano() + int64(ci*cj)) // todo world seed
+				extra := rand.Intn(10)
+				ddi := rand.Intn(7)
+				ddj := rand.Intn(8)
+				self.ChunkWorld.DropTree(ci*10+ddi, cj*10+ddj, 6+extra)
 			}
 		}
 		elapsedChunks := time.Since(startChunks)

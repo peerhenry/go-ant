@@ -129,7 +129,60 @@ func (self *ChunkMeshBuilder) GetQuadUvs(voxel, i, j, k int, face int32) []float
 		return stone
 	case SAND:
 		return sand
+	case TRUNK:
+		switch face {
+		case TOP:
+			return trunkInner
+		case BOTTOM:
+			return trunkInner
+		default:
+			return trunk
+		}
+	case LEAVES:
+		return leavesFull
+	case SNOWDIRT:
+		switch face {
+		case TOP:
+			return snow
+		case BOTTOM:
+			return dirt
+		default:
+			return snowDirt
+		}
+	case WATER:
+		return water
 	default:
 		return dirt
 	}
 }
+
+// =========== voxel UVS ============
+
+const pixelSize float32 = 1.0 / 512
+const quadSize float32 = 1.0 / 16
+
+func getCubeUvsAt(i, j byte) []float32 {
+	left := float32(i)*quadSize + pixelSize
+	right := float32(i+1)*quadSize - pixelSize
+	top := float32(j)*quadSize + pixelSize
+	bottom := float32(j+1)*quadSize - pixelSize
+	return []float32{
+		left, bottom,
+		left, top,
+		right, bottom,
+		right, top,
+	}
+}
+
+var dirt []float32 = getCubeUvsAt(2, 0)
+var grassTop []float32 = getCubeUvsAt(0, 0)
+var grassSide []float32 = getCubeUvsAt(3, 0)
+var stone []float32 = getCubeUvsAt(1, 0)
+var planks []float32 = getCubeUvsAt(4, 0)
+var sand []float32 = getCubeUvsAt(2, 1)
+var trunk []float32 = getCubeUvsAt(4, 1)
+var trunkInner []float32 = getCubeUvsAt(5, 1)
+var leavesFull []float32 = getCubeUvsAt(5, 3)
+var snowDirt []float32 = getCubeUvsAt(4, 4)
+var snow []float32 = getCubeUvsAt(2, 4)
+var water []float32 = getCubeUvsAt(13, 12)

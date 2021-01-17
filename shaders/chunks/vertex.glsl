@@ -42,7 +42,7 @@ void main()
     // vec4 eyeCoords = ModelViewMatrix * vec4(VertexPosition,1.0);
     // vec3 s = normalize(vec3(LightPosition - eyeCoords));
     vec3 Normal = normals[NormalIndex];
-    LightIntensity = Ld * Kd * max( dot( -LightDirection, Normal ), 0.2 );
+    LightIntensity = Ld * Kd * (0.5*dot( -LightDirection, Normal ) + 0.5);
     TexCoords = VertexUv;
     gl_Position = MVP * vec4(VertexPosition, 1.0);
 }

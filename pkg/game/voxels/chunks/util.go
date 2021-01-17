@@ -8,11 +8,15 @@ type Mat4 = mgl32.Mat4
 type Mat3 = mgl32.Mat3
 
 const (
-	AIR   = 0
-	GRASS = 1
-	DIRT  = 2
-	STONE = 3
-	SAND  = 4
+	AIR      = 0
+	GRASS    = 1
+	DIRT     = 2
+	STONE    = 3
+	SAND     = 4
+	TRUNK    = 5
+	LEAVES   = 6
+	SNOWDIRT = 7
+	WATER    = 8
 )
 
 const (

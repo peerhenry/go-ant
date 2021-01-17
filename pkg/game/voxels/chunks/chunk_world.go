@@ -68,7 +68,6 @@ func (self *ChunkWorld) GetVoxelAt(regionCoordinate []IndexCoordinate) int {
 }
 
 func (self *ChunkWorld) CreateChunksInColumn(ci, cj int) {
-	// heights := self.GetChunkColumnHeights(ci, cj)
 	chunkWidth := self.ChunkSettings.GetChunkWidth()
 	chunkDepth := self.ChunkSettings.GetChunkDepth()
 	for vi := 0; vi < chunkWidth; vi++ {
@@ -82,11 +81,50 @@ func (self *ChunkWorld) CreateChunksInColumn(ci, cj int) {
 				chunk := self.GetOrCreateChunkAt(IndexCoordinate{ci, cj, chunkK})
 				voxel := STONE
 				if dvk == 0 {
-					voxel = GRASS
+					if height < -4 {
+						voxel = SAND
+					} else if height > 8 {
+						voxel = SNOWDIRT
+					} else {
+						voxel = GRASS
+					}
+				} else if dvk < 3 {
+					voxel = DIRT
 				}
 				chunk.AddVisibleVoxel(vi, vj, vk, voxel)
 			}
+			// fill water
+			if height < -6 {
+				waterDepth := -6 - height
+				for dk := 1; dk <= waterDepth; dk++ {
+					vk, chunkK := self.HeightToCoordinates(height + dk)
+					chunk := self.GetOrCreateChunkAt(IndexCoordinate{ci, cj, chunkK})
+					chunk.AddVisibleVoxel(vi, vj, vk, WATER)
+				}
+			}
 		}
+	}
+}
+
+func (self *ChunkWorld) DropTree(ai, aj, height int) {
+	surfaceHeight := self.GetHeight(ai, aj)
+	ak := surfaceHeight + self.ChunkSettings.GetChunkHeight()/2 // height 0 corresponds to chunk middle
+	if surfaceHeight < -4 {
+		return
+	}
+	tree := GetStandardTree(height)
+	for dCoord, voxel := range tree.Voxels {
+		absoluteCoord := dCoord.Addijk(ai, aj, ak)
+		normalized := self.ChunkSettings.NormalizeCoordinate([]IndexCoordinate{absoluteCoord})
+		ranks := len(normalized)
+		var chunk *StandardChunk
+		if ranks > 1 {
+			chunk = self.GetOrCreateChunkAt(normalized[1])
+		} else {
+			chunk = self.GetOrCreateChunkAt(IndexCoordinate{0, 0, 0})
+		}
+		voxelCoord := normalized[0]
+		chunk.AddVisibleVoxel(voxelCoord.i, voxelCoord.j, voxelCoord.k, voxel)
 	}
 }
 
@@ -140,7 +178,7 @@ func (self *ChunkWorld) GetHeightMap(hmi, hmj int) *[]int {
 
 			// === perlin noise ===
 			cellSize := 128.0
-			amp := 30.0
+			amp := 80.0
 			h = int(math.Round(amp * self.Perlin.Perlin(float64(ai)/cellSize, float64(aj)/cellSize)))
 			// ====================
 

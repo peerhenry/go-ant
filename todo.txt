@@ -17,11 +17,18 @@ directional light: fix shader so light doesnt move with camera
 render 16x16 chunks
 remove face for adjacent chunks
 height map usage
-====== in progress
 height atlas maps do not need to correspond with chunk size
-====== next
-fix visiblevoxels problem
 perlin noise for height map
+tree generation
+fast move with SHIFT
+====== in progress
+====== next
+perlin noise optimization
+prevent underground faces from being created
+implement world seed
+draw chunk outline
+transparent voxels
+fix visiblevoxels problem
 infinite world generation
 optimize chunk mesh memory
 combine faces to reduce vertex data
@@ -33,7 +40,6 @@ add crosshair
 ====== epics
 voxel removal by click (ray intersection + chunk update)
 skybox
-tree generation
 add crosshair
 shadows
 player collision box, falling and jumping
