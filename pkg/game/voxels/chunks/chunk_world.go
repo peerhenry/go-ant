@@ -4,35 +4,25 @@ import (
 	"ant.com/ant/pkg/ant"
 )
 
-type HeightAtlasIndex struct {
-	i int
-	j int
-}
-
 type ChunkWorld struct {
 	Region                 *ChunkRegion
 	ChunkSettings          IChunkSettings
 	ChunkBuilder           *ChunkBuilder
 	ChunkRenderDataBuilder *ChunkRenderDataBuilder
 	initialized            bool
-	HeightAtlas            *map[HeightAtlasIndex]*[]int
-	HeightAtlasMapSize     int
-	heightGenerator        IHeightGenerator
+	HeightAtlas            *HeightAtlas
 }
 
 func NewChunkWorld(chunkSettings IChunkSettings) *ChunkWorld {
 	chunkBuilder := NewChunkBuilder(chunkSettings)
 	meshBuilder := NewChunkMeshBuilder(chunkSettings)
-	heightAtlas := make(map[HeightAtlasIndex]*[]int)
 	perlin := ant.NewPerlin(1, 6)
 	return &ChunkWorld{
 		Region:                 NewChunkRegion(),
 		ChunkBuilder:           chunkBuilder,
 		ChunkRenderDataBuilder: &ChunkRenderDataBuilder{chunkSettings, meshBuilder},
 		ChunkSettings:          chunkSettings,
-		HeightAtlas:            &heightAtlas,
-		HeightAtlasMapSize:     64,
-		heightGenerator:        NewPerlinHeightGenerator(perlin, 200.0, 512.0),
+		HeightAtlas:            NewHeightAtlas(64, NewPerlinHeightGenerator(perlin, 200.0, 512.0)),
 	}
 }
 
@@ -66,7 +56,7 @@ func (self *ChunkWorld) GetVoxelAt(regionCoordinate []IndexCoordinate) int {
 
 	chunk, ok := self.Region.Chunks[chunkCoordinate]
 	if !ok {
-		surface_ak := self.GetSurfaceAk(ai, aj) // Ak stands for absolute k
+		surface_ak := self.GetHeight(ai, aj) // Ak stands for absolute k
 		if ak < surface_ak {
 			return UNDERGROUND
 		}
@@ -160,8 +150,8 @@ func (self *ChunkWorld) GetPileCount(ai, aj int) (int, int) {
 	return h, pile
 }
 
-func (self *ChunkWorld) GetSurfaceAk(ai, aj int) int {
-	h := self.GetHeight(ai, aj)
+func (self *ChunkWorld) GetHeight(ai, aj int) int {
+	h := self.HeightAtlas.GetHeight(ai, aj)
 	return h + self.ChunkSettings.GetChunkHeight()/2
 }
 
@@ -181,75 +171,19 @@ func (self *ChunkWorld) getHeightsForChunkColumn(ci, cj int) *[]int {
 	return &output
 }
 
-func (self *ChunkWorld) GetHeight(ai, aj int) int {
-	heightMapSize := self.HeightAtlasMapSize
-	vi, vj, hmi, hmj := self.HorizontalToHeightMapCoordinates(ai, aj)
-	localHeightMap, ok := (*self.HeightAtlas)[HeightAtlasIndex{hmi, hmj}]
-	if !ok {
-		// generate height map for atlas
-		newHeightMap := self.GetHeightMap(hmi, hmj)
-		(*self.HeightAtlas)[HeightAtlasIndex{hmi, hmj}] = newHeightMap
-		return (*newHeightMap)[vi*heightMapSize+vj]
-	}
-	return (*localHeightMap)[vi*heightMapSize+vj]
-}
-
-func (self *ChunkWorld) GetHeightMap(hmi, hmj int) *[]int {
-	heightMapSize := self.HeightAtlasMapSize
-	var heights []int
-	for vi := 0; vi < heightMapSize; vi++ {
-		for vj := 0; vj < heightMapSize; vj++ {
-			// absolute voxel i & j in world
-			ai := heightMapSize*hmi + vi
-			aj := heightMapSize*hmj + vj
-			h := self.heightGenerator.GetHeight(ai, aj)
-			heights = append(heights, h)
-		}
-	}
-	return &heights
-}
-
-// returns
-// - voxel i & j on heightmap
-// - atlas index i, j for accessing height map
-func (self *ChunkWorld) HorizontalToHeightMapCoordinates(i int, j int) (int, int, int, int) {
-	size := self.HeightAtlasMapSize
-	vi := i
-	vj := j
-	hmi := 0
-	hmj := 0
-	if vi >= size {
-		vi = i % size
-		hmi = i / size
-	} else if vi < 0 {
-		hmi = (vi+1)/size - 1
-		vi = vi - hmi*size
-	}
-	if vj >= size {
-		vj = j % size
-		hmj = j / size
-	} else if vj < 0 {
-		hmj = (vj+1)/size - 1
-		vj = vj - hmj*size
-	}
-	return vi, vj, hmi, hmj
-}
-
 // returns voxelcoordinate k in chunk, and chunkcoordinate k in region
-func (self *ChunkWorld) HeightToCoordinates(h int) (int, int) {
+func (self *ChunkWorld) HeightToCoordinates(ak int) (int, int) {
 	chunkHeight := self.ChunkSettings.GetChunkHeight()
-	base := chunkHeight / 2
-	rawK := base + h
-	if rawK >= chunkHeight {
-		remainderk := rawK % chunkHeight
-		rankupk := rawK / chunkHeight
+	if ak >= chunkHeight {
+		remainderk := ak % chunkHeight
+		rankupk := ak / chunkHeight
 		return remainderk, rankupk
-	} else if rawK < 0 {
-		rankupk := (rawK+1)/chunkHeight - 1
-		remainderk := rawK - rankupk*chunkHeight
+	} else if ak < 0 {
+		rankupk := (ak+1)/chunkHeight - 1
+		remainderk := ak - rankupk*chunkHeight
 		return remainderk, rankupk
 	}
-	return rawK, 0
+	return ak, 0
 
 	// alternative implementation
 	// remainderk := rawK % chunkHeight
