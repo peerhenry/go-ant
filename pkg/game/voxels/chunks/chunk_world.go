@@ -66,58 +66,11 @@ func (self *ChunkWorld) GetVoxelAt(regionCoordinate []IndexCoordinate) int {
 	return (*chunk.Voxels)[index]
 }
 
-func (self *ChunkWorld) CreateChunksInColumn(ci, cj int) {
-	chunkWidth := self.ChunkSettings.GetChunkWidth()
-	chunkDepth := self.ChunkSettings.GetChunkDepth()
-	for vi := 0; vi < chunkWidth; vi++ {
-		for vj := 0; vj < chunkDepth; vj++ {
-			ai := ci*chunkWidth + vi
-			aj := cj*chunkDepth + vj
-			height, pile := self.GetPileCount(ai, aj) // how high should this voxel column add voxels
-
-			for dvk := 0; dvk <= pile; dvk++ {
-				vk, chunkK := self.HeightToCoordinates(height - dvk)
-				chunk := self.GetOrCreateChunkAt(IndexCoordinate{ci, cj, chunkK})
-				voxel := STONE
-				if dvk == 0 {
-					if height < -4 {
-						voxel = SAND
-					} else if height > 20 {
-						voxel = SNOWDIRT
-					} else {
-						voxel = GRASS
-					}
-				} else if dvk < 3 {
-					voxel = DIRT
-				}
-				if dvk == pile && vk != 0 {
-					// fill the rest of the voxels in the column of the chunk
-					for restk := 0; restk < vk; restk++ {
-						chunk.AddInvisibleVoxel(vi, vj, restk, UNDERGROUND)
-						// chunk.AddVisibleVoxel(vi, vj, restk, DIRT)
-					}
-				}
-				chunk.AddVisibleVoxel(vi, vj, vk, voxel)
-			}
-			// fill water
-			if height < -6 {
-				waterDepth := -6 - height
-				for dk := 1; dk <= waterDepth; dk++ {
-					vk, chunkK := self.HeightToCoordinates(height + dk)
-					chunk := self.GetOrCreateChunkAt(IndexCoordinate{ci, cj, chunkK})
-					chunk.AddVisibleVoxel(vi, vj, vk, WATER)
-				}
-			}
-		}
-	}
-}
-
 func (self *ChunkWorld) DropTree(ai, aj, height int) {
-	surfaceHeight := self.GetHeight(ai, aj)
-	if surfaceHeight < -4 || surfaceHeight > 20 {
+	ak := self.GetHeight(ai, aj)
+	if ak < -4 || ak > 20 {
 		return
 	}
-	ak := surfaceHeight + self.ChunkSettings.GetChunkHeight()/2 // height 0 corresponds to chunk middle
 	tree := GetStandardTree(height)
 	for dCoord, voxel := range tree.Voxels {
 		absoluteCoord := dCoord.Addijk(ai, aj, ak)
@@ -134,41 +87,33 @@ func (self *ChunkWorld) DropTree(ai, aj, height int) {
 	}
 }
 
-func (self *ChunkWorld) GetPileCount(ai, aj int) (int, int) {
-	pile := 0
-	h := self.GetHeight(ai, aj)
-	checkPile := func(xi, xj int) {
-		d := h - self.GetHeight(xi, xj)
-		if d > pile {
-			pile = d
-		}
-	}
-	checkPile(ai+1, aj)
-	checkPile(ai-1, aj)
-	checkPile(ai, aj-1)
-	checkPile(ai, aj+1)
-	return h, pile
-}
-
 func (self *ChunkWorld) GetHeight(ai, aj int) int {
 	h := self.HeightAtlas.GetHeight(ai, aj)
 	return h + self.ChunkSettings.GetChunkHeight()/2
 }
 
 // todo use this
-func (self *ChunkWorld) getHeightsForChunkColumn(ci, cj int) *[]int {
+func (self *ChunkWorld) getHeightsForChunkColumn(ci, cj int) (*[]int, int, int) {
 	var output []int
 	chunkWidth := self.ChunkSettings.GetChunkWidth()
 	chunkDepth := self.ChunkSettings.GetChunkDepth()
+	min := MaxInt
+	max := MinInt
 	for i := 0; i < chunkWidth; i++ {
 		ai := ci*chunkWidth + i
 		for j := 0; j < chunkDepth; j++ {
 			aj := cj*chunkDepth + j
 			h := self.GetHeight(ai, aj)
+			if h < min {
+				min = h
+			}
+			if h > max {
+				max = h
+			}
 			output = append(output, h)
 		}
 	}
-	return &output
+	return &output, min, max
 }
 
 // returns voxelcoordinate k in chunk, and chunkcoordinate k in region
@@ -192,4 +137,78 @@ func (self *ChunkWorld) HeightToCoordinates(ak int) (int, int) {
 	// 	remainderk = remainderk + chunkHeight
 	// }
 	// return remainderk, rankupk
+}
+
+func (self *ChunkWorld) CreateChunksInColumn(ci, cj int) map[IndexCoordinate]*StandardChunk {
+	// get heights for chunks in column
+	heights, min, _ := self.getHeightsForChunkColumn(ci, cj)
+	_, minChunkK := self.HeightToCoordinates(min)
+	// _, maxChunkK := self.HeightToCoordinates(max)
+	chunkHeight := self.ChunkSettings.GetChunkHeight()
+	// minChunkK := int(math.Floor(float64(min) / float64(chunkHeight)))
+
+	output := make(map[IndexCoordinate]*StandardChunk)
+
+	for index, h := range *heights {
+		vi := index / self.ChunkSettings.GetChunkWidth()
+		vj := index % self.ChunkSettings.GetChunkWidth()
+		voxelK, topChunkK := self.HeightToCoordinates(h)
+		for ck := minChunkK; ck <= topChunkK; ck++ {
+			topK := chunkHeight - 1
+			if ck == topChunkK {
+				topK = voxelK
+			}
+			coord := IndexCoordinate{ci, cj, ck}
+			chunk := self.GetOrCreateChunkAt(coord)
+			output[coord] = chunk
+
+			for vk := 0; vk <= topK; vk++ {
+				chunk.AddVisibleVoxel(vi, vj, vk, DIRT)
+				depth := topK - vk + chunkHeight*(topChunkK-ck)
+				SetVoxelBasedOnHeight(chunk, vi, vj, vk, h, depth)
+			}
+		}
+
+		// fill water
+		if h < -6 {
+			waterDepth := -6 - h
+			for dk := 1; dk <= waterDepth; dk++ {
+				vk, chunkK := self.HeightToCoordinates(h + dk)
+				coord := IndexCoordinate{ci, cj, chunkK}
+				chunk := self.GetOrCreateChunkAt(coord)
+				output[coord] = chunk
+				chunk.AddVisibleVoxel(vi, vj, vk, WATER)
+			}
+		}
+	}
+
+	return output
+}
+
+func SetVoxelBasedOnHeight(chunk *StandardChunk, vi, vj, vk, ak, depth int) {
+	voxel := DIRT
+	if depth == 0 {
+		voxel = GRASS
+	}
+	if ak < -4 {
+		voxel = SAND
+	} else if ak > 20 {
+		voxel = SNOWDIRT
+	}
+	chunk.AddVisibleVoxel(vi, vj, vk, voxel)
+}
+
+func (self *ChunkWorld) GetVoxelPileHeight(h, ai, aj int) int {
+	pile := 0
+	checkPile := func(xi, xj int) {
+		d := h - self.GetHeight(xi, xj)
+		if d > pile {
+			pile = d
+		}
+	}
+	checkPile(ai+1, aj)
+	checkPile(ai-1, aj)
+	checkPile(ai, aj-1)
+	checkPile(ai, aj+1)
+	return pile
 }

@@ -23,19 +23,20 @@ tree generation
 fast move with SHIFT
 perlin noise performance improvement
 extract height generator
-
-====== in progress
 extract height atlas from chunk_world
 prevent underground faces from being created
+
+====== in progress
 
 ====== next
 write a test for transforming empty chunk to render object
 
 ====== todo
+transparent voxels
+frustum culling with chunks
 add crosshair
 implement world seed
 draw chunk outline
-transparent voxels
 fix visiblevoxels problem
 infinite world generation
 optimize chunk mesh memory
@@ -50,4 +51,3 @@ add crosshair
 shadows
 player collision box, falling and jumping
 water
-frustum culling with chunks

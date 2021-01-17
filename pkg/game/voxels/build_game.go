@@ -7,6 +7,7 @@ import (
 	"ant.com/ant/pkg/game/voxels/chunks"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
+	"github.com/go-gl/mathgl/mgl64"
 )
 
 func BuildGame(windowWidth, windowHeight int) *ant.Game {
@@ -15,7 +16,7 @@ func BuildGame(windowWidth, windowHeight int) *ant.Game {
 	gl.ClearColor(100./256., 149./256., 237./256., 1.0) // todo: put this in a better place
 	cursor := new(Cursor)
 	cam := ant.NewCamera()
-	cam.Position = Vec3{0, 0, 30}
+	cam.Position = mgl64.Vec3{0, 0, 30}
 	commands := new(Commands)
 	setupInputHandling(window, cursor, cam, commands)
 	game := ant.NewGame(window)
@@ -136,7 +137,7 @@ func setupInputHandling(window *glfw.Window, cursor *Cursor, cam *ant.Camera, co
 }
 
 func move(commands *Commands, cam *ant.Camera, dt *time.Duration) {
-	moveDir := Vec3{0, 0, 0}
+	moveDir := mgl64.Vec3{0, 0, 0}
 	isMoving := false
 
 	if commands.forward {
@@ -161,11 +162,11 @@ func move(commands *Commands, cam *ant.Camera, dt *time.Duration) {
 
 	if commands.up {
 		if !commands.down {
-			moveDir = moveDir.Add(Vec3{0, 0, 1})
+			moveDir = moveDir.Add(mgl64.Vec3{0, 0, 1})
 			isMoving = true
 		}
 	} else if commands.down {
-		moveDir = moveDir.Sub(Vec3{0, 0, 1})
+		moveDir = moveDir.Sub(mgl64.Vec3{0, 0, 1})
 		isMoving = true
 	}
 
@@ -173,7 +174,7 @@ func move(commands *Commands, cam *ant.Camera, dt *time.Duration) {
 	if commands.fast {
 		speed = 35.0
 	}
-	dx := float32(speed * dt.Seconds())
+	dx := speed * dt.Seconds()
 
 	if isMoving {
 		moveDir = moveDir.Normalize()
