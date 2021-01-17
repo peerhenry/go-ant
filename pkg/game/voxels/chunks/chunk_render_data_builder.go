@@ -17,6 +17,9 @@ func (self *ChunkRenderDataBuilder) ChunkToRenderData(chunk *StandardChunk) *ant
 		float32(self.chunkSettings.GetChunkHeight() * chunk.Coordinate.k),
 	}
 	mesh := self.meshBuilder.ChunkToMesh(chunk)
+	if len(*mesh.positions) == 0 { // todo: find out how this can happen
+		return nil
+	}
 	vaoBuilder := new(ant.VaoBuilder)
 	vaoBuilder.AddVertexBuffer(0, 3, mesh.positions)
 	vaoBuilder.AddIntegerBuffer(1, 1, mesh.normalIndices)

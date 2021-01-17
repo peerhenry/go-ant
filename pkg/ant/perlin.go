@@ -2,12 +2,15 @@ package ant
 
 import (
 	"fmt"
-	"log"
 	"math"
-	"math/rand"
 
 	"github.com/go-gl/mathgl/mgl64"
 )
+
+type PerlinCacheKey struct {
+	x float64
+	y float64
+}
 
 type Perlin struct {
 	Seed          int64
@@ -22,9 +25,9 @@ func NewPerlin(seed int64, octaves int) *Perlin {
 	var octaveScales []float64
 	for octave := 0; octave < octaves; octave++ {
 		halfPow := math.Pow(0.5, float64(octave))
-		log.Println("adding halfPow", halfPow)
+		twoPow := math.Pow(2, float64(octave))
 		octaveWeights = append(octaveWeights, halfPow)
-		octaveScales = append(octaveScales, halfPow)
+		octaveScales = append(octaveScales, twoPow)
 	}
 	var gradientVecs []mgl64.Vec2
 	gradientVecRadius := math.Sqrt(2)
@@ -50,11 +53,12 @@ func (self *Perlin) ConfigureOctaves(octaveWeights, octaveScales []float64) {
 	self.octaves = len(octaveWeights)
 }
 
-func (self *Perlin) Perlin(x, y float64) float64 {
+func (self *Perlin) Noise(x, y float64) float64 {
 	total := 0.0
 	weightTotal := 0.0
 	for octave := 0; octave < self.octaves; octave++ {
-		next := self.PerlinForOctave(x, y, octave)
+		scale := self.octaveScales[octave]
+		next := self.Perlin(scale*x, scale*y)
 		weight := self.octaveWeights[octave]
 		weightTotal += weight
 		total = next * weight
@@ -66,31 +70,31 @@ func (self *Perlin) Perlin(x, y float64) float64 {
 // | . |
 // C - D
 
-func (self *Perlin) PerlinForOctave(x, y float64, octave int) float64 {
-	getDotProduct := func(celli, cellj float64) float64 {
-		rand.Seed(self.Seed * int64(celli) * int64(cellj))
-		hash := rand.Intn(len(self.gradientVecs))
-		gradient := self.gradientVecs[hash]
-		dx := x - celli
-		dy := y - cellj
-		return gradient[0]*dx + gradient[1]*dy
+func (self *Perlin) Perlin(x, y float64) float64 {
+	getDotProduct := func(celli, cellj, dx, dy float64) float64 {
+		randomAngle := 2920.0 * math.Sin(celli*21942.0+cellj*171324.0+8912.0) * math.Cos(celli*23157.0*cellj*217832.0+9758.0)
+		return math.Cos(randomAngle)*dx + math.Sin(randomAngle)*dy
 	}
 
-	scale := self.octaveScales[octave]
-	sx := scale * x
-	sy := scale * y
-	originx := math.Floor(sx)
-	originy := math.Floor(sy)
-	dotA := getDotProduct(originx, originy)
-	dotB := getDotProduct(originx+1, originy)
-	dotC := getDotProduct(originx, originy+1)
-	dotD := getDotProduct(originx+1, originy+1)
+	left := math.Floor(x)
+	top := math.Floor(y)
+	right := left + 1
+	bottom := top + 1
+	xFromLeft := x - left
+	xFromRight := x - right
+	yFromTop := y - top
+	yFromBottom := y - bottom
 
-	relX := x - originx
-	mix1 := mix(dotA, dotB, SmoothStep(relX))
-	mix2 := mix(dotC, dotD, SmoothStep(relX))
-	relY := y - originy
-	return mix(mix1, mix2, SmoothStep(relY))
+	dotA := getDotProduct(left, top, xFromLeft, yFromTop)
+	dotB := getDotProduct(right, top, xFromRight, yFromTop)
+	dotC := getDotProduct(left, bottom, xFromLeft, yFromBottom)
+	dotD := getDotProduct(right, bottom, xFromRight, yFromBottom)
+
+	f := SmoothStep(xFromLeft)
+	mix1 := mix(dotA, dotB, f)
+	mix2 := mix(dotC, dotD, f)
+	value := mix(mix1, mix2, SmoothStep(yFromTop))
+	return value
 }
 
 func SmoothStep(f float64) float64 {
@@ -101,6 +105,6 @@ func mix(x, y, a float64) float64 {
 	return x*(1-a) + y*a
 }
 
-// func AltSmooth(t float64) float64 {
-// 	return t * t * t * (t*(t*6-15) + 10)
-// }
+func Fade(t float64) float64 {
+	return t * t * t * (t*(t*6-15) + 10)
+}

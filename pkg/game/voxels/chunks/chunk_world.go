@@ -179,7 +179,7 @@ func (self *ChunkWorld) GetHeightMap(hmi, hmj int) *[]int {
 			// === perlin noise ===
 			cellSize := 128.0
 			amp := 80.0
-			h = int(math.Round(amp * self.Perlin.Perlin(float64(ai)/cellSize, float64(aj)/cellSize)))
+			h = int(math.Round(amp * self.Perlin.Noise(float64(ai)/cellSize, float64(aj)/cellSize)))
 			// ====================
 
 			heights = append(heights, h)

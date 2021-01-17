@@ -71,3 +71,7 @@ func (self *StandardChunk) AddVisibleVoxel(i, j, k, voxel int) {
 		self.VisibleVoxels = &cas
 	}
 }
+
+func (self *StandardChunk) IsVisible() bool {
+	return len(*self.VisibleVoxels) > 0
+}

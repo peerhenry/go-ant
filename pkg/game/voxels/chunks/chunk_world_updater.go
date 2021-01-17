@@ -28,8 +28,8 @@ func NewChunkWorldUpdater(camera *ant.Camera, scene *ant.Scene) *ChunkWorldUpdat
 func (self *ChunkWorldUpdater) Update(dt *time.Duration) {
 	if !self.initialized {
 		startChunks := time.Now()
-		for ci := -3; ci < 4; ci++ {
-			for cj := -3; cj < 4; cj++ {
+		for ci := -6; ci < 7; ci++ {
+			for cj := -6; cj < 7; cj++ {
 				self.ChunkWorld.CreateChunksInColumn(ci, cj)
 				// chunk := self.ChunkWorld.ChunkBuilder.CreateChunk(self.ChunkWorld, ci, cj, -1)
 				// self.ChunkWorld.Region.SetChunkRegion(chunk)
@@ -50,8 +50,12 @@ func (self *ChunkWorldUpdater) Update(dt *time.Duration) {
 
 		startRenderData := time.Now()
 		for _, chunk := range self.ChunkWorld.Region.Chunks {
-			renderData := self.ChunkWorld.ChunkRenderDataBuilder.ChunkToRenderData(chunk)
-			self.Scene.AddRenderData(renderData)
+			if chunk.IsVisible() {
+				renderData := self.ChunkWorld.ChunkRenderDataBuilder.ChunkToRenderData(chunk)
+				if renderData != nil {
+					self.Scene.AddRenderData(renderData)
+				}
+			}
 		}
 		elapsed := time.Since(startRenderData)
 		log.Printf("Converting chunks to render data took %s", elapsed)
