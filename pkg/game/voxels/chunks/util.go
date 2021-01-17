@@ -19,6 +19,10 @@ const (
 	WATER    = 8
 )
 
+func VoxelIsTransparent(voxel int) bool {
+	return voxel == AIR || voxel == WATER
+}
+
 const (
 	NORTH  int32 = 0
 	EAST   int32 = 1

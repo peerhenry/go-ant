@@ -21,9 +21,11 @@ height atlas maps do not need to correspond with chunk size
 perlin noise for height map
 tree generation
 fast move with SHIFT
+perlin noise performance improvement
+extract height generator
 ====== in progress
 ====== next
-perlin noise optimization
+extract height atlas from chunk_world
 prevent underground faces from being created
 implement world seed
 draw chunk outline

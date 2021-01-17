@@ -41,7 +41,7 @@ func (self *StandardChunk) ForAll(f func(i, j, k int)) {
 	}
 }
 
-func (self *StandardChunk) IsTransparent(i, j, k int) bool {
+func (self *StandardChunk) GetVoxel(i, j, k int) int {
 	settings := self.ChunkWorld.ChunkSettings
 	voxelIndexCoord := IndexCoordinate{i, j, k}
 	if settings.CoordinateIsOutOfBounds(voxelIndexCoord) {
@@ -52,12 +52,16 @@ func (self *StandardChunk) IsTransparent(i, j, k int) bool {
 		}
 		regionCoord := settings.NormalizeCoordinate(rawRegionCoord)
 		voxel := self.ChunkWorld.GetVoxelAt(regionCoord)
-		return voxel == AIR
+		return voxel
 	}
 	index := settings.CoordinateToIndex(voxelIndexCoord)
-	return (*self.Voxels)[index] == AIR
+	return (*self.Voxels)[index]
 }
 
+func (self *StandardChunk) IsTransparent(i, j, k int) bool {
+	v := self.GetVoxel(i, j, k)
+	return v == AIR || v == WATER
+}
 func (self *StandardChunk) AddVisibleVoxel(i, j, k, voxel int) {
 	wasTransparent := self.IsTransparent(i, j, k)
 	isNowTransparent := voxel == AIR

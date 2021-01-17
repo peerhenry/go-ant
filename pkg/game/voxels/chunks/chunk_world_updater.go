@@ -36,10 +36,10 @@ func (self *ChunkWorldUpdater) Update(dt *time.Duration) {
 			}
 		}
 		// drop some trees
-		for ci := -3; ci < 4; ci++ {
-			for cj := -3; cj < 4; cj++ {
+		for ci := -18; ci < 18; ci++ {
+			for cj := -18; cj < 18; cj++ {
 				rand.Seed(time.Now().UnixNano() + int64(ci*cj)) // todo world seed
-				extra := rand.Intn(10)
+				extra := rand.Intn(7)
 				ddi := rand.Intn(7)
 				ddj := rand.Intn(8)
 				self.ChunkWorld.DropTree(ci*10+ddi, cj*10+ddj, 6+extra)

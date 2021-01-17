@@ -1,8 +1,6 @@
 package chunks
 
 import (
-	"math"
-
 	"ant.com/ant/pkg/ant"
 )
 
@@ -19,13 +17,14 @@ type ChunkWorld struct {
 	initialized            bool
 	HeightAtlas            *map[HeightAtlasIndex]*[]int
 	HeightAtlasMapSize     int
-	Perlin                 *ant.Perlin
+	heightGenerator        IHeightGenerator
 }
 
 func NewChunkWorld(chunkSettings IChunkSettings) *ChunkWorld {
 	chunkBuilder := NewChunkBuilder(chunkSettings)
 	meshBuilder := NewChunkMeshBuilder(chunkSettings)
 	heightAtlas := make(map[HeightAtlasIndex]*[]int)
+	perlin := ant.NewPerlin(1, 6)
 	return &ChunkWorld{
 		Region:                 NewChunkRegion(),
 		ChunkBuilder:           chunkBuilder,
@@ -33,7 +32,7 @@ func NewChunkWorld(chunkSettings IChunkSettings) *ChunkWorld {
 		ChunkSettings:          chunkSettings,
 		HeightAtlas:            &heightAtlas,
 		HeightAtlasMapSize:     64,
-		Perlin:                 ant.NewPerlin(1, 1),
+		heightGenerator:        NewPerlinHeightGenerator(perlin, 200.0, 512.0),
 	}
 }
 
@@ -83,7 +82,7 @@ func (self *ChunkWorld) CreateChunksInColumn(ci, cj int) {
 				if dvk == 0 {
 					if height < -4 {
 						voxel = SAND
-					} else if height > 8 {
+					} else if height > 20 {
 						voxel = SNOWDIRT
 					} else {
 						voxel = GRASS
@@ -108,10 +107,10 @@ func (self *ChunkWorld) CreateChunksInColumn(ci, cj int) {
 
 func (self *ChunkWorld) DropTree(ai, aj, height int) {
 	surfaceHeight := self.GetHeight(ai, aj)
-	ak := surfaceHeight + self.ChunkSettings.GetChunkHeight()/2 // height 0 corresponds to chunk middle
-	if surfaceHeight < -4 {
+	if surfaceHeight < -4 || surfaceHeight > 20 {
 		return
 	}
+	ak := surfaceHeight + self.ChunkSettings.GetChunkHeight()/2 // height 0 corresponds to chunk middle
 	tree := GetStandardTree(height)
 	for dCoord, voxel := range tree.Voxels {
 		absoluteCoord := dCoord.Addijk(ai, aj, ak)
@@ -165,23 +164,7 @@ func (self *ChunkWorld) GetHeightMap(hmi, hmj int) *[]int {
 			// absolute voxel i & j in world
 			ai := heightMapSize*hmi + vi
 			aj := heightMapSize*hmj + vj
-			h := 0
-
-			// === one big slope ===
-			// h := ai + aj
-			// ====================
-
-			// === random ===
-			// rand.Seed(time.Now().UnixNano() + int64(vi*vj))
-			// h := rand.Intn(3)
-			// ====================
-
-			// === perlin noise ===
-			cellSize := 128.0
-			amp := 80.0
-			h = int(math.Round(amp * self.Perlin.Noise(float64(ai)/cellSize, float64(aj)/cellSize)))
-			// ====================
-
+			h := self.heightGenerator.GetHeight(ai, aj)
 			heights = append(heights, h)
 		}
 	}

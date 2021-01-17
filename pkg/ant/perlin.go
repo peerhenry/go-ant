@@ -61,7 +61,7 @@ func (self *Perlin) Noise(x, y float64) float64 {
 		next := self.Perlin(scale*x, scale*y)
 		weight := self.octaveWeights[octave]
 		weightTotal += weight
-		total = next * weight
+		total += next * weight
 	}
 	return total / weightTotal
 }

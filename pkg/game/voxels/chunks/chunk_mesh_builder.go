@@ -18,7 +18,11 @@ func (self *ChunkMeshBuilder) ChunkToMesh(chunk *StandardChunk) *ChunkMesh {
 	var indicesCount int32 = 0
 
 	maybeAddFace := func(voxel, vi, vj, vk, di, dj, dk int, face int32) {
-		if chunk.IsTransparent(vi+di, vj+dj, vk+dk) {
+		// addFace = this one is water and the other is air
+		// or this one is not water and the other one is water or air
+		other := chunk.GetVoxel(vi+di, vj+dj, vk+dk)
+		shouldAddFace := (voxel != WATER && VoxelIsTransparent(other)) || (voxel == WATER && other == AIR)
+		if shouldAddFace {
 			nextPositions := self.GetQuadPositions(vi, vj, vk, face)
 			positions = append(positions, nextPositions[:]...)
 
