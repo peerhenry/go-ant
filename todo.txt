@@ -27,6 +27,7 @@ extract height atlas from chunk_world
 prevent underground faces from being created
 adequately spawn trees on generated chunks
 refactor dropTree to dropstructure
+toggle wireframe rendering
 
 ====== in progress
 unload distant chunks
@@ -40,13 +41,12 @@ fix chunk water problem
 add crosshair
 implement world seed
 transparent voxels
-toggle wireframe rendering
 combine faces to reduce vertex data
 draw chunk outline
 fix visiblevoxels problem
 optimize chunk mesh memory
 refactor LoadImageFileToUniform to uniformStore
-multithreading
+world generation on separate thread
 
 ====== epics
 voxel removal by click (ray intersection + chunk update)

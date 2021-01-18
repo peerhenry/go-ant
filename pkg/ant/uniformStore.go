@@ -49,6 +49,7 @@ type UniformStore struct {
 	vec4Map           map[string]mgl32.Vec4
 	floatMap          map[string]float32
 	intMap            map[string]int32
+	uintMap           map[string]uint32
 }
 
 func CreateUniformStore(glslProgramHandle uint32, shouldList bool) *UniformStore {
@@ -62,6 +63,7 @@ func CreateUniformStore(glslProgramHandle uint32, shouldList bool) *UniformStore
 	store.vec4Map = make(map[string]mgl32.Vec4)
 	store.floatMap = make(map[string]float32)
 	store.intMap = make(map[string]int32)
+	store.uintMap = make(map[string]uint32)
 	store.registerActiveUniforms(shouldList)
 	return store
 }
@@ -123,7 +125,7 @@ func (uniforms *UniformStore) GetVec4(name string) mgl32.Vec4 {
 func (uniforms *UniformStore) GetFloat(name string) float32 {
 	value, ok := uniforms.floatMap[name]
 	if !ok {
-		panic("No Vec4 value stored for name " + name)
+		panic("No float32 value stored for name " + name)
 	}
 	return value
 }
@@ -131,7 +133,15 @@ func (uniforms *UniformStore) GetFloat(name string) float32 {
 func (uniforms *UniformStore) GetInt(name string) int32 {
 	value, ok := uniforms.intMap[name]
 	if !ok {
-		panic("No Vec4 value stored for name " + name)
+		panic("No int32 value stored for name " + name)
+	}
+	return value
+}
+
+func (uniforms *UniformStore) GetUint(name string) uint32 {
+	value, ok := uniforms.uintMap[name]
+	if !ok {
+		panic("No uint32 value stored for name " + name)
 	}
 	return value
 }
@@ -164,6 +174,10 @@ func (self *UniformStore) SetFloat(name string, value float32) {
 
 func (self *UniformStore) SetInt(name string, value int32) {
 	self.intMap[name] = value
+}
+
+func (self *UniformStore) SetUint(name string, value uint32) {
+	self.uintMap[name] = value
 }
 
 // uniform Setters
