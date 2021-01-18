@@ -39,6 +39,10 @@ func (self *ChunkWorld) GetOrCreateChunkAt(chunkCoordinate IndexCoordinate) *Sta
 	return chunk
 }
 
+func (self *ChunkWorld) DeleteChunk(chunkCoordinate IndexCoordinate) {
+	delete(self.Region.Chunks, chunkCoordinate)
+}
+
 func (self *ChunkWorld) GetVoxelAt(regionCoordinate []IndexCoordinate) int {
 	ranks := len(regionCoordinate)
 
@@ -148,7 +152,6 @@ func (self *ChunkWorld) HeightToCoordinates(ak int) (int, int) {
 
 func (self *ChunkWorld) CreateChunksInColumn(ci, cj int) map[IndexCoordinate]*StandardChunk {
 	chunkWidth := self.ChunkSettings.GetChunkWidth()
-	chunkDepth := self.ChunkSettings.GetChunkDepth()
 	chunkHeight := self.ChunkSettings.GetChunkHeight()
 	// get heights for chunks in column
 	heights, min, _ := self.getHeightsForChunkColumn(ci, cj)
@@ -197,23 +200,22 @@ func (self *ChunkWorld) CreateChunksInColumn(ci, cj int) map[IndexCoordinate]*St
 	}
 
 	// drop some trees
-	for coord, _ := range newChunks {
-		cif := float64(coord.i)
-		cjf := float64(coord.j)
-		p := cif * cjf
-		seed := int64(2.2*math.Cos(p+78.7) + 3.3*math.Sin(p+78.7))
-		rand.Seed(seed)
-		trees := rand.Intn(5) // max 5 trees
-		for n := 0; n < trees; n++ {
-			// pick a spot
-			ai := rand.Intn(chunkWidth) + chunkWidth*ci
-			aj := rand.Intn(chunkDepth) + chunkDepth*cj
-			extraHeight := rand.Intn(7)
-			tree := GetStandardTree(6 + extraHeight)
-			chunks := self.DropStructure(ai, aj, tree)
-			for coord, chunk := range chunks {
-				newChunks[coord] = chunk
-			}
+	chunkDepth := self.ChunkSettings.GetChunkDepth()
+	cif := float64(ci)
+	cjf := float64(cj)
+	p := cif * cjf
+	seed := int64(2.2*math.Cos(p+78.7) + 3.3*math.Sin(p+78.7))
+	rand.Seed(seed)
+	trees := rand.Intn(5) // max 5 trees
+	for n := 0; n < trees; n++ {
+		// pick a spot
+		ai := rand.Intn(chunkWidth) + chunkWidth*ci
+		aj := rand.Intn(chunkDepth) + chunkDepth*cj
+		extraHeight := rand.Intn(7)
+		tree := GetStandardTree(6 + extraHeight)
+		chunks := self.DropStructure(ai, aj, tree)
+		for coord, chunk := range chunks {
+			newChunks[coord] = chunk
 		}
 	}
 

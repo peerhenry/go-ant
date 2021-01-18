@@ -28,11 +28,12 @@ prevent underground faces from being created
 adequately spawn trees on generated chunks
 refactor dropTree to dropstructure
 toggle wireframe rendering
-
-====== in progress
 unload distant chunks
 
+====== in progress
+
 ====== next
+keep chunks removed from rendering in memory
 frustum culling with chunks
 write a test for transforming empty chunk to render object
 fix chunk water problem
