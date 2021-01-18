@@ -1,6 +1,9 @@
 package chunks
 
 import (
+	"math"
+	"math/rand"
+
 	"ant.com/ant/pkg/ant"
 )
 
@@ -66,25 +69,29 @@ func (self *ChunkWorld) GetVoxelAt(regionCoordinate []IndexCoordinate) int {
 	return (*chunk.Voxels)[index]
 }
 
-func (self *ChunkWorld) DropTree(ai, aj, height int) {
+// drops it down onto the surface, return affected chunks
+func (self *ChunkWorld) DropStructure(ai, aj int, tree *VoxelStructure) map[IndexCoordinate]*StandardChunk {
+	chunks := make(map[IndexCoordinate]*StandardChunk)
 	ak := self.GetHeight(ai, aj)
 	if ak < -4 || ak > 20 {
-		return
+		return chunks
 	}
-	tree := GetStandardTree(height)
 	for dCoord, voxel := range tree.Voxels {
 		absoluteCoord := dCoord.Addijk(ai, aj, ak)
 		normalized := self.ChunkSettings.NormalizeCoordinate([]IndexCoordinate{absoluteCoord})
 		ranks := len(normalized)
-		var chunk *StandardChunk
+		var coord IndexCoordinate
 		if ranks > 1 {
-			chunk = self.GetOrCreateChunkAt(normalized[1])
+			coord = normalized[1]
 		} else {
-			chunk = self.GetOrCreateChunkAt(IndexCoordinate{0, 0, 0})
+			coord = IndexCoordinate{0, 0, 0}
 		}
+		chunk := self.GetOrCreateChunkAt(coord)
+		chunks[coord] = chunk
 		voxelCoord := normalized[0]
 		chunk.AddVisibleVoxel(voxelCoord.i, voxelCoord.j, voxelCoord.k, voxel)
 	}
+	return chunks
 }
 
 func (self *ChunkWorld) GetHeight(ai, aj int) int {
@@ -140,18 +147,20 @@ func (self *ChunkWorld) HeightToCoordinates(ak int) (int, int) {
 }
 
 func (self *ChunkWorld) CreateChunksInColumn(ci, cj int) map[IndexCoordinate]*StandardChunk {
+	chunkWidth := self.ChunkSettings.GetChunkWidth()
+	chunkDepth := self.ChunkSettings.GetChunkDepth()
+	chunkHeight := self.ChunkSettings.GetChunkHeight()
 	// get heights for chunks in column
 	heights, min, _ := self.getHeightsForChunkColumn(ci, cj)
 	_, minChunkK := self.HeightToCoordinates(min)
 	// _, maxChunkK := self.HeightToCoordinates(max)
-	chunkHeight := self.ChunkSettings.GetChunkHeight()
 	// minChunkK := int(math.Floor(float64(min) / float64(chunkHeight)))
 
-	output := make(map[IndexCoordinate]*StandardChunk)
+	newChunks := make(map[IndexCoordinate]*StandardChunk)
 
 	for index, h := range *heights {
-		vi := index / self.ChunkSettings.GetChunkWidth()
-		vj := index % self.ChunkSettings.GetChunkWidth()
+		vi := index / chunkWidth
+		vj := index % chunkWidth
 		voxelK, topChunkK := self.HeightToCoordinates(h)
 		for ck := minChunkK; ck <= topChunkK; ck++ {
 			topK := chunkHeight - 1
@@ -160,7 +169,7 @@ func (self *ChunkWorld) CreateChunksInColumn(ci, cj int) map[IndexCoordinate]*St
 			}
 			coord := IndexCoordinate{ci, cj, ck}
 			chunk := self.GetOrCreateChunkAt(coord)
-			output[coord] = chunk
+			newChunks[coord] = chunk
 
 			for vk := 0; vk <= topK; vk++ {
 				chunk.AddVisibleVoxel(vi, vj, vk, DIRT)
@@ -170,19 +179,45 @@ func (self *ChunkWorld) CreateChunksInColumn(ci, cj int) map[IndexCoordinate]*St
 		}
 
 		// fill water
-		if h < -6 {
-			waterDepth := -6 - h
+		waterlevel := -6
+		if h < waterlevel {
+			waterDepth := waterlevel - h
 			for dk := 1; dk <= waterDepth; dk++ {
 				vk, chunkK := self.HeightToCoordinates(h + dk)
 				coord := IndexCoordinate{ci, cj, chunkK}
 				chunk := self.GetOrCreateChunkAt(coord)
-				output[coord] = chunk
-				chunk.AddVisibleVoxel(vi, vj, vk, WATER)
+				newChunks[coord] = chunk
+				if dk == waterDepth {
+					chunk.AddVisibleVoxel(vi, vj, vk, WATER)
+				} else {
+					chunk.AddInvisibleVoxel(vi, vj, vk, WATER)
+				}
 			}
 		}
 	}
 
-	return output
+	// drop some trees
+	for coord, _ := range newChunks {
+		cif := float64(coord.i)
+		cjf := float64(coord.j)
+		p := cif * cjf
+		seed := int64(2.2*math.Cos(p+78.7) + 3.3*math.Sin(p+78.7))
+		rand.Seed(seed)
+		trees := rand.Intn(5) // max 5 trees
+		for n := 0; n < trees; n++ {
+			// pick a spot
+			ai := rand.Intn(chunkWidth) + chunkWidth*ci
+			aj := rand.Intn(chunkDepth) + chunkDepth*cj
+			extraHeight := rand.Intn(7)
+			tree := GetStandardTree(6 + extraHeight)
+			chunks := self.DropStructure(ai, aj, tree)
+			for coord, chunk := range chunks {
+				newChunks[coord] = chunk
+			}
+		}
+	}
+
+	return newChunks
 }
 
 func SetVoxelBasedOnHeight(chunk *StandardChunk, vi, vj, vk, ak, depth int) {
