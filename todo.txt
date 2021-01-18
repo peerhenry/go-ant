@@ -29,6 +29,7 @@ adequately spawn trees on generated chunks
 refactor dropTree to dropstructure
 toggle wireframe rendering
 unload distant chunks
+throttle chunk loading
 
 ====== in progress
 
