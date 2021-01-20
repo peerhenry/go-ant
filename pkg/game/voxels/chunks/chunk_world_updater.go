@@ -21,9 +21,7 @@ type ChunkWorldUpdater struct {
 	renderChunks    map[IndexCoordinate]int
 }
 
-func NewChunkWorldUpdater(camera *ant.Camera, scene *ant.Scene) *ChunkWorldUpdater {
-	chunkSettings := NewChunkSettings(32, 32, 8)
-	world := NewChunkWorld(chunkSettings)
+func NewChunkWorldUpdater(camera *ant.Camera, scene *ant.Scene, world *ChunkWorld) *ChunkWorldUpdater {
 	return &ChunkWorldUpdater{
 		Camera:          camera,
 		CameraAnchor:    camera.Position,
@@ -47,10 +45,11 @@ func (self *ChunkWorldUpdater) Update(dt *time.Duration) {
 		chunkDepth := self.ChunkWorld.ChunkSettings.GetChunkDepth()
 		cam_ci := int(math.Floor(self.Camera.Position[0] / float64(chunkWidth)))
 		cam_cj := int(math.Floor(self.Camera.Position[1] / float64(chunkDepth)))
-		ci_min := cam_ci - 12
-		ci_max := cam_ci + 12
-		cj_min := cam_cj - 12
-		cj_max := cam_cj + 12
+		size := 8
+		ci_min := cam_ci - size
+		ci_max := cam_ci + size
+		cj_min := cam_cj - size
+		cj_max := cam_cj + size
 
 		// todo: queue columns to spawn in circle rather than square
 		for ci := ci_min; ci <= ci_max; ci++ {

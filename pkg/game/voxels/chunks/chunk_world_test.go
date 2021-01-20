@@ -3,30 +3,27 @@ package chunks
 import "testing"
 
 func TestHeightToCoordinates(t *testing.T) {
-	ExpectHeightToGet(t, 15, 2, 3)
-	ExpectHeightToGet(t, -15, 2, -3) // test negative
-	ExpectHeightToGet(t, -2, 0, 0)   // test boundaries
-	ExpectHeightToGet(t, 3, 0, 1)
-	ExpectHeightToGet(t, -7, 0, -1)
+	ExpectHeightToGet(t, 2, 2, 0)
+	ExpectHeightToGet(t, -2, 3, -1)
+	ExpectHeightToGet(t, 15, 0, 3)
+	ExpectHeightToGet(t, -15, 0, -3)
 }
 
-func ExpectHeightToGet(t *testing.T, h, evk, eck int) {
-	settings := NewChunkSettings(5, 5, 5)
-	world := NewChunkWorld(settings)
+func ExpectHeightToGet(t *testing.T, height, expect_vk, expect_ck int) {
+	world := mockChunkWorld(5)
 	// Act
-	vk, ck := world.HeightToCoordinates(h)
+	vk, ck := world.HeightToCoordinates(height)
 	// Assert
-	if vk != evk {
-		t.Errorf("Expected vk: %d, got: %d", evk, vk)
+	if vk != expect_vk {
+		t.Errorf("Expected vk: %d, got: %d", expect_vk, vk)
 	}
-	if ck != eck {
-		t.Errorf("Expected ck: %d, got: %d", eck, ck)
+	if ck != expect_ck {
+		t.Errorf("Expected ck: %d, got: %d", expect_ck, ck)
 	}
 }
 
 func TestGetOrCreateChunkAt(t *testing.T) {
-	settings := NewChunkSettings(5, 5, 5)
-	world := NewChunkWorld(settings)
+	world := mockChunkWorld(5)
 	// Act
 	chunk := world.GetOrCreateChunkAt(IndexCoordinate{1, 2, 3})
 	// Assert
@@ -39,8 +36,7 @@ func TestGetOrCreateChunkAt(t *testing.T) {
 }
 
 func TestCreateChunksInColumn(t *testing.T) {
-	settings := NewChunkSettings(5, 5, 5)
-	world := NewChunkWorld(settings)
+	world := mockChunkWorld(5)
 	// Act
 	world.CreateChunksInColumn(1, 2)
 	// Assert no crash

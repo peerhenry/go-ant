@@ -34,12 +34,13 @@ throttle chunk loading
 ====== in progress
 
 ====== next
-keep chunks removed from rendering in memory
 frustum culling with chunks
+keep chunks removed from rendering in memory
 write a test for transforming empty chunk to render object
 fix chunk water problem
 
 ====== todo
+antialiasing
 add crosshair
 implement world seed
 transparent voxels
@@ -57,3 +58,4 @@ add crosshair
 shadows
 player collision box, falling and jumping
 water
+quad tree LOD

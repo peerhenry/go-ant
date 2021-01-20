@@ -6,10 +6,6 @@ import (
 	"ant.com/ant/pkg/ant"
 )
 
-type IHeightGenerator interface {
-	GetHeight(int, int) int
-}
-
 type PerlinHeightGenerator struct {
 	perlin    *ant.Perlin
 	amplitude float64

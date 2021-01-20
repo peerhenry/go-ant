@@ -3,8 +3,6 @@ package chunks
 import (
 	"math"
 	"math/rand"
-
-	"ant.com/ant/pkg/ant"
 )
 
 type ChunkWorld struct {
@@ -13,19 +11,18 @@ type ChunkWorld struct {
 	ChunkBuilder           *ChunkBuilder
 	ChunkRenderDataBuilder *ChunkRenderDataBuilder
 	initialized            bool
-	HeightAtlas            *HeightAtlas
+	HeightAtlas            IHeightProvider
 }
 
-func NewChunkWorld(chunkSettings IChunkSettings) *ChunkWorld {
+func NewChunkWorld(chunkSettings IChunkSettings, atlas IHeightProvider) *ChunkWorld {
 	chunkBuilder := NewChunkBuilder(chunkSettings)
 	meshBuilder := NewChunkMeshBuilder(chunkSettings)
-	perlin := ant.NewPerlin(1, 6)
 	return &ChunkWorld{
 		Region:                 NewChunkRegion(),
 		ChunkBuilder:           chunkBuilder,
 		ChunkRenderDataBuilder: &ChunkRenderDataBuilder{chunkSettings, meshBuilder},
 		ChunkSettings:          chunkSettings,
-		HeightAtlas:            NewHeightAtlas(64, NewPerlinHeightGenerator(perlin, 200.0, 512.0)),
+		HeightAtlas:            atlas,
 	}
 }
 
@@ -127,7 +124,7 @@ func (self *ChunkWorld) getHeightsForChunkColumn(ci, cj int) (*[]int, int, int) 
 	return &output, min, max
 }
 
-// returns voxelcoordinate k in chunk, and chunkcoordinate k in region
+// takes an absolute k and returns voxelcoordinate k in chunk, and chunkcoordinate k in region
 func (self *ChunkWorld) HeightToCoordinates(ak int) (int, int) {
 	chunkHeight := self.ChunkSettings.GetChunkHeight()
 	if ak >= chunkHeight {

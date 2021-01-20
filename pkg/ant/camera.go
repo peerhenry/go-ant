@@ -57,8 +57,8 @@ func (self *Camera) Rotate(dtheta float64, dphi float64) {
 	self.relup = mgl64.Vec3{-cost * sinp, -sint * sinp, cosp} // for view frustum
 }
 
-func (self *Camera) Translate(dx, dy, dz float64) {
-	self.Position = self.Position.Add(mgl64.Vec3{dx, dy, dz})
+func (self *Camera) Translate(ds mgl64.Vec3) {
+	self.Position = self.Position.Add(ds)
 }
 
 func (self *Camera) CalculateViewMatrix() mgl32.Mat4 {

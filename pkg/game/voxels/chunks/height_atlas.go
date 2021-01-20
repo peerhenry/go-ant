@@ -8,10 +8,10 @@ type HeightAtlasIndex struct {
 type HeightAtlas struct {
 	Charts          map[HeightAtlasIndex]*[]int
 	chartSize       int
-	heightGenerator IHeightGenerator
+	heightGenerator IHeightProvider
 }
 
-func NewHeightAtlas(size int, generator IHeightGenerator) *HeightAtlas {
+func NewHeightAtlas(size int, generator IHeightProvider) *HeightAtlas {
 	return &HeightAtlas{
 		Charts:          make(map[HeightAtlasIndex]*[]int),
 		chartSize:       size,
@@ -20,18 +20,18 @@ func NewHeightAtlas(size int, generator IHeightGenerator) *HeightAtlas {
 }
 
 func (self *HeightAtlas) GetHeight(ai, aj int) int {
-	vi, vj, hmi, hmj := self.GetChartCoordinates(ai, aj)
+	vi, vj, hmi, hmj := self.getChartCoordinates(ai, aj)
 	chart, ok := self.Charts[HeightAtlasIndex{hmi, hmj}]
 	if !ok {
 		// generate height map for atlas
-		newHeightMap := self.GetChart(hmi, hmj)
+		newHeightMap := self.getChart(hmi, hmj)
 		self.Charts[HeightAtlasIndex{hmi, hmj}] = newHeightMap
 		return (*newHeightMap)[vi*self.chartSize+vj]
 	}
 	return (*chart)[vi*self.chartSize+vj]
 }
 
-func (self *HeightAtlas) GetChart(hmi, hmj int) *[]int {
+func (self *HeightAtlas) getChart(hmi, hmj int) *[]int {
 	var heights []int
 	for vi := 0; vi < self.chartSize; vi++ {
 		for vj := 0; vj < self.chartSize; vj++ {
@@ -48,7 +48,7 @@ func (self *HeightAtlas) GetChart(hmi, hmj int) *[]int {
 // returns
 // - voxel i & j on chart
 // - atlas index i, j for accessing height chart
-func (self *HeightAtlas) GetChartCoordinates(i int, j int) (int, int, int, int) {
+func (self *HeightAtlas) getChartCoordinates(i int, j int) (int, int, int, int) {
 	size := self.chartSize
 	vi := i
 	vj := j

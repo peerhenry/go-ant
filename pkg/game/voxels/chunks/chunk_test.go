@@ -4,8 +4,7 @@ import "testing"
 
 func TestIsTransparent(t *testing.T) {
 	// create chunk
-	settings := NewChunkSettings(2, 2, 2)
-	world := NewChunkWorld(settings)
+	world := mockChunkWorld(2)
 	mychunk := &StandardChunk{
 		ChunkWorld: world,
 		Region:     world.Region,
