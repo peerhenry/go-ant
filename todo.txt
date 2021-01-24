@@ -32,12 +32,15 @@ unload distant chunks
 throttle chunk loading
 
 ====== in progress
+player physics
+fix get sextant
+fix player physics for chunk columns that don't exist yet
 
 ====== next
+fix adjacent chunk rendering problem (side faces of surface voxels along chunk edge are rendering)
 frustum culling with chunks
 keep chunks removed from rendering in memory
 write a test for transforming empty chunk to render object
-fix chunk water problem
 
 ====== todo
 antialiasing
@@ -50,12 +53,12 @@ fix visiblevoxels problem
 optimize chunk mesh memory
 refactor LoadImageFileToUniform to uniformStore
 world generation on separate thread
+optimize getCollidingVoxelAABBs in player.go
+check if NORTH, EAST etc can be made int8
 
 ====== epics
 voxel removal by click (ray intersection + chunk update)
 skybox
-add crosshair
 shadows
-player collision box, falling and jumping
 water
 quad tree LOD

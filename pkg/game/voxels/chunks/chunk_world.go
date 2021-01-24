@@ -60,7 +60,7 @@ func (self *ChunkWorld) GetVoxelAt(regionCoordinate []IndexCoordinate) int {
 
 	chunk, ok := self.Region.Chunks[chunkCoordinate]
 	if !ok {
-		surface_ak := self.GetHeight(ai, aj) // Ak stands for absolute k
+		surface_ak := self.get_surface_k(ai, aj) // Ak stands for absolute k
 		if ak < surface_ak {
 			return UNDERGROUND
 		}
@@ -73,7 +73,7 @@ func (self *ChunkWorld) GetVoxelAt(regionCoordinate []IndexCoordinate) int {
 // drops it down onto the surface, return affected chunks
 func (self *ChunkWorld) DropStructure(ai, aj int, tree *VoxelStructure) map[IndexCoordinate]*StandardChunk {
 	chunks := make(map[IndexCoordinate]*StandardChunk)
-	ak := self.GetHeight(ai, aj)
+	ak := self.get_surface_k(ai, aj)
 	if ak < -4 || ak > 20 {
 		return chunks
 	}
@@ -95,12 +95,11 @@ func (self *ChunkWorld) DropStructure(ai, aj int, tree *VoxelStructure) map[Inde
 	return chunks
 }
 
-func (self *ChunkWorld) GetHeight(ai, aj int) int {
+func (self *ChunkWorld) get_surface_k(ai, aj int) int {
 	h := self.HeightAtlas.GetHeight(ai, aj)
 	return h + self.ChunkSettings.GetChunkHeight()/2
 }
 
-// todo use this
 func (self *ChunkWorld) getHeightsForChunkColumn(ci, cj int) (*[]int, int, int) {
 	var output []int
 	chunkWidth := self.ChunkSettings.GetChunkWidth()
@@ -111,7 +110,7 @@ func (self *ChunkWorld) getHeightsForChunkColumn(ci, cj int) (*[]int, int, int) 
 		ai := ci*chunkWidth + i
 		for j := 0; j < chunkDepth; j++ {
 			aj := cj*chunkDepth + j
-			h := self.GetHeight(ai, aj)
+			h := self.get_surface_k(ai, aj)
 			if h < min {
 				min = h
 			}
@@ -196,7 +195,13 @@ func (self *ChunkWorld) CreateChunksInColumn(ci, cj int) map[IndexCoordinate]*St
 		}
 	}
 
-	// drop some trees
+	self.dropTrees(ci, cj, newChunks)
+
+	return newChunks
+}
+
+func (self *ChunkWorld) dropTrees(ci, cj int, newChunks map[IndexCoordinate]*StandardChunk) {
+	chunkWidth := self.ChunkSettings.GetChunkWidth()
 	chunkDepth := self.ChunkSettings.GetChunkDepth()
 	cif := float64(ci)
 	cjf := float64(cj)
@@ -215,8 +220,6 @@ func (self *ChunkWorld) CreateChunksInColumn(ci, cj int) map[IndexCoordinate]*St
 			newChunks[coord] = chunk
 		}
 	}
-
-	return newChunks
 }
 
 func SetVoxelBasedOnHeight(chunk *StandardChunk, vi, vj, vk, ak, depth int) {
@@ -235,7 +238,7 @@ func SetVoxelBasedOnHeight(chunk *StandardChunk, vi, vj, vk, ak, depth int) {
 func (self *ChunkWorld) GetVoxelPileHeight(h, ai, aj int) int {
 	pile := 0
 	checkPile := func(xi, xj int) {
-		d := h - self.GetHeight(xi, xj)
+		d := h - self.get_surface_k(xi, xj)
 		if d > pile {
 			pile = d
 		}

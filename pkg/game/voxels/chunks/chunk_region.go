@@ -10,11 +10,11 @@ func NewChunkRegion() *ChunkRegion {
 	}
 }
 
-func (self *ChunkRegion) SetChunkRegion(chunk *StandardChunk) {
+func (self *ChunkRegion) SetChunk(chunk *StandardChunk) {
 	self.Chunks[chunk.Coordinate] = chunk
 }
 
-func (self *ChunkRegion) GetChunkRegion(index IndexCoordinate) (*StandardChunk, bool) {
+func (self *ChunkRegion) GetChunk(index IndexCoordinate) (*StandardChunk, bool) {
 	thing, ok := self.Chunks[index]
 	return thing, ok
 }

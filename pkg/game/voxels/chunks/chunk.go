@@ -1,5 +1,7 @@
 package chunks
 
+import "github.com/go-gl/mathgl/mgl64"
+
 type IsVoxelTransparent func(i, j, k int) bool
 
 type StandardChunk struct {
@@ -85,4 +87,16 @@ func (self *StandardChunk) AddInvisibleVoxel(i, j, k, voxel int) {
 
 func (self *StandardChunk) IsVisible() bool {
 	return len(*self.VisibleVoxels) > 0
+}
+
+func (self *StandardChunk) Origin() mgl64.Vec3 {
+	chunkWidth := self.ChunkWorld.ChunkSettings.GetChunkWidth()
+	chunkDepth := self.ChunkWorld.ChunkSettings.GetChunkDepth()
+	chunkHeight := self.ChunkWorld.ChunkSettings.GetChunkHeight()
+	voxelSize := self.ChunkWorld.ChunkSettings.GetVoxelSize()
+	return mgl64.Vec3{
+		float64(float32(self.Coordinate.i*chunkWidth) * voxelSize),
+		float64(float32(self.Coordinate.j*chunkDepth) * voxelSize),
+		float64(float32(self.Coordinate.k*chunkHeight) * voxelSize),
+	}
 }

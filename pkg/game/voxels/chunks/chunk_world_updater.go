@@ -45,7 +45,7 @@ func (self *ChunkWorldUpdater) Update(dt *time.Duration) {
 		chunkDepth := self.ChunkWorld.ChunkSettings.GetChunkDepth()
 		cam_ci := int(math.Floor(self.Camera.Position[0] / float64(chunkWidth)))
 		cam_cj := int(math.Floor(self.Camera.Position[1] / float64(chunkDepth)))
-		size := 8
+		size := 6
 		ci_min := cam_ci - size
 		ci_max := cam_ci + size
 		cj_min := cam_cj - size

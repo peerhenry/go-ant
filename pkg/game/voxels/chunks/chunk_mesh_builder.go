@@ -17,7 +17,7 @@ func (self *ChunkMeshBuilder) ChunkToMesh(chunk *StandardChunk) *ChunkMesh {
 	var indexOffset uint32 = 0
 	var indicesCount int32 = 0
 
-	maybeAddFace := func(voxel, vi, vj, vk, di, dj, dk int, face int32) {
+	maybeAddFace := func(voxel, vi, vj, vk, di, dj, dk int, face Face) {
 		// addFace = this one is water and the other is air
 		// or this one is not water and the other one is water or air
 		other := chunk.GetVoxel(vi+di, vj+dj, vk+dk)
@@ -54,7 +54,7 @@ func (self *ChunkMeshBuilder) ChunkToMesh(chunk *StandardChunk) *ChunkMesh {
 	return &ChunkMesh{&positions, &normalIndices, &uvs, &indices, indicesCount}
 }
 
-func (self *ChunkMeshBuilder) GetQuadPositions(i, j, k int, face int32) [12]float32 {
+func (self *ChunkMeshBuilder) GetQuadPositions(i, j, k int, face Face) [12]float32 {
 	size := self.ChunkSettings.GetVoxelSize()
 	ox := size * float32(i)
 	oy := size * float32(j)
@@ -109,16 +109,16 @@ func (self *ChunkMeshBuilder) GetQuadPositions(i, j, k int, face int32) [12]floa
 	panic("No direction given")
 }
 
-func (self *ChunkMeshBuilder) GetQuadNormals(face int32) [4]int32 {
+func (self *ChunkMeshBuilder) GetQuadNormals(face Face) [4]int32 {
 	return [4]int32{
-		face,
-		face,
-		face,
-		face,
+		int32(face),
+		int32(face),
+		int32(face),
+		int32(face),
 	}
 }
 
-func (self *ChunkMeshBuilder) GetQuadUvs(voxel, i, j, k int, face int32) []float32 {
+func (self *ChunkMeshBuilder) GetQuadUvs(voxel, i, j, k int, face Face) []float32 {
 	switch voxel {
 	case GRASS:
 		switch face {

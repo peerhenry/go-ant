@@ -1,5 +1,11 @@
 package chunks
 
+import (
+	"math"
+
+	"github.com/go-gl/mathgl/mgl64"
+)
+
 type IChunkSettings interface {
 	GetChunkWidth() int
 	GetChunkDepth() int
@@ -11,6 +17,8 @@ type IChunkSettings interface {
 	IndexIsOutOfBounds(index int) bool
 	GetVoxelSize() float32
 	NormalizeCoordinate(c []IndexCoordinate) []IndexCoordinate
+	ToRegionCoord(location mgl64.Vec3) []IndexCoordinate
+	GetChunkCoord(location mgl64.Vec3) IndexCoordinate
 }
 
 type StandardChunkSettings struct {
@@ -197,4 +205,18 @@ func (self StandardChunkSettings) NormalizeCoordinate(coord []IndexCoordinate) [
 	}
 
 	return coord
+}
+
+func (self *StandardChunkSettings) ToRegionCoord(location mgl64.Vec3) []IndexCoordinate {
+	i := int(math.Floor(location[0]))
+	j := int(math.Floor(location[1]))
+	k := int(math.Floor(location[2]))
+	return self.AddCoordinateijk([]IndexCoordinate{IndexCoordinate{0, 0, 0}}, i, j, k)
+}
+
+func (self *StandardChunkSettings) GetChunkCoord(location mgl64.Vec3) IndexCoordinate {
+	ci := int(math.Floor(location[0] / float64(self.chunkWidth)))
+	cj := int(math.Floor(location[1] / float64(self.chunkDepth)))
+	ck := int(math.Floor(location[2] / float64(self.chunkHeight)))
+	return IndexCoordinate{ci, cj, ck}
 }

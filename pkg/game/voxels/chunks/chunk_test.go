@@ -12,12 +12,12 @@ func TestIsTransparent(t *testing.T) {
 		Voxels:     &[]int{STONE, STONE, STONE, STONE, STONE, STONE, STONE, STONE},
 	}
 	// create six chunks around it
-	world.Region.SetChunkRegion(CreateFullChunk(world, -1, 0, 0))
-	world.Region.SetChunkRegion(CreateFullChunk(world, 1, 0, 0))
-	world.Region.SetChunkRegion(CreateFullChunk(world, 0, -1, 0))
-	world.Region.SetChunkRegion(CreateFullChunk(world, 0, 1, 0))
-	world.Region.SetChunkRegion(CreateFullChunk(world, 0, 0, -1))
-	world.Region.SetChunkRegion(CreateFullChunk(world, 0, 0, 1))
+	world.Region.SetChunk(CreateFullChunk(world, -1, 0, 0))
+	world.Region.SetChunk(CreateFullChunk(world, 1, 0, 0))
+	world.Region.SetChunk(CreateFullChunk(world, 0, -1, 0))
+	world.Region.SetChunk(CreateFullChunk(world, 0, 1, 0))
+	world.Region.SetChunk(CreateFullChunk(world, 0, 0, -1))
+	world.Region.SetChunk(CreateFullChunk(world, 0, 0, 1))
 	// test TestIsTransparent for chunk coordinates that normalize to adjacent chunks
 	expectOpaqueAt(t, mychunk, -1, 0, 0)
 	expectOpaqueAt(t, mychunk, 2, 0, 0)

@@ -3,7 +3,7 @@ package voxels
 import (
 	"time"
 
-	"ant.com/ant/pkg/ant"
+	"ant.com/ant/pkg/game/voxels/chunks"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/go-gl/mathgl/mgl64"
@@ -27,11 +27,11 @@ type Commands struct {
 
 type InputHandler struct {
 	commands      *Commands
-	camera        *ant.Camera
+	player        *chunks.Player
 	drawWireFrame bool
 }
 
-func SetupInputHandling(window *glfw.Window, cam *ant.Camera) *InputHandler {
+func SetupInputHandling(window *glfw.Window, player *chunks.Player) *InputHandler {
 	commands := new(Commands)
 	cursor := new(Cursor)
 	window.SetCursorPosCallback(func(w *glfw.Window, xpos float64, ypos float64) {
@@ -40,7 +40,7 @@ func SetupInputHandling(window *glfw.Window, cam *ant.Camera) *InputHandler {
 
 		dtheta := -dx * 0.005
 		dphi := -dy * 0.005
-		cam.Rotate(dtheta, dphi)
+		player.Camera.Rotate(dtheta, dphi)
 
 		cursor.xpos = xpos
 		cursor.ypos = ypos
@@ -125,8 +125,8 @@ func SetupInputHandling(window *glfw.Window, cam *ant.Camera) *InputHandler {
 
 	return &InputHandler{
 		commands:      commands,
-		camera:        cam,
 		drawWireFrame: false,
+		player:        player,
 	}
 }
 
@@ -146,24 +146,45 @@ func (self *InputHandler) Update(dt *time.Duration) {
 func (self *InputHandler) move(dt *time.Duration) {
 	moveDir := mgl64.Vec3{0, 0, 0}
 	isMoving := false
+	speed := 5.0
+	if self.player.Noclip {
+		moveDir, isMoving = self.fly()
+		speed = 30.0
+		if self.commands.fast {
+			speed = 70.0
+		}
+	} else {
+		moveDir, isMoving = self.walk()
+	}
+
+	dx := speed * dt.Seconds()
+	if isMoving {
+		moveDir = moveDir.Normalize()
+		self.player.SuggestMovement(moveDir.Mul(dx))
+	}
+}
+
+func (self *InputHandler) fly() (mgl64.Vec3, bool) {
+	moveDir := mgl64.Vec3{0, 0, 0}
+	isMoving := false
 
 	if self.commands.forward {
 		if !self.commands.backward {
-			moveDir = moveDir.Add(self.camera.Direction)
+			moveDir = moveDir.Add(self.player.Camera.Direction)
 			isMoving = true
 		}
 	} else if self.commands.backward {
-		moveDir = moveDir.Sub(self.camera.Direction)
+		moveDir = moveDir.Sub(self.player.Camera.Direction)
 		isMoving = true
 	}
 
 	if self.commands.right {
 		if !self.commands.left {
-			moveDir = moveDir.Add(self.camera.Right)
+			moveDir = moveDir.Add(self.player.Camera.Right)
 			isMoving = true
 		}
 	} else if self.commands.left {
-		moveDir = moveDir.Sub(self.camera.Right)
+		moveDir = moveDir.Sub(self.player.Camera.Right)
 		isMoving = true
 	}
 
@@ -176,15 +197,43 @@ func (self *InputHandler) move(dt *time.Duration) {
 		moveDir = moveDir.Sub(mgl64.Vec3{0, 0, 1})
 		isMoving = true
 	}
-
-	speed := 12.0
-	if self.commands.fast {
-		speed = 35.0
-	}
-	dx := speed * dt.Seconds()
-
-	if isMoving {
-		moveDir = moveDir.Normalize()
-		self.camera.Position = self.camera.Position.Add(moveDir.Mul(dx)) // need delta time
-	}
+	return moveDir, isMoving
 }
+
+func (self *InputHandler) walk() (mgl64.Vec3, bool) {
+	moveDir := mgl64.Vec3{0, 0, 0}
+	isMoving := false
+
+	camDir := self.player.Camera.Direction
+
+	if self.commands.forward {
+		if !self.commands.backward {
+			moveDir = moveDir.Add(mgl64.Vec3{camDir[0], camDir[1], 0})
+			isMoving = true
+		}
+	} else if self.commands.backward {
+		moveDir = moveDir.Sub(mgl64.Vec3{camDir[0], camDir[1], 0})
+		isMoving = true
+	}
+
+	if self.commands.right {
+		if !self.commands.left {
+			moveDir = moveDir.Add(self.player.Camera.Right)
+			isMoving = true
+		}
+	} else if self.commands.left {
+		moveDir = moveDir.Sub(self.player.Camera.Right)
+		isMoving = true
+	}
+
+	if self.commands.up {
+		self.player.Jump()
+	}
+
+	return moveDir, isMoving
+}
+
+// todo
+// func (self *InputHandler) swim() (mgl64.Vec3, bool) {
+
+// }
