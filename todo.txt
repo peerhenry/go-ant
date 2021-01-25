@@ -40,6 +40,7 @@ add basic crosshair
 
 ====== next
 toggle noclip flying
+ambient light color uniform
 fix adjacent chunk rendering problem (side faces of surface voxels along chunk edge are rendering)
 throttling: load chunks in order of distance to player
 frustum culling with chunks

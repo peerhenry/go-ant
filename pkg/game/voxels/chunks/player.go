@@ -43,7 +43,9 @@ func (self *Player) SuggestMovement(ds mgl64.Vec3) {
 }
 
 func (self *Player) Update(dt *time.Duration) {
-	self.fall(dt)
+	if !self.Noclip {
+		self.fall(dt)
+	}
 	ds := self.Velocity.Mul(dt.Seconds())
 	translationSuggestion := self.inputMovementSuggestion.Add(ds)
 	if translationSuggestion[0] != 0 || translationSuggestion[1] != 0 || translationSuggestion[2] != 0 {

@@ -71,6 +71,7 @@ func BuildHud(windowWidth, windowHeight int) *Hud {
 		uniformStore.UniformInts("Characters[0]", characters) // todo
 		uniformStore.UniformInt("QuadsPerLine", 10)
 		gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)
+		gl.BindVertexArray(0)
 	}
 	return hud
 }

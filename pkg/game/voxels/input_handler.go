@@ -15,14 +15,15 @@ type Cursor struct {
 }
 
 type Commands struct {
-	forward   bool
-	backward  bool
-	left      bool
-	right     bool
-	up        bool
-	down      bool
-	fast      bool
-	wireFrame bool
+	forward      bool
+	backward     bool
+	left         bool
+	right        bool
+	up           bool
+	down         bool
+	fast         bool
+	wireFrame    bool
+	toggleNoclip bool
 }
 
 type InputHandler struct {
@@ -51,13 +52,21 @@ func SetupInputHandling(window *glfw.Window, player *chunks.Player) *InputHandle
 
 	// todo: movement
 	window.SetKeyCallback(func(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
-		// ====  ====
+		// ==== toggle wireframe ====
 		if key == glfw.KeyF1 {
 			if action == glfw.Press {
 				commands.wireFrame = true
 			}
 			if action == glfw.Release {
 				commands.wireFrame = false
+			}
+		}
+		if key == glfw.KeyF2 {
+			if action == glfw.Press {
+				commands.toggleNoclip = true
+			}
+			if action == glfw.Release {
+				commands.toggleNoclip = false
 			}
 		}
 		// ==== Left shift go fast ====
@@ -140,6 +149,10 @@ func (self *InputHandler) Update(dt *time.Duration) {
 			gl.PolygonMode(gl.FRONT_AND_BACK, gl.FILL)
 		}
 	}
+	if self.commands.toggleNoclip {
+		self.player.Noclip = !self.player.Noclip
+		self.commands.toggleNoclip = false
+	}
 	self.move(dt)
 }
 
@@ -155,6 +168,9 @@ func (self *InputHandler) move(dt *time.Duration) {
 		}
 	} else {
 		moveDir, isMoving = self.walk()
+		if self.commands.fast {
+			speed = 10.0
+		}
 	}
 
 	dx := speed * dt.Seconds()

@@ -43,4 +43,5 @@ func renderChunk(uniformStore *ant.UniformStore, data *ant.RenderData) {
 	// draw
 	gl.BindVertexArray(data.Vao)
 	gl.DrawElements(gl.TRIANGLES, data.IndicesCount, gl.UNSIGNED_INT, nil)
+	gl.BindVertexArray(0)
 }
