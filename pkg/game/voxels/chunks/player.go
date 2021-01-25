@@ -8,11 +8,11 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 )
 
-const fallAcceleration = 10.0 // m/s/s
+const fallAcceleration = 20.0 // m/s/s
 const maxFallSpeed = -30.0    // m/s
 const playerCamHeight = 1.8
 const playerBoxHeight = 2.0
-const playerBoxSize = 0.2 // half the length of a horizontal side
+const playerBoxSize = 0.4 // half the length of a horizontal side
 const playerBoxRatio = (2 * playerBoxSize) / playerBoxHeight
 
 type Player struct {
@@ -33,7 +33,7 @@ func NewPlayer(camera *ant.Camera, world *ChunkWorld) *Player {
 		isFalling:    true,
 		Velocity:     mgl64.Vec3{0, 0, 0},
 		Noclip:       false,
-		JumpStrength: 10.0,
+		JumpStrength: 8.0,
 		debugToggle:  false,
 	}
 }

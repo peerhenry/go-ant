@@ -60,9 +60,9 @@ func Vec3_64_to_32(vec mgl64.Vec3) Vec3 {
 func GetFacingFaces(vec mgl64.Vec3) []Face {
 	var faces []Face
 	if vec[0] > 0 {
-		faces = append(faces, EAST)
-	} else if vec[0] < 0 {
 		faces = append(faces, WEST)
+	} else if vec[0] < 0 {
+		faces = append(faces, EAST)
 	}
 	if vec[1] > 0 {
 		faces = append(faces, SOUTH)

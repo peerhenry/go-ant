@@ -17,15 +17,14 @@ func BuildGame(windowWidth, windowHeight int) *ant.Game {
 	scene := BuildChunkScene(windowWidth, windowHeight)
 	game.AddScene(scene)
 	hud := BuildHud(windowWidth, windowHeight)
-	// perlin := ant.NewPerlin(1, 6)
-	// atlas := chunks.NewHeightAtlas(64, chunks.NewPerlinHeightGenerator(perlin, 200.0, 512.0))
+	perlin := ant.NewPerlin(1, 6)
+	atlas := chunks.NewHeightAtlas(64, chunks.NewPerlinHeightGenerator(perlin, 200.0, 512.0))
 	chunkSettings := chunks.NewChunkSettings(32, 32, 8)
-	provider := chunks.NewHeightProviderConstant(0)
 	world := chunks.NewChunkWorldBuilder().
-		SpawnTrees(true).UseChunkSettings(chunkSettings).UseHeightProvider(provider).
+		SpawnTrees(true).UseChunkSettings(chunkSettings).UseHeightProvider(atlas).
 		SetWaterLevel(-6).Build()
 	cam := ant.NewCamera()
-	cam.Position = mgl64.Vec3{0, 0, 60}
+	cam.Position = mgl64.Vec3{0, 0, 30}
 	chunkWorldUpdater := chunks.NewChunkWorldUpdater(cam, scene, world)
 	player := chunks.NewPlayer(cam, world)
 	inputHandler := SetupInputHandling(window, player)

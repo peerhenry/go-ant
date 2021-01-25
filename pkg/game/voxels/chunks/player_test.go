@@ -7,29 +7,51 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 )
 
-// func TestClipFromVoxelCollisions_ShouldClipY(t *testing.T) {
-// 	// Arrange
-// 	cam := ant.NewCamera()
-// 	cam.Position = mgl64.Vec3{0, 0, 4 + playerCamHeight + 0.01}
-// 	world := NewChunkWorldBuilder().Build()
-// 	player := NewPlayer(cam, world)
-// 	player.isFalling = false
-// 	world.CreateChunksInColumn(0, 0)
-// 	world.CreateChunksInColumn(-1, 0)
-// 	world.CreateChunksInColumn(0, -1)
-// 	world.CreateChunksInColumn(-1, -1)
-// 	chunk := world.GetOrCreateChunkAt(0, 0)
-// 	chunk.AddVisibleVoxel(1, 1, 5, DIRT)
-// 	// Act
-// 	dx := 0.05
-// 	dy := 0.05
-// 	result := player.clipFromVoxelCollisions(mgl64.Vec3{dx, dy, 0.0})
-// 	// Assert
-// 	if result[2] != 0.0 {
-// 		t.Errorf("expected clipped dz to be %f, got %f", 0.0, result[2])
-// 		return
-// 	}
-// }
+func TestClipFromVoxelCollisions_ShouldClipX(t *testing.T) {
+	// Arrange
+	cam := ant.NewCamera()
+	world := NewChunkWorldBuilder().Build()
+	player := NewPlayer(cam, world)
+	player.isFalling = false
+	world.CreateChunksInColumn(0, 0)
+	world.CreateChunksInColumn(-1, 0)
+	world.CreateChunksInColumn(0, -1)
+	world.CreateChunksInColumn(-1, -1)
+	chunk := world.GetOrCreateChunkAt(IndexCoordinate{0, 0, 0})
+	chunk.AddVisibleVoxel(1, 1, 5, DIRT)
+	cam.Position = mgl64.Vec3{2.5, 1.5, 4 + playerCamHeight + 0.01}
+	// Act
+	dx := -0.5
+	dy := 0.01
+	dz := 0.01
+	expect := mgl64.Vec3{0, dy, dz}
+	result := player.clipFromVoxelCollisions(mgl64.Vec3{dx, dy, dz})
+	// Assert
+	ExpectVec3Equals(t, expect, result)
+}
+
+func TestClipFromVoxelCollisions_ShouldClipY(t *testing.T) {
+	// Arrange
+	cam := ant.NewCamera()
+	world := NewChunkWorldBuilder().Build()
+	player := NewPlayer(cam, world)
+	player.isFalling = false
+	world.CreateChunksInColumn(0, 0)
+	world.CreateChunksInColumn(-1, 0)
+	world.CreateChunksInColumn(0, -1)
+	world.CreateChunksInColumn(-1, -1)
+	chunk := world.GetOrCreateChunkAt(IndexCoordinate{0, 0, 0})
+	chunk.AddVisibleVoxel(1, 1, 5, DIRT)
+	cam.Position = mgl64.Vec3{1.5, 0.5, 4 + playerCamHeight + 0.01}
+	// Act
+	dx := 0.01
+	dy := 0.5
+	dz := 0.01
+	expect := mgl64.Vec3{dx, 0, dz}
+	result := player.clipFromVoxelCollisions(mgl64.Vec3{dx, dy, dz})
+	// Assert
+	ExpectVec3Equals(t, expect, result)
+}
 
 func TestClipFromVoxelCollisions_ShouldStopFalling(t *testing.T) {
 	// Arrange
