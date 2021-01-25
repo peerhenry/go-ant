@@ -34,7 +34,6 @@ throttle chunk loading
 ====== in progress
 player physics
 fix jumping problem; seems like sometimes more than one jump call is made
-fix collision problem in one axis
 fix collision with trees
 fix player physics for chunk columns that don't exist yet
 

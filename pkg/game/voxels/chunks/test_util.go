@@ -14,7 +14,7 @@ func arrayToString(array interface{}) string {
 
 func mockChunkWorld(chunkSize int) *ChunkWorld {
 	chunkSettings := NewChunkSettings(chunkSize, chunkSize, chunkSize)
-	return NewChunkWorld(chunkSettings, HeightProviderConstant{-100})
+	return NewChunkWorldBuilder().UseChunkSettings(chunkSettings).UseHeightProvider(HeightProviderConstant{-100}).Build()
 }
 
 func ExpectVec3Equals(t *testing.T, expect, actual mgl64.Vec3) {

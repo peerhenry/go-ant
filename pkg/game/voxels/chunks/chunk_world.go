@@ -12,18 +12,8 @@ type ChunkWorld struct {
 	ChunkRenderDataBuilder *ChunkRenderDataBuilder
 	initialized            bool
 	HeightAtlas            IHeightProvider
-}
-
-func NewChunkWorld(chunkSettings IChunkSettings, atlas IHeightProvider) *ChunkWorld {
-	chunkBuilder := NewChunkBuilder(chunkSettings)
-	meshBuilder := NewChunkMeshBuilder(chunkSettings)
-	return &ChunkWorld{
-		Region:                 NewChunkRegion(),
-		ChunkBuilder:           chunkBuilder,
-		ChunkRenderDataBuilder: &ChunkRenderDataBuilder{chunkSettings, meshBuilder},
-		ChunkSettings:          chunkSettings,
-		HeightAtlas:            atlas,
-	}
+	WaterLevel             int
+	SpawnTrees             bool
 }
 
 func (self *ChunkWorld) GetOrCreateChunkAt(chunkCoordinate IndexCoordinate) *StandardChunk {
@@ -178,9 +168,8 @@ func (self *ChunkWorld) CreateChunksInColumn(ci, cj int) map[IndexCoordinate]*St
 		}
 
 		// fill water
-		waterlevel := -6
-		if h < waterlevel {
-			waterDepth := waterlevel - h
+		if h < self.WaterLevel {
+			waterDepth := self.WaterLevel - h
 			for dk := 1; dk <= waterDepth; dk++ {
 				vk, chunkK := self.HeightToCoordinates(h + dk)
 				coord := IndexCoordinate{ci, cj, chunkK}
@@ -195,7 +184,9 @@ func (self *ChunkWorld) CreateChunksInColumn(ci, cj int) map[IndexCoordinate]*St
 		}
 	}
 
-	self.dropTrees(ci, cj, newChunks)
+	if self.SpawnTrees {
+		self.dropTrees(ci, cj, newChunks)
+	}
 
 	return newChunks
 }

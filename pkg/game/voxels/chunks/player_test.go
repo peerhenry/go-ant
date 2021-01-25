@@ -7,28 +7,33 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 )
 
-func TestCancelComponent(t *testing.T) {
-	// arrange
+func TestClipFromVoxelCollisions_ShouldClipY(t *testing.T) {
+	// Arrange
 	cam := ant.NewCamera()
-	chunkSettings := NewChunkSettings(32, 32, 8)
-	world := NewChunkWorld(chunkSettings, HeightProviderConstant{0})
+	cam.Position = mgl64.Vec3{0, 0, 5 + playerCamHeight + 0.01}
+	world := NewChunkWorldBuilder().Build()
 	player := NewPlayer(cam, world)
-	thing := mgl64.Vec3{1, 1, 1}
-	expectX := mgl64.Vec3{0, 1, 1}
+	player.isFalling = false
+	world.CreateChunksInColumn(0, 0)
+	world.CreateChunksInColumn(-1, 0)
+	world.CreateChunksInColumn(0, -1)
+	world.CreateChunksInColumn(-1, -1)
 	// Act
-	west := player.cancelComponent(thing, WEST)
-	east := player.cancelComponent(thing, EAST)
+	dx := 0.05
+	dy := 0.05
+	result := player.clipFromVoxelCollisions(mgl64.Vec3{dx, dy, 0.0})
 	// Assert
-	ExpectVec3Equals(t, expectX, west)
-	ExpectVec3Equals(t, expectX, east)
+	if result[2] != 0.0 {
+		t.Errorf("expected clipped dz to be %f, got %f", 0.0, result[2])
+		return
+	}
 }
 
 func TestClipFromVoxelCollisions_ShouldStopFalling(t *testing.T) {
 	// Arrange
 	cam := ant.NewCamera()
 	cam.Position = mgl64.Vec3{0, 0, 5 + playerCamHeight + 0.05}
-	chunkSettings := NewChunkSettings(32, 32, 8)
-	world := NewChunkWorld(chunkSettings, HeightProviderConstant{0})
+	world := NewChunkWorldBuilder().Build()
 	world.CreateChunksInColumn(0, 0)
 	world.CreateChunksInColumn(-1, 0)
 	world.CreateChunksInColumn(0, -1)
@@ -56,6 +61,22 @@ func TestClipFromVoxelCollisions_ShouldStopFalling(t *testing.T) {
 		t.Errorf("expected player.isFalling to be false, but was true")
 		return
 	}
+}
+
+func TestCancelComponent(t *testing.T) {
+	// arrange
+	cam := ant.NewCamera()
+	chunkSettings := NewChunkSettings(32, 32, 8)
+	world := NewChunkWorld(chunkSettings, HeightProviderConstant{0})
+	player := NewPlayer(cam, world)
+	thing := mgl64.Vec3{1, 1, 1}
+	expectX := mgl64.Vec3{0, 1, 1}
+	// Act
+	west := player.cancelComponent(thing, WEST)
+	east := player.cancelComponent(thing, EAST)
+	// Assert
+	ExpectVec3Equals(t, expectX, west)
+	ExpectVec3Equals(t, expectX, east)
 }
 
 func TestGetIntersectingVoxelAABBs_ExpectFour(t *testing.T) {
