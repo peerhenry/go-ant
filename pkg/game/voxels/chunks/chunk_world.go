@@ -87,7 +87,7 @@ func (self *ChunkWorld) DropStructure(ai, aj int, tree *VoxelStructure) map[Inde
 
 func (self *ChunkWorld) get_surface_k(ai, aj int) int {
 	h := self.HeightAtlas.GetHeight(ai, aj)
-	return h + self.ChunkSettings.GetChunkHeight()/2
+	return h + (self.ChunkSettings.GetChunkHeight()-1)/2
 }
 
 func (self *ChunkWorld) getHeightsForChunkColumn(ci, cj int) (*[]int, int, int) {

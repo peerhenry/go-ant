@@ -1,7 +1,7 @@
 package chunks
 
 type ChunkWorldBuilder struct {
-	ChunkSettings  IChunkSettings
+	chunkSettings  IChunkSettings
 	HeightProvider IHeightProvider
 	spawnTrees     bool
 	WaterLevel     int
@@ -9,9 +9,9 @@ type ChunkWorldBuilder struct {
 
 func NewChunkWorldBuilder() *ChunkWorldBuilder {
 	return &ChunkWorldBuilder{
-		ChunkSettings:  NewChunkSettings(32, 32, 8),
+		chunkSettings:  NewChunkSettings(32, 32, 8),
 		HeightProvider: HeightProviderConstant{0},
-		spawnTrees:     true,
+		spawnTrees:     false,
 		WaterLevel:     -6,
 	}
 }
@@ -27,7 +27,7 @@ func (self *ChunkWorldBuilder) SetWaterLevel(t int) *ChunkWorldBuilder {
 }
 
 func (self *ChunkWorldBuilder) UseChunkSettings(settings IChunkSettings) *ChunkWorldBuilder {
-	self.ChunkSettings = settings
+	self.chunkSettings = settings
 	return self
 }
 
@@ -36,14 +36,20 @@ func (self *ChunkWorldBuilder) UseHeightProvider(provider IHeightProvider) *Chun
 	return self
 }
 
+func (self *ChunkWorldBuilder) SetConstantHeight(height int) *ChunkWorldBuilder {
+	self.HeightProvider = NewHeightProviderConstant(height)
+	return self
+}
+
 func (self *ChunkWorldBuilder) Build() *ChunkWorld {
-	chunkBuilder := NewChunkBuilder(self.ChunkSettings)
-	meshBuilder := NewChunkMeshBuilder(self.ChunkSettings)
+	chunkBuilder := NewChunkBuilder(self.chunkSettings)
+	meshBuilder := NewChunkMeshBuilder(self.chunkSettings)
+	region := NewChunkRegion()
 	return &ChunkWorld{
-		Region:                 NewChunkRegion(),
+		Region:                 region,
 		ChunkBuilder:           chunkBuilder,
-		ChunkRenderDataBuilder: &ChunkRenderDataBuilder{self.ChunkSettings, meshBuilder},
-		ChunkSettings:          self.ChunkSettings,
+		ChunkRenderDataBuilder: &ChunkRenderDataBuilder{self.chunkSettings, meshBuilder},
+		ChunkSettings:          self.chunkSettings,
 		HeightAtlas:            self.HeightProvider,
 		WaterLevel:             self.WaterLevel,
 		SpawnTrees:             self.spawnTrees,

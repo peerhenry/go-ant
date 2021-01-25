@@ -9,7 +9,7 @@ import (
 func TestChunkToMeshLengths(t *testing.T) {
 	// Arrange
 	chunkSettings := NewChunkSettings(2, 2, 2)
-	world := NewChunkWorld(chunkSettings, HeightProviderConstant{-100})
+	world := NewChunkWorldBuilder().UseChunkSettings(chunkSettings).SetConstantHeight(-100).Build()
 	meshBuilder := NewChunkMeshBuilder(chunkSettings)
 	chunk := &StandardChunk{
 		Voxels:        &[]int{1, 1, 1, 1, 1, 1, 1, 1},
