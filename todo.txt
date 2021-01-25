@@ -34,24 +34,26 @@ player physics
 fix jumping problem; seems like sometimes more than one jump call is made
 fix collision with trees
 keep minimal distance so you don't look through a face that's close
+add basic crosshair
 
 ====== in progress
-player physics: fix player physics for chunk columns that don't exist yet
-player physics: fix "stuck" bug; sometimes a movement direction gets cancelled even though it shouldn't
 
 ====== next
+toggle noclip flying
 fix adjacent chunk rendering problem (side faces of surface voxels along chunk edge are rendering)
+throttling: load chunks in order of distance to player
 frustum culling with chunks
 keep chunks removed from rendering in memory
 write a test for transforming empty chunk to render object
+player physics: fix player physics for chunk columns that don't exist yet
+player physics: fix "stuck" bug; sometimes a movement direction gets cancelled even though it shouldn't
 
 ====== todo
 antialiasing
-add crosshair
 implement world seed
 transparent voxels
 combine faces to reduce vertex data
-draw chunk outline
+debug draw chunk outline
 fix visiblevoxels problem
 optimize chunk mesh memory
 refactor LoadImageFileToUniform to uniformStore

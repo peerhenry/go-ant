@@ -17,6 +17,7 @@ func BuildGame(windowWidth, windowHeight int) *ant.Game {
 	scene := BuildChunkScene(windowWidth, windowHeight)
 	game.AddScene(scene)
 	hud := BuildHud(windowWidth, windowHeight)
+	crosshair := BuildCrosshair()
 	perlin := ant.NewPerlin(1, 6)
 	atlas := chunks.NewHeightAtlas(64, chunks.NewPerlinHeightGenerator(perlin, 200.0, 512.0))
 	chunkSettings := chunks.NewChunkSettings(32, 32, 8)
@@ -42,6 +43,7 @@ func BuildGame(windowWidth, windowHeight int) *ant.Game {
 	}
 	game.PostDraw = func() {
 		hud.Draw()
+		crosshair.Draw()
 	}
 	return game
 }

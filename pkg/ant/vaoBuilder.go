@@ -18,7 +18,7 @@ type VaoBuilder struct {
 }
 
 func (self *VaoBuilder) AddVertexBuffer(location uint32, vertexSize int32, data *[]float32) {
-	vbo := makeFloatVbo(data)
+	vbo := MakeFloatVbo(data)
 	vboData := VboData{location, vertexSize, vbo}
 	self.vbos[self.numberOfVbos] = vboData
 	self.numberOfVbos += 1
@@ -55,7 +55,7 @@ func (self *VaoBuilder) Build() uint32 {
 	return vao
 }
 
-func makeFloatVbo(data *[]float32) uint32 {
+func MakeFloatVbo(data *[]float32) uint32 {
 	var vbo uint32
 	gl.GenBuffers(1, &vbo)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
