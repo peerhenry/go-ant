@@ -36,6 +36,10 @@ func (self AABB64) Center() mgl64.Vec3 {
 	return self.Min.Add(self.Max).Mul(0.5)
 }
 
+func (self AABB64) Validate() bool {
+	return self.Min[0] < self.Max[0] && self.Min[1] < self.Max[1] && self.Min[2] < self.Max[2]
+}
+
 func (self AABB64) ToString() string {
 	return "AABB64 { Min: [" +
 		fmt.Sprintf("%v, %v, %v", self.Min[0], self.Min[1], self.Min[2]) +

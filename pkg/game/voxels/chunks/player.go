@@ -46,8 +46,10 @@ func (self *Player) Update(dt *time.Duration) {
 	self.fall(dt)
 	ds := self.Velocity.Mul(dt.Seconds())
 	translationSuggestion := self.inputMovementSuggestion.Add(ds)
-	translation := self.clipFromVoxelCollisions(translationSuggestion)
-	self.Camera.Translate(translation)
+	if translationSuggestion[0] != 0 || translationSuggestion[1] != 0 || translationSuggestion[2] != 0 {
+		translation := self.clipFromVoxelCollisions(translationSuggestion)
+		self.Camera.Translate(translation)
+	}
 	self.inputMovementSuggestion = mgl64.Vec3{0, 0, 0}
 }
 
@@ -87,13 +89,14 @@ func (self *Player) clipFromVoxelCollisions(translationSuggestion mgl64.Vec3) mg
 		intersection := aabb.Intersection(futurePlayerAABB)
 		center := intersection.Center()
 		lineOrigin := center.Sub(translationSuggestion)
-		// determine which face the ray intersects
+		// determine which face the line intersects
 		faces := GetFacingFaces(clipped)
 		for _, face := range faces {
 			if aabb.LineIntersectsFace(lineOrigin, center, face) {
 				clipped = self.cancelComponent(clipped, face)
 				if face == UP {
 					self.isFalling = false
+					self.Velocity = mgl64.Vec3{0, 0, 0}
 				}
 			}
 		}
@@ -181,19 +184,20 @@ func (self *Player) ToRegionCoord(location mgl64.Vec3) []IndexCoordinate {
 }
 
 func (self *Player) cancelComponent(thing mgl64.Vec3, face Face) mgl64.Vec3 {
+	delta := 0.0
 	switch face {
 	case EAST:
-		return mgl64.Vec3{0, thing[1], thing[2]}
+		return mgl64.Vec3{delta, thing[1], thing[2]}
 	case WEST:
-		return mgl64.Vec3{0, thing[1], thing[2]}
+		return mgl64.Vec3{-delta, thing[1], thing[2]}
 	case NORTH:
-		return mgl64.Vec3{thing[0], 0, thing[2]}
+		return mgl64.Vec3{thing[0], delta, thing[2]}
 	case SOUTH:
-		return mgl64.Vec3{thing[0], 0, thing[2]}
+		return mgl64.Vec3{thing[0], -delta, thing[2]}
 	case UP:
-		return mgl64.Vec3{thing[0], thing[1], 0}
+		return mgl64.Vec3{thing[0], thing[1], delta}
 	case DOWN:
-		return mgl64.Vec3{thing[0], thing[1], 0}
+		return mgl64.Vec3{thing[0], thing[1], -delta}
 	}
 	return thing
 }
