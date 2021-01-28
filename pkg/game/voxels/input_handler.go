@@ -24,6 +24,7 @@ type Commands struct {
 	fast         bool
 	wireFrame    bool
 	toggleNoclip bool
+	click        bool
 }
 
 type InputHandler struct {
@@ -48,7 +49,15 @@ func SetupInputHandling(window *glfw.Window, player *chunks.Player) *InputHandle
 	})
 
 	// todo: mouse clicks
-	window.SetMouseButtonCallback(func(w *glfw.Window, button glfw.MouseButton, action glfw.Action, mod glfw.ModifierKey) {})
+	window.SetMouseButtonCallback(func(w *glfw.Window, button glfw.MouseButton, action glfw.Action, mod glfw.ModifierKey) {
+		if button == glfw.MouseButtonLeft {
+			if action == glfw.Press {
+				commands.click = true
+			}
+			if action == glfw.Release {
+			}
+		}
+	})
 
 	// todo: movement
 	window.SetKeyCallback(func(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
@@ -152,6 +161,10 @@ func (self *InputHandler) Update(dt *time.Duration) {
 	if self.commands.toggleNoclip {
 		self.player.Noclip = !self.player.Noclip
 		self.commands.toggleNoclip = false
+	}
+	if self.commands.click {
+		self.player.RemoveBlock()
+		self.commands.click = false
 	}
 	self.move(dt)
 }
