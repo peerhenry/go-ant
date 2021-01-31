@@ -1,6 +1,9 @@
 package chunks
 
-import "github.com/go-gl/mathgl/mgl64"
+import (
+	"ant.com/ant/pkg/ant"
+	"github.com/go-gl/mathgl/mgl64"
+)
 
 type IsVoxelTransparent func(i, j, k int) bool
 
@@ -79,6 +82,18 @@ func (self *StandardChunk) AddVisibleVoxel(i, j, k, voxel int) {
 	}
 }
 
+func (self *StandardChunk) RemoveVoxel(index int) {
+	(*self.Voxels)[index] = AIR
+	var newVisibleVoxels []int
+	// todo: add surrounding voxels to visible ones
+	for _, vi := range *self.VisibleVoxels {
+		if vi != index {
+			newVisibleVoxels = append(newVisibleVoxels, vi)
+		}
+	}
+	self.VisibleVoxels = &newVisibleVoxels
+}
+
 func (self *StandardChunk) AddInvisibleVoxel(i, j, k, voxel int) {
 	voxelIndexCoord := IndexCoordinate{i, j, k}
 	index := self.ChunkWorld.ChunkSettings.CoordinateToIndex(voxelIndexCoord)
@@ -89,7 +104,7 @@ func (self *StandardChunk) IsVisible() bool {
 	return len(*self.VisibleVoxels) > 0
 }
 
-func (self *StandardChunk) Origin() mgl64.Vec3 {
+func (self *StandardChunk) CalculateOrigin() mgl64.Vec3 {
 	chunkWidth := self.ChunkWorld.ChunkSettings.GetChunkWidth()
 	chunkDepth := self.ChunkWorld.ChunkSettings.GetChunkDepth()
 	chunkHeight := self.ChunkWorld.ChunkSettings.GetChunkHeight()
@@ -99,4 +114,19 @@ func (self *StandardChunk) Origin() mgl64.Vec3 {
 		float64(float32(self.Coordinate.j*chunkDepth) * voxelSize),
 		float64(float32(self.Coordinate.k*chunkHeight) * voxelSize),
 	}
+}
+
+func (self *StandardChunk) GetVoxelAABB(index int) ant.AABB64 {
+	settings := self.ChunkWorld.ChunkSettings
+	coord := settings.IndexToCoordinate(index)
+	voxelSize := float64(settings.GetVoxelSize())
+	chunkOrigin := self.CalculateOrigin() // todo: put on state to improve performance
+	positionInChunk := mgl64.Vec3{
+		float64(coord.i) * voxelSize,
+		float64(coord.j) * voxelSize,
+		float64(coord.k) * voxelSize,
+	}
+	voxelMin := chunkOrigin.Add(positionInChunk)
+	voxelMax := voxelMin.Add(mgl64.Vec3{voxelSize, voxelSize, voxelSize})
+	return ant.AABB64{Min: voxelMin, Max: voxelMax}
 }

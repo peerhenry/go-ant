@@ -1,7 +1,9 @@
 package chunks
 
 import (
+	"log"
 	"math"
+	"sort"
 	"time"
 
 	"ant.com/ant/pkg/ant"
@@ -17,6 +19,7 @@ const playerBoxRatio = (2 * playerBoxSize) / playerBoxHeight
 
 type Player struct {
 	Camera                  *ant.Camera
+	worldUpdater            *ChunkWorldUpdater
 	world                   *ChunkWorld
 	isFalling               bool
 	Velocity                mgl64.Vec3
@@ -26,10 +29,11 @@ type Player struct {
 	debugToggle             bool // debug
 }
 
-func NewPlayer(camera *ant.Camera, world *ChunkWorld) *Player {
+func NewPlayer(camera *ant.Camera, worldUpdater *ChunkWorldUpdater) *Player {
 	return &Player{
 		Camera:       camera,
-		world:        world,
+		worldUpdater: worldUpdater,
+		world:        worldUpdater.ChunkWorld,
 		isFalling:    true,
 		Velocity:     mgl64.Vec3{0, 0, 0},
 		Noclip:       false,
@@ -110,23 +114,12 @@ func (self *Player) clipFromVoxelCollisions(translationSuggestion mgl64.Vec3) mg
 func (self *Player) getIntersectingVoxelAABBs(futureAABB ant.AABB64) []ant.AABB64 {
 	var intersections []ant.AABB64
 	intersectingChunks := self.getIntersectingChunks(futureAABB)
-	settings := self.world.ChunkSettings
-	voxelSize := float64(settings.GetVoxelSize())
 	// log.Println("futureAABB", futureAABB)
 	for _, chunk := range intersectingChunks {
-		chunkOrigin := chunk.Origin()
 		// we can optimize this; instead of iterating over all voxels in chunk we can calculate min max like we do with getting intersecting chunks
 		for index, voxel := range *chunk.Voxels {
 			if voxel != AIR {
-				coord := settings.IndexToCoordinate(index)
-				positionInChunk := mgl64.Vec3{
-					float64(coord.i) * voxelSize,
-					float64(coord.j) * voxelSize,
-					float64(coord.k) * voxelSize,
-				}
-				voxelMin := chunkOrigin.Add(positionInChunk)
-				voxelMax := voxelMin.Add(mgl64.Vec3{voxelSize, voxelSize, voxelSize})
-				voxelAABB := ant.AABB64{Min: voxelMin, Max: voxelMax}
+				voxelAABB := chunk.GetVoxelAABB(index)
 				if futureAABB.Intersects(voxelAABB) {
 					// log.Println("adding voxel AABB:", coord.ToString(), voxel, voxelMin, voxelMax)
 					intersections = append(intersections, voxelAABB)
@@ -204,16 +197,93 @@ func (self *Player) cancelComponent(thing mgl64.Vec3, face Face) mgl64.Vec3 {
 	return thing
 }
 
+// setup chunk sorting by distance
+type dChunk struct {
+	chunk    *StandardChunk
+	distance float64
+}
+type ByDistance []dChunk
+
+func (a ByDistance) Len() int           { return len(a) }
+func (a ByDistance) Less(i, j int) bool { return a[i].distance < a[j].distance }
+func (a ByDistance) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+
 func (self *Player) RemoveBlock() {
-	// cast ray into world
-	// p1 := self.Camera.Position
-	// p2 := self.Camera.Position.Add(self.Camera.Direction.Mul(50))
+	// determine interaction line points
+	p1 := self.Camera.Position
+	p2 := self.Camera.Position.Add(self.Camera.Direction.Mul(50))
+	scaleX := 1.0 / float64(self.world.ChunkSettings.GetChunkWidth())
+	scaleY := 1.0 / float64(self.world.ChunkSettings.GetChunkDepth())
+	scaleZ := 1.0 / float64(self.world.ChunkSettings.GetChunkHeight())
+	// scale line with chunk dimensions
+	unitSpace_p1 := mgl64.Vec3{p1[0] * scaleX, p1[1] * scaleY, p1[2] * scaleZ}
+	unitSpace_p2 := mgl64.Vec3{p2[0] * scaleX, p2[1] * scaleY, p2[2] * scaleZ}
+	cellIntersections := ant.LineCellIntersections(unitSpace_p1, unitSpace_p2)
 
 	// get intersecting chunks
+	var coords []IndexCoordinate
+	for _, yo := range cellIntersections {
+		coords = append(coords, IndexCoordinate{i: yo[0], j: yo[0], k: yo[0]})
+	}
+	chunks := self.world.Region.GetChunks(coords)
 
-	// order them by distance
+	if len(chunks) == 0 {
+		log.Println("no chunks intersect") // debug
+		return
+	} else {
+		log.Println("chunks intersect: ", len(chunks)) // debug
+	}
 
-	// loop over visible voxels in chunk
+	var dChunks []dChunk
 
-	// intersection test with
+	// calculate distances
+	for _, chunk := range chunks {
+		dChunks = append(dChunks, dChunk{chunk: chunk, distance: self.GetChunkDistance(chunk.Coordinate)})
+	}
+	// order chunks by distance
+	sort.Sort(ByDistance(dChunks))
+
+	tmin := math.MaxFloat64
+	var targetChunk *StandardChunk = nil
+	targetVoxelIndex := -1
+	for _, dChunk := range dChunks {
+		chunk := dChunk.chunk
+		// loop over visible voxels in chunk
+		for _, vIndex := range *chunk.VisibleVoxels {
+			voxel := (*chunk.Voxels)[vIndex]
+			if voxel != AIR {
+				voxelAABB := chunk.GetVoxelAABB(vIndex)
+				intersects, t := voxelAABB.LineIntersects(p1, p2)
+				// todo: get interestion face for adding voxels
+				if intersects && t < tmin {
+					tmin = t
+					targetChunk = chunk
+					targetVoxelIndex = vIndex
+				}
+			}
+		}
+	}
+
+	if tmin != math.MaxFloat64 {
+		targetChunk.RemoveVoxel(targetVoxelIndex)
+		self.worldUpdater.QueueForRebuild(targetChunk)
+	} else {
+		log.Println("no voxel intersect") // debug
+	}
+}
+
+func (self *Player) GetChunkDistance(c IndexCoordinate) float64 {
+	sizeX := float64(self.world.ChunkSettings.GetChunkWidth())
+	sizeY := float64(self.world.ChunkSettings.GetChunkDepth())
+	sizeZ := float64(self.world.ChunkSettings.GetChunkHeight())
+	halfX := sizeX / 2
+	halfY := sizeY / 2
+	halfZ := sizeZ / 2
+	chunkPos := mgl64.Vec3{
+		float64(c.i)*sizeX + halfX,
+		float64(c.j)*sizeY + halfY,
+		float64(c.k)*sizeZ + halfZ,
+	}
+	d := self.Camera.Position.Sub(chunkPos)
+	return d[0]*d[0] + d[1]*d[1] + d[2]*d[2]
 }

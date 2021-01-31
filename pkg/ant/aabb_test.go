@@ -6,6 +6,60 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 )
 
+func TestLineIntersects_ExpectHalft(t *testing.T) {
+	// Arrange
+	aabb := AABB64{
+		Min: mgl64.Vec3{0, 0, 0},
+		Max: mgl64.Vec3{1, 1, 1},
+	}
+	p := mgl64.Vec3{0.5, 0.5, -0.5}
+	q := mgl64.Vec3{0.5, 0.5, 0.5}
+	// Act
+	result, tt := aabb.LineIntersects(p, q)
+	// Assert
+	if !result {
+		t.Errorf("Expected intersection, but wasn't")
+	}
+	if tt != 0.5 {
+		t.Errorf("Expected intersection t to be 0.5, but was %f", tt)
+	}
+}
+
+func TestLineIntersects(t *testing.T) {
+	// Arrange
+	aabb := AABB64{
+		Min: mgl64.Vec3{0, 0, 0},
+		Max: mgl64.Vec3{1, 1, 1},
+	}
+	p := mgl64.Vec3{0, 0, 0}
+	q := mgl64.Vec3{1, 1, 1}
+	// Act
+	result, tt := aabb.LineIntersects(p, q)
+	// Assert
+	if !result {
+		t.Errorf("Expected intersection, but wasn't")
+	}
+	if tt != 0.0 {
+		t.Errorf("Expected intersection t to be 0, but was %f", tt)
+	}
+}
+
+func TestLineIntersects_NoIntersection(t *testing.T) {
+	// Arrange
+	aabb := AABB64{
+		Min: mgl64.Vec3{0, 0, 0},
+		Max: mgl64.Vec3{1, 1, 1},
+	}
+	p := mgl64.Vec3{0, 1, 2}
+	q := mgl64.Vec3{0, 1, 2}
+	// Act
+	result, _ := aabb.LineIntersects(p, q)
+	// Assert
+	if result {
+		t.Errorf("Expected no intersection")
+	}
+}
+
 func TestIntersection(t *testing.T) {
 	one := AABB64{
 		Min: mgl64.Vec3{0, 0, 0},

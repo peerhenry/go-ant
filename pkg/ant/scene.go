@@ -1,5 +1,11 @@
 package ant
 
+type IScene interface {
+	AddRenderData(renderData *RenderData) int
+	ReplaceRenderData(index int, renderData *RenderData)
+	RemoveRenderData(index int)
+}
+
 type Scene struct {
 	UniformStore    *UniformStore
 	GlslProgram     *GLSLProgram

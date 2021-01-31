@@ -11,7 +11,7 @@ func TestClipFromVoxelCollisions_ShouldClipX(t *testing.T) {
 	// Arrange
 	cam := ant.NewCamera()
 	world := NewChunkWorldBuilder().Build()
-	player := NewPlayer(cam, world)
+	player := CreateTestPlayer(cam, world)
 	player.isFalling = false
 	world.CreateChunksInColumn(0, 0)
 	world.CreateChunksInColumn(-1, 0)
@@ -34,7 +34,7 @@ func TestClipFromVoxelCollisions_ShouldClipY(t *testing.T) {
 	// Arrange
 	cam := ant.NewCamera()
 	world := NewChunkWorldBuilder().Build()
-	player := NewPlayer(cam, world)
+	player := CreateTestPlayer(cam, world)
 	player.isFalling = false
 	world.CreateChunksInColumn(0, 0)
 	world.CreateChunksInColumn(-1, 0)
@@ -62,7 +62,7 @@ func TestClipFromVoxelCollisions_ShouldStopFalling(t *testing.T) {
 	world.CreateChunksInColumn(-1, 0)
 	world.CreateChunksInColumn(0, -1)
 	world.CreateChunksInColumn(-1, -1)
-	player := NewPlayer(cam, world)
+	player := CreateTestPlayer(cam, world)
 	player.isFalling = true
 	// Act
 	dx := 0.05
@@ -91,7 +91,7 @@ func TestCancelComponent(t *testing.T) {
 	// arrange
 	cam := ant.NewCamera()
 	world := NewChunkWorldBuilder().UseHeightProvider(HeightProviderConstant{0}).Build()
-	player := NewPlayer(cam, world)
+	player := CreateTestPlayer(cam, world)
 	thing := mgl64.Vec3{1, 1, 1}
 	expectX := mgl64.Vec3{0, 1, 1}
 	// Act
@@ -111,7 +111,7 @@ func TestGetIntersectingVoxelAABBs_ExpectFour(t *testing.T) {
 	world.CreateChunksInColumn(-1, 0)
 	world.CreateChunksInColumn(0, -1)
 	world.CreateChunksInColumn(-1, -1)
-	player := NewPlayer(cam, world)
+	player := CreateTestPlayer(cam, world)
 	// Act
 	playerBox := player.getFutureAABB(mgl64.Vec3{0, 0, -0.1})
 	result := player.getIntersectingVoxelAABBs(playerBox)
@@ -138,7 +138,7 @@ func TestGetIntersectingVoxelAABBs_ExpectZero(t *testing.T) {
 	if len(world.Region.Chunks) != 4 {
 		t.Errorf("expected %d chunks, got %d", 4, len(world.Region.Chunks))
 	}
-	player := NewPlayer(cam, world)
+	player := CreateTestPlayer(cam, world)
 	// Act
 	playerBox := player.getFutureAABB(mgl64.Vec3{0, 0, 0})
 	result := player.getIntersectingVoxelAABBs(playerBox)
@@ -165,7 +165,7 @@ func TestGetIntersectingChunks_ExpectFour(t *testing.T) {
 	if len(world.Region.Chunks) != 4 {
 		t.Errorf("expected %d chunks, got %d", 4, len(world.Region.Chunks))
 	}
-	player := NewPlayer(cam, world)
+	player := CreateTestPlayer(cam, world)
 	// Act
 	playerBox := player.getFutureAABB(mgl64.Vec3{0, 0, 0})
 	result := player.getIntersectingChunks(playerBox)
@@ -180,7 +180,7 @@ func TestGetIntersectingChunksExpectZero(t *testing.T) {
 	// Arrange
 	cam := ant.NewCamera()
 	world := NewChunkWorldBuilder().Build()
-	player := NewPlayer(cam, world)
+	player := CreateTestPlayer(cam, world)
 	playerMin := player.Camera.Position.Sub(mgl64.Vec3{0.2, 0.2, 1.8})
 	playerMax := player.Camera.Position.Add(mgl64.Vec3{0.2, 0.2, 0.2})
 	aabb := ant.AABB64{Min: playerMin, Max: playerMax}
@@ -206,7 +206,7 @@ func TestGetIntersectingChunksExpectEight(t *testing.T) {
 	world.GetOrCreateChunkAt(IndexCoordinate{1, 0, 1})
 	world.GetOrCreateChunkAt(IndexCoordinate{0, 1, 1})
 	world.GetOrCreateChunkAt(IndexCoordinate{1, 1, 1})
-	player := NewPlayer(cam, world)
+	player := CreateTestPlayer(cam, world)
 	playerMin := player.Camera.Position.Sub(mgl64.Vec3{0.2, 0.2, 1.8})
 	playerMax := player.Camera.Position.Add(mgl64.Vec3{0.2, 0.2, 0.2})
 	aabb := ant.AABB64{Min: playerMin, Max: playerMax}
@@ -223,7 +223,7 @@ func TestToRegionCoord(t *testing.T) {
 	// Arrange
 	cam := ant.NewCamera()
 	world := NewChunkWorldBuilder().Build()
-	player := NewPlayer(cam, world)
+	player := CreateTestPlayer(cam, world)
 	// Act
 	coords := player.ToRegionCoord(mgl64.Vec3{102.0, 101.0, 100.0})
 	// Assert
@@ -248,7 +248,7 @@ func TestToRegionCoordBigDistance(t *testing.T) {
 	// Arrange
 	cam := ant.NewCamera()
 	world := NewChunkWorldBuilder().Build()
-	player := NewPlayer(cam, world)
+	player := CreateTestPlayer(cam, world)
 	// Act
 	coords := player.ToRegionCoord(mgl64.Vec3{3200000.0, 3200000.0, 3200000.0}) // 3200 km away in each direction
 	// Assert
@@ -266,4 +266,11 @@ func TestToRegionCoordBigDistance(t *testing.T) {
 	if !chunkCoord.Equals(chunkCoordExpected) {
 		t.Errorf("Expected chunkCoord to be %s but got %s", chunkCoordExpected.ToString(), chunkCoord.ToString())
 	}
+}
+
+// === helper ===
+
+func CreateTestPlayer(camera *ant.Camera, world *ChunkWorld) *Player {
+	chunkWorldUpdater := NewChunkWorldUpdater(camera, nil, world)
+	return NewPlayer(camera, chunkWorldUpdater)
 }

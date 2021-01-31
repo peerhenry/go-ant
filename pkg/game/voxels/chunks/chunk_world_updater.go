@@ -1,6 +1,7 @@
 package chunks
 
 import (
+	"log"
 	"math"
 	"time"
 
@@ -11,26 +12,28 @@ import (
 type ChunkColumnCoordinate [2]int
 
 type ChunkWorldUpdater struct {
-	Camera          *ant.Camera
-	CameraAnchor    mgl64.Vec3
-	Scene           *ant.Scene
-	shouldSpawnMore bool
-	ChunkWorld      *ChunkWorld
-	columnsQueue    map[ChunkColumnCoordinate]bool
-	spawnedColumns  map[ChunkColumnCoordinate]bool
-	renderChunks    map[IndexCoordinate]int
+	Camera            *ant.Camera
+	CameraAnchor      mgl64.Vec3
+	Scene             ant.IScene
+	shouldSpawnMore   bool
+	ChunkWorld        *ChunkWorld
+	columnsQueue      map[ChunkColumnCoordinate]bool     // chunk columns in world that need to be generated
+	spawnedColumns    map[ChunkColumnCoordinate]bool     // chunk columns that have already been generated
+	renderChunks      map[IndexCoordinate]int            // keep track of which chunks are being rendered
+	chunkRebuildQueue map[IndexCoordinate]*StandardChunk // chunks that need to rebuild mesh
 }
 
-func NewChunkWorldUpdater(camera *ant.Camera, scene *ant.Scene, world *ChunkWorld) *ChunkWorldUpdater {
+func NewChunkWorldUpdater(camera *ant.Camera, scene ant.IScene, world *ChunkWorld) *ChunkWorldUpdater {
 	return &ChunkWorldUpdater{
-		Camera:          camera,
-		CameraAnchor:    camera.Position,
-		Scene:           scene,
-		ChunkWorld:      world,
-		shouldSpawnMore: true,
-		columnsQueue:    make(map[ChunkColumnCoordinate]bool),
-		spawnedColumns:  make(map[ChunkColumnCoordinate]bool),
-		renderChunks:    make(map[IndexCoordinate]int),
+		Camera:            camera,
+		CameraAnchor:      camera.Position,
+		Scene:             scene,
+		ChunkWorld:        world,
+		shouldSpawnMore:   true,
+		columnsQueue:      make(map[ChunkColumnCoordinate]bool),
+		spawnedColumns:    make(map[ChunkColumnCoordinate]bool),
+		renderChunks:      make(map[IndexCoordinate]int),
+		chunkRebuildQueue: make(map[IndexCoordinate]*StandardChunk),
 	}
 }
 
@@ -77,6 +80,7 @@ func (self *ChunkWorldUpdater) Update(dt *time.Duration) {
 	}
 
 	self.HandleChunkColumnQueue()
+	self.HandleChunkRebuilds()
 }
 
 func (self *ChunkWorldUpdater) HandleChunkColumnQueue() {
@@ -98,20 +102,22 @@ func (self *ChunkWorldUpdater) HandleChunkColumnQueue() {
 	self.spawnedColumns[[2]int{ci, cj}] = true
 
 	// create render data for chunks
-	renderCount := 0
-	for coord, chunk := range newChunks {
+	for _, chunk := range newChunks {
 		if chunk.IsVisible() {
-			existingIndex, alreadyExists := self.renderChunks[coord]
-			renderData := self.ChunkWorld.ChunkRenderDataBuilder.ChunkToRenderData(chunk)
-			if renderData != nil {
-				renderCount += 1
-				if !alreadyExists {
-					index := self.Scene.AddRenderData(renderData)
-					self.renderChunks[coord] = index
-				} else {
-					self.Scene.ReplaceRenderData(existingIndex, renderData)
-				}
-			}
+			self.UpsertChunkToScene(chunk)
+		}
+	}
+}
+
+func (self *ChunkWorldUpdater) UpsertChunkToScene(chunk *StandardChunk) {
+	existingIndex, alreadyExists := self.renderChunks[chunk.Coordinate]
+	renderData := self.ChunkWorld.ChunkRenderDataBuilder.ChunkToRenderData(chunk)
+	if renderData != nil {
+		if !alreadyExists {
+			index := self.Scene.AddRenderData(renderData)
+			self.renderChunks[chunk.Coordinate] = index
+		} else {
+			self.Scene.ReplaceRenderData(existingIndex, renderData)
 		}
 	}
 }
@@ -122,4 +128,24 @@ func (self *ChunkWorldUpdater) PopColumsQueue() ChunkColumnCoordinate {
 		return key
 	}
 	return ChunkColumnCoordinate{} // dummy return to prevent compiler error
+}
+
+func (self *ChunkWorldUpdater) QueueForRebuild(chunk *StandardChunk) {
+	log.Println("queueing chunk for rebuild", chunk.Coordinate.ToString()) // debug
+	self.chunkRebuildQueue[chunk.Coordinate] = chunk
+}
+
+func (self *ChunkWorldUpdater) HandleChunkRebuilds() {
+	chunk := self.PopChunkRebuildQueue() // throttle one chunk per update
+	if chunk != nil {
+		self.UpsertChunkToScene(chunk)
+	}
+}
+
+func (self *ChunkWorldUpdater) PopChunkRebuildQueue() *StandardChunk {
+	for key, chunk := range self.chunkRebuildQueue {
+		delete(self.chunkRebuildQueue, key)
+		return chunk
+	}
+	return nil
 }

@@ -75,6 +75,38 @@ func (self AABB64) Intersection(other AABB64) AABB64 {
 	}
 }
 
+// Algorithm from page 180 of collision detection
+func (self AABB64) LineIntersects(p, q mgl64.Vec3) (bool, float64) {
+	d := q.Sub(p)
+	tmin := 0.0
+	tmax := math.MaxFloat64
+	for n := 0; n < 3; n++ {
+		if math.Abs(d[n]) < 0.0001 {
+			if p[n] < self.Min[n] || p[n] > self.Max[n] {
+				return false, math.MaxFloat64
+			}
+		} else {
+			ood := 1.0 / d[n]
+			t1 := (self.Min[n] - p[n]) * ood
+			t2 := (self.Max[n] - p[n]) * ood
+			if t1 > t2 {
+				// make sure t1 intersects with near plane, and t2 with far plane
+				ttemp := t1
+				t1 = t2
+				t2 = ttemp
+			}
+			tmin = math.Max(tmin, t1)
+			tmax = math.Min(tmax, t2)
+			// Exit as soon as slab intersection becomes empty
+			if tmin > tmax {
+				return false, math.MaxFloat64
+			}
+		}
+	}
+	// q := p + d*tmin
+	return true, tmin
+}
+
 func (self AABB64) LineIntersectsFace(p, q mgl64.Vec3, face Face) bool {
 	ds := q.Sub(p)
 	switch face {

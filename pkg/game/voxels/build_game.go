@@ -27,7 +27,7 @@ func BuildGame(windowWidth, windowHeight int) *ant.Game {
 	cam := ant.NewCamera()
 	cam.Position = mgl64.Vec3{0, 0, 30}
 	chunkWorldUpdater := chunks.NewChunkWorldUpdater(cam, scene, world)
-	player := chunks.NewPlayer(cam, world)
+	player := chunks.NewPlayer(cam, chunkWorldUpdater)
 	inputHandler := SetupInputHandling(window, player)
 	game.Update = func(dt *time.Duration) {
 		inputHandler.Update(dt)
