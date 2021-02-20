@@ -44,7 +44,7 @@ investigate why voxels are not always removed on first click
 
 ====== next
 fix adjacent chunk rendering problem (side faces of surface voxels along chunk edge are rendering)
-refactor player to player_physics and player_interaction
+player physics: fix "stuck" bug; sometimes a movement direction gets cancelled even though it shouldn't
 
 ====== todo
 ambient light color uniform
@@ -53,7 +53,6 @@ frustum culling with chunks
 keep chunks removed from rendering in memory
 write a test for transforming empty chunk to render object
 player physics: fix player physics for chunk columns that don't exist yet
-player physics: fix "stuck" bug; sometimes a movement direction gets cancelled even though it shouldn't
 chunk.CalculateOrigin may be stored in memory as an optimization
 antialiasing
 implement world seed

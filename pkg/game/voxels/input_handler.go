@@ -163,7 +163,7 @@ func (self *InputHandler) Update(dt *time.Duration) {
 		self.commands.toggleNoclip = false
 	}
 	if self.commands.click {
-		self.player.RemoveBlock()
+		chunks.RemoveBlock(self.player)
 		self.commands.click = false
 	}
 	self.move(dt)
