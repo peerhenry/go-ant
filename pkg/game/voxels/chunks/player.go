@@ -211,7 +211,7 @@ func (a ByDistance) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (self *Player) RemoveBlock() {
 	// determine interaction line points
 	p1 := self.Camera.Position
-	p2 := self.Camera.Position.Add(self.Camera.Direction.Mul(50))
+	p2 := self.Camera.Position.Add(self.Camera.Direction.Mul(20))
 	scaleX := 1.0 / float64(self.world.ChunkSettings.GetChunkWidth())
 	scaleY := 1.0 / float64(self.world.ChunkSettings.GetChunkDepth())
 	scaleZ := 1.0 / float64(self.world.ChunkSettings.GetChunkHeight())
@@ -223,7 +223,7 @@ func (self *Player) RemoveBlock() {
 	// get intersecting chunks
 	var coords []IndexCoordinate
 	for _, yo := range cellIntersections {
-		coords = append(coords, IndexCoordinate{i: yo[0], j: yo[0], k: yo[0]})
+		coords = append(coords, IndexCoordinate{i: yo[0], j: yo[1], k: yo[2]})
 	}
 	chunks := self.world.Region.GetChunks(coords)
 

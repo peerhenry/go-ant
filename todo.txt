@@ -36,16 +36,18 @@ fix collision with trees
 keep minimal distance so you don't look through a face that's close
 add basic crosshair
 toggle noclip flying
+fix voxel removal
 
 ====== in progress
+voxel removal should updat adjacent chunks
+investigate why voxels are not always removed on first click
 
 ====== next
-fix voxel removal
+fix adjacent chunk rendering problem (side faces of surface voxels along chunk edge are rendering)
 refactor player to player_physics and player_interaction
 
 ====== todo
 ambient light color uniform
-fix adjacent chunk rendering problem (side faces of surface voxels along chunk edge are rendering)
 throttling: load chunks in order of distance to player
 frustum culling with chunks
 keep chunks removed from rendering in memory
