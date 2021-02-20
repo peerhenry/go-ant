@@ -23,3 +23,15 @@ func (self IndexCoordinate) Equals(other IndexCoordinate) bool {
 func (self IndexCoordinate) Addijk(di, dj, dk int) IndexCoordinate {
 	return IndexCoordinate{self.i + di, self.j + dj, self.k + dk}
 }
+
+func (self IndexCoordinate) SetI(i int) IndexCoordinate {
+	return IndexCoordinate{i, self.j, self.k}
+}
+
+func (self IndexCoordinate) SetJ(j int) IndexCoordinate {
+	return IndexCoordinate{self.i, j, self.k}
+}
+
+func (self IndexCoordinate) SetK(k int) IndexCoordinate {
+	return IndexCoordinate{self.i, self.j, k}
+}

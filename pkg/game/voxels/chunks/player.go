@@ -18,7 +18,7 @@ const playerBoxRatio = (2 * playerBoxSize) / playerBoxHeight
 type Player struct {
 	Camera                  *ant.Camera
 	worldUpdater            *ChunkWorldUpdater
-	world                   *ChunkWorld
+	World                   *ChunkWorld
 	isFalling               bool
 	Velocity                mgl64.Vec3
 	inputMovementSuggestion mgl64.Vec3
@@ -31,7 +31,7 @@ func NewPlayer(camera *ant.Camera, worldUpdater *ChunkWorldUpdater) *Player {
 	return &Player{
 		Camera:       camera,
 		worldUpdater: worldUpdater,
-		world:        worldUpdater.ChunkWorld,
+		World:        worldUpdater.ChunkWorld,
 		isFalling:    true,
 		Velocity:     mgl64.Vec3{0, 0, 0},
 		Noclip:       false,
@@ -71,7 +71,7 @@ func (self *Player) fall(dt *time.Duration) {
 		newFallSpeed := math.Max(self.Velocity[2]-dv, maxFallSpeed)
 		self.Velocity = mgl64.Vec3{self.Velocity[0], self.Velocity[1], newFallSpeed}
 	} else {
-		moveDown := -0.1 * float64(self.world.ChunkSettings.GetVoxelSize())
+		moveDown := -0.1 * float64(self.World.ChunkSettings.GetVoxelSize())
 		aabbDown := self.getStandingSquare(mgl64.Vec3{0, 0, moveDown})
 		// check if the AABB intersects with voxels
 		voxels := self.getIntersectingVoxelAABBs(aabbDown)
@@ -149,8 +149,8 @@ func (self *Player) getStandingSquare(translation mgl64.Vec3) ant.AABB64 {
 }
 
 func (self *Player) getIntersectingChunks(aabb ant.AABB64) []*StandardChunk {
-	cMin := self.world.ChunkSettings.GetChunkCoord(aabb.Min)
-	cMax := self.world.ChunkSettings.GetChunkCoord(aabb.Max)
+	cMin := self.World.ChunkSettings.GetChunkCoord(aabb.Min)
+	cMax := self.World.ChunkSettings.GetChunkCoord(aabb.Max)
 	var chunkCoords []IndexCoordinate
 	for ci := cMin.i; ci <= cMax.i; ci++ {
 		for cj := cMin.j; cj <= cMax.j; cj++ {
@@ -163,7 +163,7 @@ func (self *Player) getIntersectingChunks(aabb ant.AABB64) []*StandardChunk {
 	for _, coord := range chunkCoords {
 		// todo: refactor for higher rank regions
 		// todo: wait until column is loaded
-		chunk, ok := self.world.Region.GetChunk(coord)
+		chunk, ok := self.World.Region.GetChunk(coord)
 		if ok {
 			chunks = append(chunks, chunk)
 		}
@@ -173,7 +173,7 @@ func (self *Player) getIntersectingChunks(aabb ant.AABB64) []*StandardChunk {
 
 // todo remove; just call the one from ChunkSettings, also move unit test
 func (self *Player) ToRegionCoord(location mgl64.Vec3) []IndexCoordinate {
-	return self.world.ChunkSettings.ToRegionCoord(location)
+	return self.World.ChunkSettings.ToRegionCoord(location)
 }
 
 func (self *Player) cancelComponent(thing mgl64.Vec3, face Face) mgl64.Vec3 {

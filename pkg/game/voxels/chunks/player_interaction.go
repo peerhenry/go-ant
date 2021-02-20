@@ -24,15 +24,29 @@ func RemoveBlock(player *Player) {
 	if ok {
 		intersectionEvent.Chunk.RemoveVoxel(intersectionEvent.VoxelIndex)
 		player.worldUpdater.QueueForRebuild(intersectionEvent.Chunk)
+		// get adjacent chunks index coordinates with voxelindex
+		adjacents := GetAdjacentChunks(player.World.ChunkSettings, intersectionEvent)
+		for _, yo := range adjacents {
+			chunk, ok := player.World.Region.GetChunk(yo.ChunkCoordinate)
+			if ok {
+				player.worldUpdater.QueueForRebuild(chunk)
+			} else {
+				// check if chunk coordinate is underground and if yes, create a new one
+			}
+		}
 	} else {
 		log.Println("no voxel intersect") // debug
 	}
 }
 
+type ChunkAndVoxelCoordinate struct {
+	ChunkCoordinate IndexCoordinate
+	VoxelCoordinate IndexCoordinate
+}
+
 type IntersectionEvent struct {
 	Chunk      *StandardChunk
 	VoxelIndex int
-	TMin       float64
 	Face       Face
 }
 
@@ -40,9 +54,9 @@ func GetIntersectionEvent(player *Player) (*IntersectionEvent, bool) {
 	// determine interaction line points
 	p1 := player.Camera.Position
 	p2 := player.Camera.Position.Add(player.Camera.Direction.Mul(20))
-	scaleX := 1.0 / float64(player.world.ChunkSettings.GetChunkWidth())
-	scaleY := 1.0 / float64(player.world.ChunkSettings.GetChunkDepth())
-	scaleZ := 1.0 / float64(player.world.ChunkSettings.GetChunkHeight())
+	scaleX := 1.0 / float64(player.World.ChunkSettings.GetChunkWidth())
+	scaleY := 1.0 / float64(player.World.ChunkSettings.GetChunkDepth())
+	scaleZ := 1.0 / float64(player.World.ChunkSettings.GetChunkHeight())
 	// scale line with chunk dimensions
 	unitSpace_p1 := mgl64.Vec3{p1[0] * scaleX, p1[1] * scaleY, p1[2] * scaleZ}
 	unitSpace_p2 := mgl64.Vec3{p2[0] * scaleX, p2[1] * scaleY, p2[2] * scaleZ}
@@ -53,7 +67,7 @@ func GetIntersectionEvent(player *Player) (*IntersectionEvent, bool) {
 	for _, yo := range cellIntersections {
 		coords = append(coords, IndexCoordinate{i: yo[0], j: yo[1], k: yo[2]})
 	}
-	chunks := player.world.Region.GetChunks(coords)
+	chunks := player.World.Region.GetChunks(coords)
 
 	if len(chunks) == 0 {
 		log.Println("no chunks intersect") // debug
@@ -90,6 +104,9 @@ func GetIntersectionEvent(player *Player) (*IntersectionEvent, bool) {
 				}
 			}
 		}
+		if targetVoxelIndex != -1 {
+			break
+		}
 	}
 	if targetVoxelIndex == -1 {
 		return nil, false
@@ -97,16 +114,15 @@ func GetIntersectionEvent(player *Player) (*IntersectionEvent, bool) {
 	event := IntersectionEvent{
 		Chunk:      targetChunk,
 		VoxelIndex: targetVoxelIndex,
-		TMin:       tmin,
 		Face:       -1, // todo; get interesecting face
 	}
 	return &event, true
 }
 
 func GetChunkDistance(player *Player, c IndexCoordinate) float64 {
-	sizeX := float64(player.world.ChunkSettings.GetChunkWidth())
-	sizeY := float64(player.world.ChunkSettings.GetChunkDepth())
-	sizeZ := float64(player.world.ChunkSettings.GetChunkHeight())
+	sizeX := float64(player.World.ChunkSettings.GetChunkWidth())
+	sizeY := float64(player.World.ChunkSettings.GetChunkDepth())
+	sizeZ := float64(player.World.ChunkSettings.GetChunkHeight())
 	halfX := sizeX / 2
 	halfY := sizeY / 2
 	halfZ := sizeZ / 2
@@ -117,4 +133,47 @@ func GetChunkDistance(player *Player, c IndexCoordinate) float64 {
 	}
 	d := player.Camera.Position.Sub(chunkPos)
 	return d[0]*d[0] + d[1]*d[1] + d[2]*d[2]
+}
+
+// todo: is this a utility function that should be extracted from this file?
+func GetAdjacentChunks(settings IChunkSettings, event *IntersectionEvent) []ChunkAndVoxelCoordinate {
+	maxi := settings.GetChunkWidth() - 1
+	maxj := settings.GetChunkDepth() - 1
+	maxk := settings.GetChunkHeight() - 1
+	coord := settings.IndexToCoordinate(event.VoxelIndex)
+	var adjacents []ChunkAndVoxelCoordinate
+	if coord.i == 0 {
+		adjacents = append(adjacents, ChunkAndVoxelCoordinate{
+			ChunkCoordinate: event.Chunk.Coordinate.Addijk(-1, 0, 0),
+			VoxelCoordinate: coord.SetI(maxi),
+		})
+	} else if coord.i == maxi {
+		adjacents = append(adjacents, ChunkAndVoxelCoordinate{
+			ChunkCoordinate: event.Chunk.Coordinate.Addijk(1, 0, 0),
+			VoxelCoordinate: coord.SetI(0),
+		})
+	}
+	if coord.j == 0 {
+		adjacents = append(adjacents, ChunkAndVoxelCoordinate{
+			ChunkCoordinate: event.Chunk.Coordinate.Addijk(0, -1, 0),
+			VoxelCoordinate: coord.SetJ(maxj),
+		})
+	} else if coord.j == maxj {
+		adjacents = append(adjacents, ChunkAndVoxelCoordinate{
+			ChunkCoordinate: event.Chunk.Coordinate.Addijk(0, 1, 0),
+			VoxelCoordinate: coord.SetJ(0),
+		})
+	}
+	if coord.k == 0 {
+		adjacents = append(adjacents, ChunkAndVoxelCoordinate{
+			ChunkCoordinate: event.Chunk.Coordinate.Addijk(0, 0, -1),
+			VoxelCoordinate: coord.SetK(maxk),
+		})
+	} else if coord.k == maxk {
+		adjacents = append(adjacents, ChunkAndVoxelCoordinate{
+			ChunkCoordinate: event.Chunk.Coordinate.Addijk(0, 0, 1),
+			VoxelCoordinate: coord.SetK(0),
+		})
+	}
+	return adjacents
 }
