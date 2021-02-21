@@ -245,12 +245,16 @@ func (self *ChunkWorld) dropFlowers(ci, cj int, newChunks map[IndexCoordinate]*S
 	p := cif * cjf
 	seed := int64(12.2*math.Cos(p+178.7) + 13.3*math.Sin(p+178.7))
 	rand.Seed(seed)
-	flowers := rand.Intn(5) // max 5 flowers
+	flowers := rand.Intn(30) // max flowers
 	for n := 0; n < flowers; n++ {
 		// pick a spot
 		ai := rand.Intn(chunkWidth) + chunkWidth*ci
 		aj := rand.Intn(chunkDepth) + chunkDepth*cj
-		chunk := self.DropVoxel(ai, aj, RED_FLOWER)
+		flower := RED_FLOWER
+		if rand.Intn(2) == 0 {
+			flower = YELLOW_FLOWER
+		}
+		chunk := self.DropVoxel(ai, aj, flower)
 		newChunks[chunk.Coordinate] = chunk
 	}
 }

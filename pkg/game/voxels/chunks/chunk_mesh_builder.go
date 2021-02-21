@@ -219,44 +219,48 @@ func (self *ChunkMeshBuilder) GetXShapeQuadPositions(i, j, k int) []float32 {
 	zz := oz + size
 
 	return []float32{
-		ox, oy, oz, // quad 1: SOUTH EAST
+		// quad 1: SOUTH EAST
+		ox, oy, oz,
 		ox, oy, zz,
 		xx, yy, oz,
 		xx, yy, zz,
 
-		// xx, yy, zz, // quad 2: NORTH WEST
-		// xx, yy, oz,
-		// ox, oy, zz,
-		// ox, oy, oz,
+		// quad 2: NORTH WEST
+		xx, yy, oz,
+		xx, yy, zz,
+		ox, oy, oz,
+		ox, oy, zz,
 
-		ox, yy, oz, // quad 3: SOUTH WEST
+		// quad 3: SOUTH WEST
+		ox, yy, oz,
 		ox, yy, zz,
 		xx, oy, oz,
 		xx, oy, zz,
 
-		// xx, oy, zz, // quad 4: NORTH EAST
-		// xx, oy, oz,
-		// ox, yy, zz,
-		// ox, yy, oz,
+		// quad 4: NORTH EAST
+		xx, oy, oz,
+		xx, oy, zz,
+		ox, yy, oz,
+		ox, yy, zz,
 	}
 }
 
 func (self *ChunkMeshBuilder) GetXShapeQuadNormals() []int32 {
 	se := int32(SOUTH_EAST)
-	// nw := int32(NORTH_WEST)
+	nw := int32(NORTH_WEST)
 	sw := int32(SOUTH_WEST)
-	// ne := int32(NORTH_EAST)
+	ne := int32(NORTH_EAST)
 	return []int32{
 		se, se, se, se,
-		// nw, nw, nw, nw,
+		nw, nw, nw, nw,
 		sw, sw, sw, sw,
-		// ne, ne, ne, ne,
+		ne, ne, ne, ne,
 	}
 }
 
 func (self *ChunkMeshBuilder) GetXShapeQuadUvs(voxel Block) []float32 {
 	one_uvs := self.GetQuadUvs(voxel, SOUTH)
-	uvs := make([]float32, 16)
+	uvs := make([]float32, 32)
 	for i := range uvs {
 		uvs[i] = one_uvs[i%8]
 	}

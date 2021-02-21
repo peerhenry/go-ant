@@ -42,13 +42,14 @@ digging should spawn underground chunks
 
 ====== in progress
 flowers
+- walk through flowers
+- spawn grass
 
 ====== next
 fix voxels are not always removed on first click
 fix underground snow blocks
 fix adjacent chunk rendering problem (side faces of surface voxels along chunk edge are rendering)
 player physics: fix "stuck" bug; sometimes a movement direction gets cancelled even though it shouldn't
-fix voxel remove flicker
 player physics: deactivate player physics as long is world is not ready
 
 ====== todo
@@ -62,10 +63,9 @@ write a test for transforming empty chunk to render object
 chunk.CalculateOrigin may be stored in memory as an optimization
 antialiasing
 implement world seed
-transparent voxels
+transparent water
 combine faces to reduce vertex data
 debug draw chunk outline
-fix visiblevoxels problem
 optimize chunk mesh memory
 refactor LoadImageFileToUniform to uniformStore
 world generation on separate thread
@@ -73,6 +73,7 @@ optimize getCollidingVoxelAABBs in player.go
 check if NORTH, EAST etc can be made int8
 
 ====== epics
+biomes
 swimming
 voxel removal by click (ray intersection + chunk update)
 skybox
