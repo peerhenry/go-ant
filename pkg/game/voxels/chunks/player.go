@@ -116,14 +116,12 @@ func (self *Player) clipFromVoxelCollisions(translationSuggestion mgl64.Vec3) mg
 func (self *Player) getIntersectingVoxelAABBs(futureAABB ant.AABB64) []ant.AABB64 {
 	var intersections []ant.AABB64
 	intersectingChunks := self.getIntersectingChunks(futureAABB)
-	// log.Println("futureAABB", futureAABB)
 	for _, chunk := range intersectingChunks {
 		// we can optimize this; instead of iterating over all voxels in chunk we can calculate min max like we do with getting intersecting chunks
 		for index, voxel := range *chunk.Voxels {
-			if voxel != AIR {
+			if VoxelIsBlocking(voxel) {
 				voxelAABB := chunk.GetVoxelAABB(index)
 				if futureAABB.Intersects(voxelAABB) {
-					// log.Println("adding voxel AABB:", coord.ToString(), voxel, voxelMin, voxelMax)
 					intersections = append(intersections, voxelAABB)
 				}
 			}
@@ -197,4 +195,37 @@ func (self *Player) cancelComponent(thing mgl64.Vec3, face Face) mgl64.Vec3 {
 		return mgl64.Vec3{thing[0], thing[1], -delta}
 	}
 	return thing
+}
+
+func VoxelIsBlocking(voxel Block) bool {
+	switch voxel {
+	case AIR:
+		return false
+	case RED_FLOWER:
+		return false
+	case YELLOW_FLOWER:
+		return false
+	case RED_MUSHROOM:
+		return false
+	case BROWN_MUSHROOM:
+		return false
+	case GRASS_1:
+		return false
+	case GRASS_2:
+		return false
+	case GRASS_3:
+		return false
+	case GRASS_4:
+		return false
+	case GRASS_5:
+		return false
+	case GRASS_6:
+		return false
+	case GRASS_7:
+		return false
+	case GRASS_8:
+		return false
+	default:
+		return true
+	}
 }

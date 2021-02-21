@@ -41,9 +41,6 @@ voxel removal should updat adjacent chunks
 digging should spawn underground chunks
 
 ====== in progress
-flowers
-- walk through flowers
-- spawn grass
 
 ====== next
 fix voxels are not always removed on first click
@@ -53,6 +50,7 @@ player physics: fix "stuck" bug; sometimes a movement direction gets cancelled e
 player physics: deactivate player physics as long is world is not ready
 
 ====== todo
+fix flowers spawning into trees
 throttling: load chunks in order of distance to player
 store world manipulations in memory
 store world manipulations on disk
@@ -71,6 +69,7 @@ refactor LoadImageFileToUniform to uniformStore
 world generation on separate thread
 optimize getCollidingVoxelAABBs in player.go
 check if NORTH, EAST etc can be made int8
+spawn grass
 
 ====== epics
 biomes
