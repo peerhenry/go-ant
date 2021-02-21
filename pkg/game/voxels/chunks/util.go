@@ -45,7 +45,7 @@ const (
 )
 
 func VoxelIsTransparent(voxel Block) bool {
-	return voxel == AIR || voxel == WATER
+	return voxel == AIR || voxel == WATER || VoxelIsXShaped(voxel)
 }
 
 func VoxelIsWalkThrough(voxel Block) bool {
@@ -66,14 +66,18 @@ func VoxelIsWalkThrough(voxel Block) bool {
 type Face = ant.Face
 
 const (
-	NORTH  Face = ant.NORTH
-	EAST   Face = ant.EAST
-	SOUTH  Face = ant.SOUTH
-	WEST   Face = ant.WEST
-	TOP    Face = ant.UP   // deprecated
-	BOTTOM Face = ant.DOWN // deprecated
-	UP     Face = ant.UP
-	DOWN   Face = ant.DOWN
+	NORTH      Face = ant.NORTH
+	EAST       Face = ant.EAST
+	SOUTH      Face = ant.SOUTH
+	WEST       Face = ant.WEST
+	TOP        Face = ant.UP   // deprecated
+	BOTTOM     Face = ant.DOWN // deprecated
+	UP         Face = ant.UP
+	DOWN       Face = ant.DOWN
+	NORTH_EAST Face = ant.NORTH_EAST
+	SOUTH_EAST Face = ant.SOUTH_EAST
+	SOUTH_WEST Face = ant.SOUTH_WEST
+	NORTH_WEST Face = ant.NORTH_WEST
 )
 
 const UintSize = 32 << (^uint(0) >> 32 & 1) // 32 or 64

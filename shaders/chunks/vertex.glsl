@@ -7,22 +7,21 @@ layout (location = 2) in vec2 VertexUv;
 out vec3 LightIntensity;
 out vec2 TexCoords;
 
+float S = 0.7071068;
+
 // normals
 vec3 normals[] = vec3[](
-    vec3(0,1,0), // north
-    vec3(1,0,0), // east
-    vec3(0,-1,0), // south
-    vec3(-1,0,0), // west
-    vec3(0,0,1), // top
-    vec3(0,0,-1) // bottom
+    vec3(0,1,0),   // north
+    vec3(1,0,0),   // east
+    vec3(0,-1,0),  // south
+    vec3(-1,0,0),  // west
+    vec3(0,0,1),   // top
+    vec3(0,0,-1),  // bottom
+    vec3(S,S,0),   // NE
+    vec3(-S,S,0),  // SE
+    vec3(-S,-S,0), // SW
+    vec3(S,-S,0)   // NW
 );
-
-// vec3 North = vec3(0,1,0);
-// vec3 South = vec3(0,-1,0);
-// vec3 East = vec3(1,0,0);
-// vec3 West = vec3(-1,0,0);
-// vec3 Top = vec3(0,0,1);
-// vec3 Bottom = vec3(0,0,-1);
 
 // uniform vec4 LightPosition = vec4(3.0, 3.0, 30.0, 1.0);
 uniform vec3 LightDirection = normalize(vec3(4.0, 10.0, -20.0));

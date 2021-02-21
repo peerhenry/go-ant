@@ -209,7 +209,7 @@ func (self *ChunkWorld) CreateChunksInColumn(ci, cj int) map[IndexCoordinate]*St
 
 	if self.SpawnTrees {
 		self.dropTrees(ci, cj, newChunks)
-		// self.dropFlowers(ci, cj, newChunks)
+		self.dropFlowers(ci, cj, newChunks)
 	}
 
 	return newChunks

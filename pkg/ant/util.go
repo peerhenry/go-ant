@@ -13,12 +13,16 @@ type Mat3 = mgl32.Mat3
 type Face int32
 
 const (
-	NORTH Face = 0
-	EAST  Face = 1
-	SOUTH Face = 2
-	WEST  Face = 3
-	UP    Face = 4
-	DOWN  Face = 5
+	NORTH      Face = 0
+	EAST       Face = 1
+	SOUTH      Face = 2
+	WEST       Face = 3
+	UP         Face = 4
+	DOWN       Face = 5
+	NORTH_EAST Face = 6
+	SOUTH_EAST Face = 7
+	SOUTH_WEST Face = 8
+	NORTH_WEST Face = 9
 )
 
 func (face Face) ToString() string {

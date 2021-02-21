@@ -17,7 +17,7 @@ func (self *ChunkMeshBuilder) ChunkToMesh(chunk *StandardChunk) *ChunkMesh {
 	var indexOffset uint32 = 0
 	var indicesCount int32 = 0
 
-	maybeAddFace := func(voxel, vi, vj, vk, di, dj, dk int, face Face) {
+	maybeAddFace := func(voxel Block, vi, vj, vk, di, dj, dk int, face Face) {
 		// addFace = this one is water and the other is air
 		// or this one is not water and the other one is water or air
 		other := chunk.GetVoxel(vi+di, vj+dj, vk+dk)
@@ -29,7 +29,7 @@ func (self *ChunkMeshBuilder) ChunkToMesh(chunk *StandardChunk) *ChunkMesh {
 			nextNormals := self.GetQuadNormals(face)
 			normalIndices = append(normalIndices, nextNormals[:]...)
 
-			nextUvs := self.GetQuadUvs(voxel, vi, vj, vk, face)
+			nextUvs := self.GetQuadUvs(voxel, face)
 			uvs = append(uvs, nextUvs[:]...)
 
 			nextIndices := []uint32{indexOffset, indexOffset + 1, indexOffset + 2, indexOffset + 2, indexOffset + 1, indexOffset + 3}
@@ -39,16 +39,37 @@ func (self *ChunkMeshBuilder) ChunkToMesh(chunk *StandardChunk) *ChunkMesh {
 		}
 	}
 
+	addXQuads := func(voxel Block, vi, vj, vk int) {
+		nextPositions := self.GetXShapeQuadPositions(vi, vj, vk)
+		positions = append(positions, nextPositions[:]...)
+		nextNormals := self.GetXShapeQuadNormals()
+		normalIndices = append(normalIndices, nextNormals[:]...)
+		nextUvs := self.GetXShapeQuadUvs(voxel)
+		uvs = append(uvs, nextUvs...)
+		n := 1
+		for n < 5 { // add normals for 4 quads
+			nextIndices := []uint32{indexOffset, indexOffset + 1, indexOffset + 2, indexOffset + 2, indexOffset + 1, indexOffset + 3}
+			indices = append(indices, nextIndices...)
+			indexOffset = indexOffset + 4
+			indicesCount += 6
+			n++
+		}
+	}
+
 	for index := range chunk.VisibleVoxels {
 		v := self.ChunkSettings.IndexToCoordinate(index)
 		voxel := (*chunk.Voxels)[index]
 		if voxel != UNDERGROUND && voxel != AIR {
-			maybeAddFace(voxel, v.i, v.j, v.k, 0, -1, 0, SOUTH)
-			maybeAddFace(voxel, v.i, v.j, v.k, 1, 0, 0, EAST)
-			maybeAddFace(voxel, v.i, v.j, v.k, 0, 1, 0, NORTH)
-			maybeAddFace(voxel, v.i, v.j, v.k, -1, 0, 0, WEST)
-			maybeAddFace(voxel, v.i, v.j, v.k, 0, 0, 1, TOP)
-			maybeAddFace(voxel, v.i, v.j, v.k, 0, 0, -1, BOTTOM)
+			if VoxelIsXShaped(voxel) {
+				addXQuads(voxel, v.i, v.j, v.k)
+			} else {
+				maybeAddFace(voxel, v.i, v.j, v.k, 0, -1, 0, SOUTH)
+				maybeAddFace(voxel, v.i, v.j, v.k, 1, 0, 0, EAST)
+				maybeAddFace(voxel, v.i, v.j, v.k, 0, 1, 0, NORTH)
+				maybeAddFace(voxel, v.i, v.j, v.k, -1, 0, 0, WEST)
+				maybeAddFace(voxel, v.i, v.j, v.k, 0, 0, 1, TOP)
+				maybeAddFace(voxel, v.i, v.j, v.k, 0, 0, -1, BOTTOM)
+			}
 		}
 	}
 	return &ChunkMesh{&positions, &normalIndices, &uvs, &indices, indicesCount}
@@ -118,7 +139,7 @@ func (self *ChunkMeshBuilder) GetQuadNormals(face Face) [4]int32 {
 	}
 }
 
-func (self *ChunkMeshBuilder) GetQuadUvs(voxel, i, j, k int, face Face) [8]float32 {
+func (self *ChunkMeshBuilder) GetQuadUvs(voxel Block, face Face) [8]float32 {
 	switch voxel {
 	case GRASS:
 		switch face {
@@ -188,6 +209,60 @@ func (self *ChunkMeshBuilder) GetQuadUvs(voxel, i, j, k int, face Face) [8]float
 	}
 }
 
+func (self *ChunkMeshBuilder) GetXShapeQuadPositions(i, j, k int) [48]float32 {
+	size := self.ChunkSettings.GetVoxelSize()
+	ox := size * float32(i)
+	oy := size * float32(j)
+	oz := size * float32(k)
+	xx := ox + size
+	yy := oy + size
+	zz := oz + size
+
+	return [48]float32{
+		ox, oy, oz, // quad 1: SOUTH EAST
+		ox, oy, zz,
+		xx, yy, oz,
+		xx, yy, zz,
+
+		xx, yy, zz, // quad 2: NORTH WEST
+		xx, yy, oz,
+		ox, oy, zz,
+		ox, oy, oz,
+
+		ox, yy, oz, // quad 3: SOUTH WEST
+		ox, yy, zz,
+		xx, oy, oz,
+		xx, oy, zz,
+
+		xx, oy, zz, // quad 4: NORTH EAST
+		xx, oy, oz,
+		ox, yy, zz,
+		ox, yy, oz,
+	}
+}
+
+func (self *ChunkMeshBuilder) GetXShapeQuadNormals() []int32 {
+	se := int32(SOUTH_EAST)
+	nw := int32(NORTH_WEST)
+	sw := int32(SOUTH_WEST)
+	ne := int32(NORTH_EAST)
+	return []int32{
+		se, se, se, se,
+		nw, nw, nw, nw,
+		sw, sw, sw, sw,
+		ne, ne, ne, ne,
+	}
+}
+
+func (self *ChunkMeshBuilder) GetXShapeQuadUvs(voxel Block) []float32 {
+	one_uvs := self.GetQuadUvs(voxel, SOUTH)
+	uvs := make([]float32, 32)
+	for i := range uvs {
+		uvs[i] = one_uvs[i%8]
+	}
+	return uvs
+}
+
 // =========== voxel UVS ============
 
 const pixelSize float32 = 1.0 / 512
@@ -232,3 +307,18 @@ var uvs_grass_5 QuadUvs = getCubeUvsAt(12, 5)
 var uvs_grass_6 QuadUvs = getCubeUvsAt(13, 5)
 var uvs_grass_7 QuadUvs = getCubeUvsAt(14, 5)
 var uvs_grass_8 QuadUvs = getCubeUvsAt(15, 5)
+
+func VoxelIsXShaped(voxel Block) bool {
+	return voxel == RED_FLOWER ||
+		voxel == YELLOW_FLOWER ||
+		voxel == RED_MUSHROOM ||
+		voxel == BROWN_MUSHROOM ||
+		voxel == GRASS_1 ||
+		voxel == GRASS_2 ||
+		voxel == GRASS_3 ||
+		voxel == GRASS_4 ||
+		voxel == GRASS_5 ||
+		voxel == GRASS_6 ||
+		voxel == GRASS_7 ||
+		voxel == GRASS_8
+}
