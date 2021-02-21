@@ -41,9 +41,9 @@ func (self *ChunkMeshBuilder) ChunkToMesh(chunk *StandardChunk) *ChunkMesh {
 
 	addXQuads := func(voxel Block, vi, vj, vk int) {
 		nextPositions := self.GetXShapeQuadPositions(vi, vj, vk)
-		positions = append(positions, nextPositions[:]...)
+		positions = append(positions, nextPositions...)
 		nextNormals := self.GetXShapeQuadNormals()
-		normalIndices = append(normalIndices, nextNormals[:]...)
+		normalIndices = append(normalIndices, nextNormals...)
 		nextUvs := self.GetXShapeQuadUvs(voxel)
 		uvs = append(uvs, nextUvs...)
 		n := 1
@@ -209,7 +209,7 @@ func (self *ChunkMeshBuilder) GetQuadUvs(voxel Block, face Face) [8]float32 {
 	}
 }
 
-func (self *ChunkMeshBuilder) GetXShapeQuadPositions(i, j, k int) [48]float32 {
+func (self *ChunkMeshBuilder) GetXShapeQuadPositions(i, j, k int) []float32 {
 	size := self.ChunkSettings.GetVoxelSize()
 	ox := size * float32(i)
 	oy := size * float32(j)
@@ -218,45 +218,45 @@ func (self *ChunkMeshBuilder) GetXShapeQuadPositions(i, j, k int) [48]float32 {
 	yy := oy + size
 	zz := oz + size
 
-	return [48]float32{
+	return []float32{
 		ox, oy, oz, // quad 1: SOUTH EAST
 		ox, oy, zz,
 		xx, yy, oz,
 		xx, yy, zz,
 
-		xx, yy, zz, // quad 2: NORTH WEST
-		xx, yy, oz,
-		ox, oy, zz,
-		ox, oy, oz,
+		// xx, yy, zz, // quad 2: NORTH WEST
+		// xx, yy, oz,
+		// ox, oy, zz,
+		// ox, oy, oz,
 
 		ox, yy, oz, // quad 3: SOUTH WEST
 		ox, yy, zz,
 		xx, oy, oz,
 		xx, oy, zz,
 
-		xx, oy, zz, // quad 4: NORTH EAST
-		xx, oy, oz,
-		ox, yy, zz,
-		ox, yy, oz,
+		// xx, oy, zz, // quad 4: NORTH EAST
+		// xx, oy, oz,
+		// ox, yy, zz,
+		// ox, yy, oz,
 	}
 }
 
 func (self *ChunkMeshBuilder) GetXShapeQuadNormals() []int32 {
 	se := int32(SOUTH_EAST)
-	nw := int32(NORTH_WEST)
+	// nw := int32(NORTH_WEST)
 	sw := int32(SOUTH_WEST)
-	ne := int32(NORTH_EAST)
+	// ne := int32(NORTH_EAST)
 	return []int32{
 		se, se, se, se,
-		nw, nw, nw, nw,
+		// nw, nw, nw, nw,
 		sw, sw, sw, sw,
-		ne, ne, ne, ne,
+		// ne, ne, ne, ne,
 	}
 }
 
 func (self *ChunkMeshBuilder) GetXShapeQuadUvs(voxel Block) []float32 {
 	one_uvs := self.GetQuadUvs(voxel, SOUTH)
-	uvs := make([]float32, 32)
+	uvs := make([]float32, 16)
 	for i := range uvs {
 		uvs[i] = one_uvs[i%8]
 	}

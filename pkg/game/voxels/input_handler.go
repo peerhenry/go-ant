@@ -1,6 +1,8 @@
 package voxels
 
 import (
+	"log"
+	"math"
 	"time"
 
 	"ant.com/ant/pkg/game/voxels/chunks"
@@ -76,6 +78,31 @@ func SetupInputHandling(window *glfw.Window, player *chunks.Player) *InputHandle
 			}
 			if action == glfw.Release {
 				commands.toggleNoclip = false
+			}
+		}
+		if key == glfw.KeyF3 {
+			if action == glfw.Press {
+				theta := int((player.Camera.Theta/math.Pi - 1.0/8.0) * 4)
+				var windDir string
+				switch theta {
+				case 0:
+					windDir = "North-East"
+				case 1:
+					windDir = "North     "
+				case 2:
+					windDir = "North-West"
+				case 3:
+					windDir = "West      "
+				case 4:
+					windDir = "South-West"
+				case 5:
+					windDir = "South     "
+				case 6:
+					windDir = "South-East"
+				default:
+					windDir = "East      "
+				}
+				log.Println("Cam direction:", windDir, theta, player.Camera.Direction)
 			}
 		}
 		// ==== Left shift go fast ====

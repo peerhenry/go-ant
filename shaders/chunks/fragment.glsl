@@ -8,6 +8,7 @@ layout( location = 0 ) out vec4 FragColor;
 void main()
 {
   vec4 texColor = texture(Tex, TexCoords);
+  if(texColor.a == 0.0) discard;
   vec3 color = LightIntensity * vec3(texColor);
   FragColor = vec4(color, 1.0);
 }
