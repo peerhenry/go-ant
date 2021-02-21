@@ -92,6 +92,23 @@ func (self *ChunkWorld) DropStructure(ai, aj int, tree *VoxelStructure) map[Inde
 	return chunks
 }
 
+func (self *ChunkWorld) DropVoxel(ai, aj, voxel Block) *StandardChunk {
+	ak := self.get_surface_k(ai, aj)
+	absoluteCoord := IndexCoordinate{ai, aj, ak + 1}
+	normalized := self.ChunkSettings.NormalizeCoordinate([]IndexCoordinate{absoluteCoord})
+	ranks := len(normalized)
+	var coord IndexCoordinate
+	if ranks > 1 {
+		coord = normalized[1]
+	} else {
+		coord = IndexCoordinate{0, 0, 0}
+	}
+	chunk := self.GetOrCreateChunkAt(coord)
+	voxelCoord := normalized[0]
+	chunk.AddVisibleVoxel(voxelCoord.i, voxelCoord.j, voxelCoord.k, voxel)
+	return chunk
+}
+
 func (self *ChunkWorld) get_surface_k(ai, aj int) int {
 	h := self.HeightAtlas.GetHeight(ai, aj)
 	return h + (self.ChunkSettings.GetChunkHeight()-1)/2
@@ -168,9 +185,8 @@ func (self *ChunkWorld) CreateChunksInColumn(ci, cj int) map[IndexCoordinate]*St
 			newChunks[coord] = chunk
 
 			for vk := 0; vk <= topK; vk++ {
-				chunk.AddVisibleVoxel(vi, vj, vk, DIRT)
-				depth := topK - vk + chunkHeight*(topChunkK-ck)
-				SetVoxelBasedOnHeight(chunk, vi, vj, vk, h, depth)
+				depth := (topK - vk + chunkHeight*(topChunkK-ck))
+				SetVoxelBasedOnHeight(chunk, vi, vj, vk, h, uint(depth))
 			}
 		}
 
@@ -193,6 +209,7 @@ func (self *ChunkWorld) CreateChunksInColumn(ci, cj int) map[IndexCoordinate]*St
 
 	if self.SpawnTrees {
 		self.dropTrees(ci, cj, newChunks)
+		// self.dropFlowers(ci, cj, newChunks)
 	}
 
 	return newChunks
@@ -220,15 +237,38 @@ func (self *ChunkWorld) dropTrees(ci, cj int, newChunks map[IndexCoordinate]*Sta
 	}
 }
 
-func SetVoxelBasedOnHeight(chunk *StandardChunk, vi, vj, vk, ak, depth int) {
+func (self *ChunkWorld) dropFlowers(ci, cj int, newChunks map[IndexCoordinate]*StandardChunk) {
+	chunkWidth := self.ChunkSettings.GetChunkWidth()
+	chunkDepth := self.ChunkSettings.GetChunkDepth()
+	cif := float64(ci)
+	cjf := float64(cj)
+	p := cif * cjf
+	seed := int64(12.2*math.Cos(p+178.7) + 13.3*math.Sin(p+178.7))
+	rand.Seed(seed)
+	flowers := rand.Intn(5) // max 5 flowers
+	for n := 0; n < flowers; n++ {
+		// pick a spot
+		ai := rand.Intn(chunkWidth) + chunkWidth*ci
+		aj := rand.Intn(chunkDepth) + chunkDepth*cj
+		chunk := self.DropVoxel(ai, aj, RED_FLOWER)
+		newChunks[chunk.Coordinate] = chunk
+	}
+}
+
+func SetVoxelBasedOnHeight(chunk *StandardChunk, vi, vj, vk, ak int, depth uint) {
 	voxel := DIRT
 	if depth == 0 {
-		voxel = GRASS
+		if ak > 20 {
+			voxel = SNOWDIRT
+		} else {
+			voxel = GRASS
+		}
 	}
-	if ak < -4 {
+	if ak < -4 && depth < 3 {
 		voxel = SAND
-	} else if ak > 20 {
-		voxel = SNOWDIRT
+	}
+	if depth > 8 {
+		voxel = STONE
 	}
 	chunk.AddVisibleVoxel(vi, vj, vk, voxel)
 }

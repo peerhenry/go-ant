@@ -13,39 +13,24 @@ type StandardChunk struct {
 	ChunkWorld    *ChunkWorld
 	Region        *ChunkRegion
 	Coordinate    IndexCoordinate
-	Voxels        *[]int
+	Voxels        *[]Block
 	VisibleVoxels map[int]void
 }
 
 func NewChunk(world *ChunkWorld, region *ChunkRegion, coord IndexCoordinate) *StandardChunk {
-	var vox []int
 	vis := make(map[int]void)
+	chunkVoxels := make([]Block, world.ChunkSettings.GetChunkVolume())
+	for i := range chunkVoxels {
+		chunkVoxels[i] = AIR
+	}
 	chunk := &StandardChunk{
 		world,
 		region,
 		coord,
-		&vox,
+		&chunkVoxels,
 		vis,
 	}
-	var chunkVoxels []int
-	chunk.ForAll(func(i, j, k int) {
-		chunkVoxels = append(chunkVoxels, AIR)
-	})
-	chunk.Voxels = &chunkVoxels
 	return chunk
-}
-
-func (self *StandardChunk) ForAll(f func(i, j, k int)) {
-	chunkWidth := self.ChunkWorld.ChunkSettings.GetChunkWidth()
-	chunkDepth := self.ChunkWorld.ChunkSettings.GetChunkDepth()
-	chunkHeight := self.ChunkWorld.ChunkSettings.GetChunkHeight()
-	for vi := 0; vi < chunkWidth; vi++ {
-		for vj := 0; vj < chunkDepth; vj++ {
-			for vk := 0; vk < chunkHeight; vk++ {
-				f(vi, vj, vk)
-			}
-		}
-	}
 }
 
 func (self *StandardChunk) GetVoxel(i, j, k int) int {
@@ -70,7 +55,7 @@ func (self *StandardChunk) IsTransparent(i, j, k int) bool {
 	return v == AIR || v == WATER
 }
 
-func (self *StandardChunk) AddVisibleVoxel(i, j, k, voxel int) {
+func (self *StandardChunk) AddVisibleVoxel(i, j, k, voxel Block) {
 	wasTransparent := self.IsTransparent(i, j, k)
 	isNowTransparent := voxel == AIR
 	voxelIndexCoord := IndexCoordinate{i, j, k}
@@ -91,7 +76,7 @@ func (self *StandardChunk) SetVoxelVisibility(index int, visible bool) {
 }
 
 func (self *StandardChunk) SetAllVoxels(voxel int) {
-	for k, _ := range *self.Voxels {
+	for k := range *self.Voxels {
 		(*self.Voxels)[k] = voxel
 	}
 }

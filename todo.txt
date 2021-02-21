@@ -41,6 +41,7 @@ voxel removal should updat adjacent chunks
 digging should spawn underground chunks
 
 ====== in progress
+flowers
 
 ====== next
 fix voxels are not always removed on first click
@@ -48,17 +49,16 @@ fix underground snow blocks
 fix adjacent chunk rendering problem (side faces of surface voxels along chunk edge are rendering)
 player physics: fix "stuck" bug; sometimes a movement direction gets cancelled even though it shouldn't
 fix voxel remove flicker
+player physics: deactivate player physics as long is world is not ready
 
 ====== todo
+throttling: load chunks in order of distance to player
 store world manipulations in memory
 store world manipulations on disk
 ambient light color uniform
-flowers
-throttling: load chunks in order of distance to player
 frustum culling with chunks
 keep chunks removed from rendering in memory
 write a test for transforming empty chunk to render object
-player physics: fix player physics for chunk columns that don't exist yet
 chunk.CalculateOrigin may be stored in memory as an optimization
 antialiasing
 implement world seed

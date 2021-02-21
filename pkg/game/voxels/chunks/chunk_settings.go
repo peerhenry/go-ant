@@ -10,6 +10,7 @@ type IChunkSettings interface {
 	GetChunkWidth() int
 	GetChunkDepth() int
 	GetChunkHeight() int
+	GetChunkVolume() int
 	CoordinateToIndex(c IndexCoordinate) int
 	CoordinateToIndexijk(i, j, k int) int
 	IndexToCoordinate(index int) IndexCoordinate
@@ -71,6 +72,10 @@ func (self *StandardChunkSettings) GetChunkDepth() int {
 
 func (self *StandardChunkSettings) GetChunkHeight() int {
 	return self.chunkHeight
+}
+
+func (self *StandardChunkSettings) GetChunkVolume() int {
+	return self.chunkWidth * self.chunkDepth * self.chunkHeight
 }
 
 func (self *StandardChunkSettings) CoordinateIsOutOfBounds(c IndexCoordinate) bool {

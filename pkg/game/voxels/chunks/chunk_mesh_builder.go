@@ -30,7 +30,7 @@ func (self *ChunkMeshBuilder) ChunkToMesh(chunk *StandardChunk) *ChunkMesh {
 			normalIndices = append(normalIndices, nextNormals[:]...)
 
 			nextUvs := self.GetQuadUvs(voxel, vi, vj, vk, face)
-			uvs = append(uvs, nextUvs...)
+			uvs = append(uvs, nextUvs[:]...)
 
 			nextIndices := []uint32{indexOffset, indexOffset + 1, indexOffset + 2, indexOffset + 2, indexOffset + 1, indexOffset + 3}
 			indices = append(indices, nextIndices...)
@@ -118,47 +118,73 @@ func (self *ChunkMeshBuilder) GetQuadNormals(face Face) [4]int32 {
 	}
 }
 
-func (self *ChunkMeshBuilder) GetQuadUvs(voxel, i, j, k int, face Face) []float32 {
+func (self *ChunkMeshBuilder) GetQuadUvs(voxel, i, j, k int, face Face) [8]float32 {
 	switch voxel {
 	case GRASS:
 		switch face {
 		case TOP:
-			return grassTop
+			return uvs_grassTop
 		case BOTTOM:
-			return dirt
+			return uvs_dirt
 		default:
-			return grassSide
+			return uvs_grassSide
 		}
 	case DIRT:
-		return dirt
+		return uvs_dirt
 	case STONE:
-		return stone
+		return uvs_stone
 	case SAND:
-		return sand
+		return uvs_sand
 	case TRUNK:
 		switch face {
 		case TOP:
-			return trunkInner
+			return uvs_trunkInner
 		case BOTTOM:
-			return trunkInner
+			return uvs_trunkInner
 		default:
-			return trunk
+			return uvs_trunk
 		}
 	case LEAVES:
-		return leavesFull
+		return uvs_leavesFull
 	case SNOWDIRT:
 		switch face {
 		case TOP:
-			return snow
+			return uvs_snow
 		case BOTTOM:
-			return dirt
+			return uvs_dirt
 		default:
-			return snowDirt
+			return uvs_snowDirt
 		}
 	case WATER:
-		return water
+		return uvs_water
+
+	case RED_FLOWER:
+		return uvs_redFlower
+	case YELLOW_FLOWER:
+		return uvs_yellowFlower
+	case RED_MUSHROOM:
+		return uvs_redMushroom
+	case BROWN_MUSHROOM:
+		return uvs_brownMushroom
+	case GRASS_1:
+		return uvs_grass_1
+	case GRASS_2:
+		return uvs_grass_2
+	case GRASS_3:
+		return uvs_grass_3
+	case GRASS_4:
+		return uvs_grass_4
+	case GRASS_5:
+		return uvs_grass_5
+	case GRASS_6:
+		return uvs_grass_6
+	case GRASS_7:
+		return uvs_grass_7
+	case GRASS_8:
+		return uvs_grass_8
+
 	default:
-		return dirt
+		return uvs_dirt
 	}
 }
 
@@ -167,12 +193,12 @@ func (self *ChunkMeshBuilder) GetQuadUvs(voxel, i, j, k int, face Face) []float3
 const pixelSize float32 = 1.0 / 512
 const quadSize float32 = 1.0 / 16
 
-func getCubeUvsAt(i, j byte) []float32 {
+func getCubeUvsAt(i, j byte) [8]float32 {
 	left := float32(i)*quadSize + pixelSize
 	right := float32(i+1)*quadSize - pixelSize
 	top := float32(j)*quadSize + pixelSize
 	bottom := float32(j+1)*quadSize - pixelSize
-	return []float32{
+	return [8]float32{
 		left, bottom,
 		left, top,
 		right, bottom,
@@ -180,15 +206,29 @@ func getCubeUvsAt(i, j byte) []float32 {
 	}
 }
 
-var dirt []float32 = getCubeUvsAt(2, 0)
-var grassTop []float32 = getCubeUvsAt(0, 0)
-var grassSide []float32 = getCubeUvsAt(3, 0)
-var stone []float32 = getCubeUvsAt(1, 0)
-var planks []float32 = getCubeUvsAt(4, 0)
-var sand []float32 = getCubeUvsAt(2, 1)
-var trunk []float32 = getCubeUvsAt(4, 1)
-var trunkInner []float32 = getCubeUvsAt(5, 1)
-var leavesFull []float32 = getCubeUvsAt(5, 3)
-var snowDirt []float32 = getCubeUvsAt(4, 4)
-var snow []float32 = getCubeUvsAt(2, 4)
-var water []float32 = getCubeUvsAt(13, 12)
+type QuadUvs = [8]float32
+
+var uvs_dirt QuadUvs = getCubeUvsAt(2, 0)
+var uvs_grassTop QuadUvs = getCubeUvsAt(0, 0)
+var uvs_grassSide QuadUvs = getCubeUvsAt(3, 0)
+var uvs_stone QuadUvs = getCubeUvsAt(1, 0)
+var uvs_planks QuadUvs = getCubeUvsAt(4, 0)
+var uvs_sand QuadUvs = getCubeUvsAt(2, 1)
+var uvs_trunk QuadUvs = getCubeUvsAt(4, 1)
+var uvs_trunkInner QuadUvs = getCubeUvsAt(5, 1)
+var uvs_leavesFull QuadUvs = getCubeUvsAt(5, 3)
+var uvs_snowDirt QuadUvs = getCubeUvsAt(4, 4)
+var uvs_snow QuadUvs = getCubeUvsAt(2, 4)
+var uvs_water QuadUvs = getCubeUvsAt(13, 12)
+var uvs_redFlower QuadUvs = getCubeUvsAt(12, 0)
+var uvs_yellowFlower QuadUvs = getCubeUvsAt(13, 0)
+var uvs_redMushroom QuadUvs = getCubeUvsAt(12, 1)
+var uvs_brownMushroom QuadUvs = getCubeUvsAt(13, 1)
+var uvs_grass_1 QuadUvs = getCubeUvsAt(8, 5)
+var uvs_grass_2 QuadUvs = getCubeUvsAt(9, 5)
+var uvs_grass_3 QuadUvs = getCubeUvsAt(10, 5)
+var uvs_grass_4 QuadUvs = getCubeUvsAt(11, 5)
+var uvs_grass_5 QuadUvs = getCubeUvsAt(12, 5)
+var uvs_grass_6 QuadUvs = getCubeUvsAt(13, 5)
+var uvs_grass_7 QuadUvs = getCubeUvsAt(14, 5)
+var uvs_grass_8 QuadUvs = getCubeUvsAt(15, 5)

@@ -15,21 +15,52 @@ type Vec3 = mgl32.Vec3
 type Mat4 = mgl32.Mat4
 type Mat3 = mgl32.Mat3
 
+type Block = int
+
 const (
-	UNDERGROUND = -1
-	AIR         = 0
-	GRASS       = 1
-	DIRT        = 2
-	STONE       = 3
-	SAND        = 4
-	TRUNK       = 5
-	LEAVES      = 6
-	SNOWDIRT    = 7
-	WATER       = 8
+	UNDERGROUND Block = -1
+	AIR         Block = 0
+	GRASS       Block = 1
+	DIRT        Block = 2
+	STONE       Block = 3
+	SAND        Block = 4
+	TRUNK       Block = 5
+	LEAVES      Block = 6
+	SNOWDIRT    Block = 7
+	WATER       Block = 8
+
+	GRASS_1 Block = 101
+	GRASS_2 Block = 102
+	GRASS_3 Block = 103
+	GRASS_4 Block = 104
+	GRASS_5 Block = 105
+	GRASS_6 Block = 106
+	GRASS_7 Block = 107
+	GRASS_8 Block = 108
+
+	RED_FLOWER     Block = 109
+	YELLOW_FLOWER  Block = 110
+	RED_MUSHROOM   Block = 111
+	BROWN_MUSHROOM Block = 112
 )
 
-func VoxelIsTransparent(voxel int) bool {
+func VoxelIsTransparent(voxel Block) bool {
 	return voxel == AIR || voxel == WATER
+}
+
+func VoxelIsWalkThrough(voxel Block) bool {
+	return voxel == GRASS_1 ||
+		voxel == GRASS_2 ||
+		voxel == GRASS_3 ||
+		voxel == GRASS_4 ||
+		voxel == GRASS_5 ||
+		voxel == GRASS_6 ||
+		voxel == GRASS_7 ||
+		voxel == GRASS_8 ||
+		voxel == RED_FLOWER ||
+		voxel == YELLOW_FLOWER ||
+		voxel == RED_MUSHROOM ||
+		voxel == BROWN_MUSHROOM
 }
 
 type Face = ant.Face

@@ -1,7 +1,6 @@
 package chunks
 
 import (
-	"log"
 	"math"
 	"time"
 
@@ -131,7 +130,6 @@ func (self *ChunkWorldUpdater) PopColumsQueue() ChunkColumnCoordinate {
 }
 
 func (self *ChunkWorldUpdater) QueueForRebuild(chunk *StandardChunk) {
-	log.Println("queueing chunk for rebuild", chunk.Coordinate.ToString()) // debug
 	self.chunkRebuildQueue[chunk.Coordinate] = chunk
 }
 
