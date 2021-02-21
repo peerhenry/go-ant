@@ -1,6 +1,8 @@
 package chunks
 
 import (
+	"math"
+
 	"ant.com/ant/pkg/ant"
 	"github.com/go-gl/mathgl/mgl64"
 )
@@ -12,18 +14,18 @@ type StandardChunk struct {
 	Region        *ChunkRegion
 	Coordinate    IndexCoordinate
 	Voxels        *[]int
-	VisibleVoxels *[]int
+	VisibleVoxels map[int]void
 }
 
 func NewChunk(world *ChunkWorld, region *ChunkRegion, coord IndexCoordinate) *StandardChunk {
 	var vox []int
-	var vis []int
+	vis := make(map[int]void)
 	chunk := &StandardChunk{
 		world,
 		region,
 		coord,
 		&vox,
-		&vis,
+		vis,
 	}
 	var chunkVoxels []int
 	chunk.ForAll(func(i, j, k int) {
@@ -72,26 +74,66 @@ func (self *StandardChunk) AddVisibleVoxel(i, j, k, voxel int) {
 	wasTransparent := self.IsTransparent(i, j, k)
 	isNowTransparent := voxel == AIR
 	voxelIndexCoord := IndexCoordinate{i, j, k}
-	index := self.ChunkWorld.ChunkSettings.CoordinateToIndex(voxelIndexCoord)
+	settings := self.ChunkWorld.ChunkSettings
+	index := settings.CoordinateToIndex(voxelIndexCoord)
 	(*self.Voxels)[index] = voxel
 	if wasTransparent && !isNowTransparent {
-		settings := self.ChunkWorld.ChunkSettings
-		index := settings.CoordinateToIndexijk(i, j, k)
-		cas := append(*self.VisibleVoxels, index)
-		self.VisibleVoxels = &cas
+		self.SetVoxelVisibility(index, true)
+	}
+}
+
+func (self *StandardChunk) SetVoxelVisibility(index int, visible bool) {
+	if visible {
+		self.VisibleVoxels[index] = VOID
+	} else {
+		delete(self.VisibleVoxels, index)
+	}
+}
+
+func (self *StandardChunk) SetAllVoxels(voxel int) {
+	for k, _ := range *self.Voxels {
+		(*self.Voxels)[k] = voxel
 	}
 }
 
 func (self *StandardChunk) RemoveVoxel(index int) {
 	(*self.Voxels)[index] = AIR
-	var newVisibleVoxels []int
+	self.SetVoxelVisibility(index, false)
 	// todo: add surrounding voxels to visible ones
-	for _, vi := range *self.VisibleVoxels {
-		if vi != index {
-			newVisibleVoxels = append(newVisibleVoxels, vi)
-		}
+	chunkWidth := self.ChunkWorld.ChunkSettings.GetChunkWidth()
+	chunkDepth := self.ChunkWorld.ChunkSettings.GetChunkDepth()
+	chunkHeight := self.ChunkWorld.ChunkSettings.GetChunkHeight()
+	coord := self.ChunkWorld.ChunkSettings.IndexToCoordinate(index)
+	east := coord.Addijk(1, 0, 0)
+	west := coord.Addijk(-1, 0, 0)
+	north := coord.Addijk(0, 1, 0)
+	south := coord.Addijk(0, -1, 0)
+	up := coord.Addijk(0, 0, 1)
+	down := coord.Addijk(0, 0, -1)
+	if east.i < chunkWidth {
+		eastIndex := self.ChunkWorld.ChunkSettings.CoordinateToIndex(east)
+		self.SetVoxelVisibility(eastIndex, true)
 	}
-	self.VisibleVoxels = &newVisibleVoxels
+	if west.i >= 0 {
+		westIndex := self.ChunkWorld.ChunkSettings.CoordinateToIndex(west)
+		self.SetVoxelVisibility(westIndex, true)
+	}
+	if north.j < chunkDepth {
+		northIndex := self.ChunkWorld.ChunkSettings.CoordinateToIndex(north)
+		self.SetVoxelVisibility(northIndex, true)
+	}
+	if south.j >= 0 {
+		southIndex := self.ChunkWorld.ChunkSettings.CoordinateToIndex(south)
+		self.SetVoxelVisibility(southIndex, true)
+	}
+	if up.k < chunkHeight {
+		upIndex := self.ChunkWorld.ChunkSettings.CoordinateToIndex(up)
+		self.SetVoxelVisibility(upIndex, true)
+	}
+	if down.k >= 0 {
+		downIndex := self.ChunkWorld.ChunkSettings.CoordinateToIndex(down)
+		self.SetVoxelVisibility(downIndex, true)
+	}
 }
 
 func (self *StandardChunk) AddInvisibleVoxel(i, j, k, voxel int) {
@@ -101,7 +143,7 @@ func (self *StandardChunk) AddInvisibleVoxel(i, j, k, voxel int) {
 }
 
 func (self *StandardChunk) IsVisible() bool {
-	return len(*self.VisibleVoxels) > 0
+	return len(self.VisibleVoxels) > 0
 }
 
 func (self *StandardChunk) CalculateOrigin() mgl64.Vec3 {
@@ -129,4 +171,30 @@ func (self *StandardChunk) GetVoxelAABB(index int) ant.AABB64 {
 	voxelMin := chunkOrigin.Add(positionInChunk)
 	voxelMax := voxelMin.Add(mgl64.Vec3{voxelSize, voxelSize, voxelSize})
 	return ant.AABB64{Min: voxelMin, Max: voxelMax}
+}
+
+func (self *StandardChunk) Intersect(p1, p2 mgl64.Vec3) (*IntersectionEvent, bool) {
+	tmin := math.MaxFloat64
+	targetVoxelIndex := -1
+	for vIndex := range self.VisibleVoxels {
+		voxel := (*self.Voxels)[vIndex]
+		if voxel != AIR {
+			voxelAABB := self.GetVoxelAABB(vIndex)
+			intersects, t := voxelAABB.LineIntersects(p1, p2)
+			// todo: get interestion face for adding voxels
+			if intersects && t < tmin {
+				tmin = t
+				targetVoxelIndex = vIndex
+			}
+		}
+	}
+	if targetVoxelIndex == -1 {
+		return nil, false
+	}
+	event := IntersectionEvent{
+		Chunk:      self,
+		VoxelIndex: targetVoxelIndex,
+		Face:       -1, // todo; get interesecting face
+	}
+	return &event, true
 }

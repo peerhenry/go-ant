@@ -26,6 +26,13 @@ func (self *ChunkWorld) GetOrCreateChunkAt(chunkCoordinate IndexCoordinate) *Sta
 	return chunk
 }
 
+func (self *ChunkWorld) GenerateUndergroundChunk(chunkCoordinate IndexCoordinate) *StandardChunk {
+	newChunk := NewChunk(self, self.Region, chunkCoordinate)
+	self.Region.Chunks[chunkCoordinate] = newChunk
+	newChunk.SetAllVoxels(STONE) // todo: set voxels based on depth
+	return newChunk
+}
+
 func (self *ChunkWorld) DeleteChunk(chunkCoordinate IndexCoordinate) {
 	delete(self.Region.Chunks, chunkCoordinate)
 }

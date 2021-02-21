@@ -6,6 +6,10 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 )
 
+type void struct{}
+
+var VOID void
+
 type Vec2 = mgl32.Vec2
 type Vec3 = mgl32.Vec3
 type Mat4 = mgl32.Mat4

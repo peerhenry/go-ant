@@ -39,7 +39,7 @@ func (self *ChunkMeshBuilder) ChunkToMesh(chunk *StandardChunk) *ChunkMesh {
 		}
 	}
 
-	for _, index := range *chunk.VisibleVoxels {
+	for index := range chunk.VisibleVoxels {
 		v := self.ChunkSettings.IndexToCoordinate(index)
 		voxel := (*chunk.Voxels)[index]
 		if voxel != UNDERGROUND && voxel != AIR {

@@ -10,8 +10,8 @@ import (
 
 const fallAcceleration = 20.0 // m/s/s
 const maxFallSpeed = -30.0    // m/s
-const playerCamHeight = 1.8
-const playerBoxHeight = 2.0
+const playerCamHeight = 1.5
+const playerBoxHeight = 1.6
 const playerBoxSize = 0.4 // half the length of a horizontal side
 const playerBoxRatio = (2 * playerBoxSize) / playerBoxHeight
 
@@ -38,6 +38,10 @@ func NewPlayer(camera *ant.Camera, worldUpdater *ChunkWorldUpdater) *Player {
 		JumpStrength: 8.0,
 		debugToggle:  false,
 	}
+}
+
+func (self *Player) GetSettings() IChunkSettings {
+	return self.World.ChunkSettings
 }
 
 func (self *Player) SuggestMovement(ds mgl64.Vec3) {

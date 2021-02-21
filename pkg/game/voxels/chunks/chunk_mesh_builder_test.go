@@ -13,7 +13,7 @@ func TestChunkToMeshLengths(t *testing.T) {
 	meshBuilder := NewChunkMeshBuilder(chunkSettings)
 	chunk := &StandardChunk{
 		Voxels:        &[]int{1, 1, 1, 1, 1, 1, 1, 1},
-		VisibleVoxels: &[]int{0, 1, 2, 3, 4, 5, 6, 7},
+		VisibleVoxels: map[int]void{0: VOID, 1: VOID, 2: VOID, 3: VOID, 4: VOID, 5: VOID, 6: VOID, 7: VOID},
 		ChunkWorld:    world,
 	}
 	// Act

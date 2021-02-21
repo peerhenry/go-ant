@@ -12,7 +12,7 @@ func NewChunkBuilder(chunkSettings IChunkSettings) *ChunkBuilder {
 
 func (self *ChunkBuilder) CreateChunk(world *ChunkWorld, ci, cj, ck int) *StandardChunk {
 	var chunkVoxels []int
-	var visibleVoxels []int
+	visibleVoxels := make(map[int]void)
 	chunkWidth := self.chunkSettings.GetChunkWidth()
 	chunkDepth := self.chunkSettings.GetChunkDepth()
 	chunkHeight := self.chunkSettings.GetChunkHeight()
@@ -22,13 +22,15 @@ func (self *ChunkBuilder) CreateChunk(world *ChunkWorld, ci, cj, ck int) *Standa
 			for vk := 0; vk < chunkHeight; vk++ {
 				voxel := self.getVoxel(vi, vj, vk)
 				chunkVoxels = append(chunkVoxels, voxel)
+				// ??????????????
+				// todo: set proper visible voxels
 				if vi == 0 || vi == chunkWidth-1 || vj == 0 || vj == chunkDepth-1 || vk == 0 || vk == chunkHeight-1 {
 					if voxel != AIR {
 						index := self.chunkSettings.CoordinateToIndexijk(vi, vj, vk)
-						visibleVoxels = append(visibleVoxels, index)
+						visibleVoxels[index] = VOID
 					} else {
 						index := self.chunkSettings.CoordinateToIndexijk(vi, vj, vk-1)
-						visibleVoxels = append(visibleVoxels, index)
+						visibleVoxels[index] = VOID
 					}
 				}
 			}
@@ -37,7 +39,7 @@ func (self *ChunkBuilder) CreateChunk(world *ChunkWorld, ci, cj, ck int) *Standa
 	return &StandardChunk{
 		Coordinate:    IndexCoordinate{ci, cj, ck},
 		Voxels:        &chunkVoxels,
-		VisibleVoxels: &visibleVoxels,
+		VisibleVoxels: visibleVoxels,
 		ChunkWorld:    world,
 	}
 }

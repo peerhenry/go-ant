@@ -37,17 +37,23 @@ keep minimal distance so you don't look through a face that's close
 add basic crosshair
 toggle noclip flying
 fix voxel removal
+voxel removal should updat adjacent chunks
+digging should spawn underground chunks
 
 ====== in progress
-voxel removal should updat adjacent chunks
-investigate why voxels are not always removed on first click
 
 ====== next
+fix voxels are not always removed on first click
+fix underground snow blocks
 fix adjacent chunk rendering problem (side faces of surface voxels along chunk edge are rendering)
 player physics: fix "stuck" bug; sometimes a movement direction gets cancelled even though it shouldn't
+fix voxel remove flicker
 
 ====== todo
+store world manipulations in memory
+store world manipulations on disk
 ambient light color uniform
+flowers
 throttling: load chunks in order of distance to player
 frustum culling with chunks
 keep chunks removed from rendering in memory
@@ -67,6 +73,7 @@ optimize getCollidingVoxelAABBs in player.go
 check if NORTH, EAST etc can be made int8
 
 ====== epics
+swimming
 voxel removal by click (ray intersection + chunk update)
 skybox
 shadows

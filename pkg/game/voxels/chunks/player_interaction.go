@@ -2,7 +2,6 @@ package chunks
 
 import (
 	"log"
-	"math"
 	"sort"
 
 	"ant.com/ant/pkg/ant"
@@ -25,13 +24,26 @@ func RemoveBlock(player *Player) {
 		intersectionEvent.Chunk.RemoveVoxel(intersectionEvent.VoxelIndex)
 		player.worldUpdater.QueueForRebuild(intersectionEvent.Chunk)
 		// get adjacent chunks index coordinates with voxelindex
-		adjacents := GetAdjacentChunks(player.World.ChunkSettings, intersectionEvent)
+		adjacents := GetIntersectionAdjacentChunks(player.World.ChunkSettings, intersectionEvent)
 		for _, yo := range adjacents {
 			chunk, ok := player.World.Region.GetChunk(yo.ChunkCoordinate)
 			if ok {
+				index := player.GetSettings().CoordinateToIndex(yo.VoxelCoordinate)
+				chunk.SetVoxelVisibility(index, true)
 				player.worldUpdater.QueueForRebuild(chunk)
 			} else {
 				// check if chunk coordinate is underground and if yes, create a new one
+				ci := yo.ChunkCoordinate.i * player.World.ChunkSettings.GetChunkWidth()
+				cj := yo.ChunkCoordinate.j * player.World.ChunkSettings.GetChunkDepth()
+				ck := yo.ChunkCoordinate.k * player.World.ChunkSettings.GetChunkHeight()
+				surface_k := player.World.get_surface_k(ci, cj)
+				if ck < surface_k {
+					// spawn new full chunk
+					newChunk := player.World.GenerateUndergroundChunk(yo.ChunkCoordinate)
+					index := player.GetSettings().CoordinateToIndex(yo.VoxelCoordinate)
+					newChunk.SetVoxelVisibility(index, true)
+					player.worldUpdater.QueueForRebuild(newChunk)
+				}
 			}
 		}
 	} else {
@@ -61,62 +73,33 @@ func GetIntersectionEvent(player *Player) (*IntersectionEvent, bool) {
 	unitSpace_p1 := mgl64.Vec3{p1[0] * scaleX, p1[1] * scaleY, p1[2] * scaleZ}
 	unitSpace_p2 := mgl64.Vec3{p2[0] * scaleX, p2[1] * scaleY, p2[2] * scaleZ}
 	cellIntersections := ant.LineCellIntersections(unitSpace_p1, unitSpace_p2)
-
 	// get intersecting chunks
 	var coords []IndexCoordinate
 	for _, yo := range cellIntersections {
 		coords = append(coords, IndexCoordinate{i: yo[0], j: yo[1], k: yo[2]})
 	}
 	chunks := player.World.Region.GetChunks(coords)
-
 	if len(chunks) == 0 {
 		log.Println("no chunks intersect") // debug
 		return nil, false
 	} else {
 		log.Println("chunks intersect: ", len(chunks)) // debug
 	}
-
 	var dChunks []dChunk
-
 	// calculate distances
 	for _, chunk := range chunks {
 		dChunks = append(dChunks, dChunk{chunk: chunk, distance: GetChunkDistance(player, chunk.Coordinate)})
 	}
 	// order chunks by distance
 	sort.Sort(ByDistance(dChunks))
-
-	tmin := math.MaxFloat64
-	var targetChunk *StandardChunk = nil
-	targetVoxelIndex := -1
 	for _, dChunk := range dChunks {
 		chunk := dChunk.chunk
-		// loop over visible voxels in chunk
-		for _, vIndex := range *chunk.VisibleVoxels {
-			voxel := (*chunk.Voxels)[vIndex]
-			if voxel != AIR {
-				voxelAABB := chunk.GetVoxelAABB(vIndex)
-				intersects, t := voxelAABB.LineIntersects(p1, p2)
-				// todo: get interestion face for adding voxels
-				if intersects && t < tmin {
-					tmin = t
-					targetChunk = chunk
-					targetVoxelIndex = vIndex
-				}
-			}
-		}
-		if targetVoxelIndex != -1 {
-			break
+		event, ok := chunk.Intersect(p1, p2)
+		if ok {
+			return event, true
 		}
 	}
-	if targetVoxelIndex == -1 {
-		return nil, false
-	}
-	event := IntersectionEvent{
-		Chunk:      targetChunk,
-		VoxelIndex: targetVoxelIndex,
-		Face:       -1, // todo; get interesecting face
-	}
-	return &event, true
+	return nil, false
 }
 
 func GetChunkDistance(player *Player, c IndexCoordinate) float64 {
@@ -136,7 +119,7 @@ func GetChunkDistance(player *Player, c IndexCoordinate) float64 {
 }
 
 // todo: is this a utility function that should be extracted from this file?
-func GetAdjacentChunks(settings IChunkSettings, event *IntersectionEvent) []ChunkAndVoxelCoordinate {
+func GetIntersectionAdjacentChunks(settings IChunkSettings, event *IntersectionEvent) []ChunkAndVoxelCoordinate {
 	maxi := settings.GetChunkWidth() - 1
 	maxj := settings.GetChunkDepth() - 1
 	maxk := settings.GetChunkHeight() - 1
