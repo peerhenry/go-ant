@@ -21,6 +21,9 @@ func (a ByDistance) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func RemoveBlock(player *Player) {
 	intersectionEvent, ok := GetIntersectionEvent(player)
 	if ok {
+		// log.Println("intersection with chunk:", intersectionEvent.Chunk.Coordinate.ToString())        // debug
+		// log.Println("and voxel:", intersectionEvent.VoxelIndex)                                       // debug
+		// log.Println("the voxel is:", (*intersectionEvent.Chunk.Voxels)[intersectionEvent.VoxelIndex]) // debug
 		intersectionEvent.Chunk.RemoveVoxel(intersectionEvent.VoxelIndex)
 		player.worldUpdater.QueueForRebuild(intersectionEvent.Chunk)
 		// get adjacent chunks index coordinates with voxelindex
@@ -106,9 +109,9 @@ func GetChunkDistance(player *Player, c IndexCoordinate) float64 {
 	sizeX := float64(player.World.ChunkSettings.GetChunkWidth())
 	sizeY := float64(player.World.ChunkSettings.GetChunkDepth())
 	sizeZ := float64(player.World.ChunkSettings.GetChunkHeight())
-	halfX := sizeX / 2
-	halfY := sizeY / 2
-	halfZ := sizeZ / 2
+	halfX := sizeX / 2.0
+	halfY := sizeY / 2.0
+	halfZ := sizeZ / 2.0
 	chunkPos := mgl64.Vec3{
 		float64(c.i)*sizeX + halfX,
 		float64(c.j)*sizeY + halfY,

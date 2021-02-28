@@ -43,14 +43,15 @@ digging should spawn underground chunks
 ====== in progress
 
 ====== next
+fix flowers spawning into trees
+toggle render chunk outline
+outline target voxel
 fix voxels are not always removed on first click
-fix underground snow blocks
 fix adjacent chunk rendering problem (side faces of surface voxels along chunk edge are rendering)
 player physics: fix "stuck" bug; sometimes a movement direction gets cancelled even though it shouldn't
 player physics: deactivate player physics as long is world is not ready
 
 ====== todo
-fix flowers spawning into trees
 throttling: load chunks in order of distance to player
 store world manipulations in memory
 store world manipulations on disk
